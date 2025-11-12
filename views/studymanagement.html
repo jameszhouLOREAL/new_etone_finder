@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Management - Visual Capture Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .dashboard {
+            min-height: 100vh;
+        }
+        .main-content {
+            max-width: 100%;
+            overflow-x: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .content-area {
+            padding: var(--spacing-6) var(--spacing-4) var(--spacing-6) var(--spacing-4);
+            flex: 1;
+            background: var(--bg-secondary);
+        }
+        .page-header {
+            padding-left: var(--spacing-4) !important;
+            padding-right: var(--spacing-4) !important;
+        }
+        .page-header-actions {
+            display: flex;
+            gap: var(--spacing-3);
+            align-items: center;
+        }
+        .create-study-form {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
+            margin-bottom: var(--spacing-5);
+            box-shadow: var(--shadow-md);
+        }
+        .form-section-title {
+            color: var(--primary-green);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-4);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 2px solid var(--primary-green-light);
+        }
+        .study-table {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-4);
+            width: 95%;
+        }
+        .table-toolbar {
+            background: var(--bg-secondary);
+            padding: var(--spacing-4);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+        .study-table table {
+            width: 100%;
+            margin: 0;
+        }
+        .study-table th {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 12px;
+            padding: var(--spacing-2) var(--spacing-3);
+            border-bottom: 2px solid var(--border-medium);
+            text-align: left;
+        }
+        .study-table td {
+            padding: var(--spacing-2) var(--spacing-3);
+            border-bottom: 1px solid var(--border-light);
+            font-size: 13px;
+        }
+        .study-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .action-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s;
+        }
+        .action-btn:hover {
+            background: var(--bg-secondary);
+        }
+        .action-btn i {
+            font-size: 14px;
+        }
+        .action-btn.edit i {
+            color: var(--accent-blue);
+        }
+        .action-btn.delete i {
+            color: #dc2626;
+        }
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-4);
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-light);
+        }
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .pagination-buttons {
+            display: flex;
+            gap: var(--spacing-2);
+            align-items: center;
+        }
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: var(--primary-green);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        .bulk-actions {
+            padding: var(--spacing-3) var(--spacing-4);
+            background: #fef3c7;
+            border-bottom: 1px solid #fde68a;
+            display: none;
+        }
+        .bulk-actions.show {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .required::after {
+            content: " *";
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>�</span>
+                    <span>Visual Capture Assistant</span>
+                </div>
+                <div class="sidebar-subtitle">Photo Analysis Platform</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Selfie Admin</div>
+                    <div class="nav-item active">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Study Management</span>
+                    </div>
+                    <div class="nav-item" id="studyDesignNavItem">
+                        <span class="nav-item-icon">✏️</span>
+                        <span>Study Design</span>
+                    </div>
+                    <div class="nav-item" id="algorithmManagementNavItem">
+                        <span class="nav-item-icon">🧠</span>
+                        <span>Algorithm Management</span>
+                    </div>
+                    <div class="nav-item" id="urlGeneratorNavItem">
+                        <span class="nav-item-icon">🔗</span>
+                        <span>Selfie URL Generator</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Analysis Tools</div>
+                    <div class="nav-item" id="submissionsNavItem">
+                        <span class="nav-item-icon">📸</span>
+                        <span>Photo Submissions</span>
+                    </div>
+                    <div class="nav-item" id="analyticsNavItem">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Analytics</span>
+                    </div>
+                    <div class="nav-item" id="formViewNavItem">
+                        <span class="nav-item-icon">�</span>
+                        <span>Form View</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Data Management</div>
+                    <div class="nav-item" id="bucketsNavItem">
+                        <span class="nav-item-icon">🗂️</span>
+                        <span>Buckets</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="nav-item-icon">🔧</span>
+                        <span>Settings</span>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
+                    <div style="margin-left: 8px;">
+                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
+                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title-section">
+                    <div>
+                        <h1 class="page-title">📚 Study Management</h1>
+                        <div class="page-subtitle">Create and manage Visual Capture studies</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+
+                <!-- Study Table -->
+                <div class="study-table">
+                <!-- Table Toolbar -->
+                <div class="table-toolbar">
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="toggle-switch mb-0">
+                            <input type="checkbox" id="activeOnlyFilter" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span style="font-size: 13px; white-space: nowrap;">Display only active studies</span>
+                    </div>
+                    <div style="display: flex; gap: var(--spacing-3);">
+                        <button class="btn btn-primary" id="createStudyBtn">
+                            <i class="fas fa-plus"></i> Create New Study
+                        </button>
+                        <button class="btn btn-secondary" id="refreshBtn">
+                            <span>🔄</span>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="bulk-actions" id="bulkActions">
+                    <div>
+                        <span id="selectedCount">0</span> studies selected
+                    </div>
+                    <button class="btn btn-danger btn-sm" id="deleteSelectedBtn">
+                        <i class="fas fa-trash"></i> Delete Selected Studies
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th style="width: 80px;">ID</th>
+                            <th>Study ID</th>
+                            <th>Label</th>
+                            <th style="width: 120px;">Status</th>
+                            <th style="width: 180px;">EDC</th>
+                            <th style="width: 100px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studyTableBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+                <div class="pagination-controls">
+                    <div class="pagination-info">
+                        <span id="paginationInfo">0–0 of 0</span>
+                    </div>
+                    <div class="pagination-buttons">
+                        <select class="form-select form-select-sm" id="itemsPerPage" style="width: auto;">
+                            <option value="5">5 per page</option>
+                            <option value="10" selected>10 per page</option>
+                            <option value="25">25 per page</option>
+                            <option value="50">50 per page</option>
+                        </select>
+                        <button class="page-btn" id="prevPage">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="currentPageDisplay" style="font-size: 13px; padding: 0 8px;">Page 1</span>
+                        <button class="page-btn" id="nextPage">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+    <!-- Create Study Modal -->
+    <div class="modal fade" id="createStudyModal" tabindex="-1" aria-labelledby="createStudyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
+            <div class="modal-content" style="background: var(--bg-primary); border: 1px solid var(--border-light);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding: 12px 16px;">
+                    <h5 class="modal-title" id="createStudyModalLabel" style="color: var(--text-primary); font-size: 16px; margin: 0;">
+                        <i class="fas fa-plus-circle"></i> Create New Study
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1); padding: 0; width: 24px; height: 24px;"></button>
+                </div>
+                <div class="modal-body" style="padding: 16px;">
+                    <form id="studyForm">
+                        <div class="mb-2">
+                            <label class="form-label required" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">Study ID</label>
+                            <input type="text" class="form-control form-control-sm" id="studyId" placeholder="e.g., STUDY-2025-001" required style="padding: 6px 10px; font-size: 13px;">
+                            <small class="form-text text-muted" style="font-size: 11px;">Unique identifier</small>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">Label</label>
+                            <input type="text" class="form-control form-control-sm" id="studyLabel" placeholder="Display name" style="padding: 6px 10px; font-size: 13px;">
+                            <small class="form-text text-muted" style="font-size: 11px;">Optional display name</small>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label required" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">EDC</label>
+                            <select class="form-select form-select-sm" id="studyEdc" required style="padding: 6px 10px; font-size: 13px;">
+                                <option value="">Select EDC...</option>
+                                <option value="TCSV1">TCSV1</option>
+                                <option value="LO_INTERNAL">LO_INTERNAL</option>
+                                <option value="HAIR-SHADEMATCH">HAIR-SHADEMATCH</option>
+                                <option value="SKINCARE-TRIAL">SKINCARE-TRIAL</option>
+                                <option value="MAKEUP-ANALYSIS">MAKEUP-ANALYSIS</option>
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">Study Status</label>
+                            <div class="d-flex align-items-center gap-2" style="margin-top: 6px;">
+                                <span style="font-size: 12px; color: var(--text-secondary);">Disabled</span>
+                                <label class="toggle-switch" style="width: 42px; height: 20px;">
+                                    <input type="checkbox" id="studyStatus" checked>
+                                    <span class="toggle-slider" style="border-radius: 20px;">
+                                        <style>
+                                            .toggle-switch input:checked + .toggle-slider:before {
+                                                transform: translateX(22px);
+                                            }
+                                            .toggle-slider:before {
+                                                height: 14px;
+                                                width: 14px;
+                                                left: 3px;
+                                                bottom: 3px;
+                                            }
+                                        </style>
+                                    </span>
+                                </label>
+                                <span style="font-size: 12px; color: var(--text-secondary);">Enabled</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-light); padding: 12px 16px; gap: 8px;">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="padding: 6px 12px; font-size: 13px;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" id="submitStudyBtn" style="padding: 6px 12px; font-size: 13px;">
+                        <i class="fas fa-save"></i> Create Study
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Study Modal -->
+    <div class="modal fade" id="editStudyModal" tabindex="-1" aria-labelledby="editStudyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
+            <div class="modal-content" style="background: var(--bg-primary); border: 1px solid var(--border-light);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding: 12px 16px;">
+                    <h5 class="modal-title" id="editStudyModalLabel" style="color: var(--text-primary); font-size: 16px; margin: 0;">
+                        <i class="fas fa-edit"></i> Edit Study
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1); padding: 0; width: 24px; height: 24px;"></button>
+                </div>
+                <div class="modal-body" style="padding: 16px;">
+                    <form id="editStudyForm">
+                        <div class="mb-2">
+                            <label class="form-label required" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">Study ID</label>
+                            <input type="text" class="form-control form-control-sm" id="editStudyId" placeholder="e.g., STUDY-2025-001" required style="padding: 6px 10px; font-size: 13px;">
+                            <small class="form-text text-muted" style="font-size: 11px;">Unique identifier</small>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">Label</label>
+                            <input type="text" class="form-control form-control-sm" id="editStudyLabel" placeholder="Display name" style="padding: 6px 10px; font-size: 13px;">
+                            <small class="form-text text-muted" style="font-size: 11px;">Optional display name</small>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label required" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">EDC</label>
+                            <select class="form-select form-select-sm" id="editStudyEdc" required style="padding: 6px 10px; font-size: 13px;">
+                                <option value="">Select EDC...</option>
+                                <option value="TCSV1">TCSV1</option>
+                                <option value="LO_INTERNAL">LO_INTERNAL</option>
+                                <option value="HAIR-SHADEMATCH">HAIR-SHADEMATCH</option>
+                                <option value="SKINCARE-TRIAL">SKINCARE-TRIAL</option>
+                                <option value="MAKEUP-ANALYSIS">MAKEUP-ANALYSIS</option>
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label" style="margin-bottom: 4px; font-size: 13px; font-weight: 500;">Study Status</label>
+                            <div class="d-flex align-items-center gap-2" style="margin-top: 6px;">
+                                <span style="font-size: 12px; color: var(--text-secondary);">Disabled</span>
+                                <label class="toggle-switch" style="width: 42px; height: 20px;">
+                                    <input type="checkbox" id="editStudyStatus" checked>
+                                    <span class="toggle-slider" style="border-radius: 20px;">
+                                        <style>
+                                            .toggle-switch input:checked + .toggle-slider:before {
+                                                transform: translateX(22px);
+                                            }
+                                            .toggle-slider:before {
+                                                height: 14px;
+                                                width: 14px;
+                                                left: 3px;
+                                                bottom: 3px;
+                                            }
+                                        </style>
+                                    </span>
+                                </label>
+                                <span style="font-size: 12px; color: var(--text-secondary);">Enabled</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-light); padding: 12px 16px; gap: 8px;">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="padding: 6px 12px; font-size: 13px;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" id="updateStudyBtn" style="padding: 6px 12px; font-size: 13px;">
+                        <i class="fas fa-save"></i> Update Study
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/study-management.js"></script>
+    <script>
+        // Navigation functions
+        function navigateToSubmissions() {
+            window.location.href = '/photosubmission';
+        }
+        
+        function navigateToBuckets() {
+            window.location.href = '/photosubmission?page=buckets';
+        }
+        
+        function navigateToURLGenerator() {
+            window.location.href = '/urlgenerator';
+        }
+        
+        function navigateToStudyManagement() {
+            window.location.href = '/studymanagement';
+        }
+        
+        function navigateToAlgorithmManagement() {
+            window.location.href = '/algorithmmanagement';
+        }
+        
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('submissionsNavItem')?.addEventListener('click', navigateToSubmissions);
+            document.getElementById('bucketsNavItem')?.addEventListener('click', navigateToBuckets);
+            document.getElementById('urlGeneratorNavItem')?.addEventListener('click', navigateToURLGenerator);
+            document.getElementById('studyManagementNavItem')?.addEventListener('click', navigateToStudyManagement);
+            document.getElementById('algorithmManagementNavItem')?.addEventListener('click', navigateToAlgorithmManagement);
+            document.getElementById('studyDesignNavItem')?.addEventListener('click', () => {
+                window.location.href = '/studydesign';
+            });
+            document.getElementById('analyticsNavItem')?.addEventListener('click', () => {
+                window.location.href = '/analytics';
+            });
+            document.getElementById('formViewNavItem')?.addEventListener('click', () => {
+                window.location.href = '/formview';
+            });
+        });
+    </script>
+</body>
+</html>

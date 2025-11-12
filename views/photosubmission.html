@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCA Dashboard - Photo Submission Results</title>
+    <meta name="google-signin-client_id" content="434775612504-337vvnh0ufstp9a7n4kdom0eu1tn6st1.apps.googleusercontent.com">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <div class="logo">🔐</div>
+            <h2>Sign In Required</h2>
+            <p>Please sign in with your Google account to access VCA Photo Submission Results</p>
+            <div id="g_id_onload"
+                 data-client_id="434775612504-337vvnh0ufstp9a7n4kdom0eu1tn6st1.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" 
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left"
+                 data-width="280">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="bucketModal">
+        <div class="modal-content">
+            <h2>🗂️ VCA Bucket Viewer</h2>
+            <p>Enter the name of the GCP Storage bucket you want to browse.</p>
+            <div class="input-group">
+                <label for="bucketNameInput">Bucket Name</label>
+                <input type="text" id="bucketNameInput" placeholder="vca-gcs-edc-loreal-internal-results-eu-dv" autocomplete="off">
+                <div class="example-text">Example: vca-gcs-edc-loreal-internal-results-eu-dv</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" id="connectBtn">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>�</span>
+                    <span>Visual Capture Assistant</span>
+                </div>
+                <div class="sidebar-subtitle">Photo Analysis Platform</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Selfie Admin</div>
+                    <div class="nav-item" id="studyManagementNavItem">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Study Management</span>
+                    </div>
+                    <div class="nav-item" id="studyDesignNavItem">
+                        <span class="nav-item-icon">✏️</span>
+                        <span>Study Design</span>
+                    </div>
+                    <div class="nav-item" id="algorithmManagementNavItem">
+                        <span class="nav-item-icon">🧠</span>
+                        <span>Algorithm Management</span>
+                    </div>
+                    <div class="nav-item" id="urlGeneratorNavItem">
+                        <span class="nav-item-icon">🔗</span>
+                        <span>Selfie URL Generator</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Analysis Tools</div>
+                    <div class="nav-item active" id="submissionsNavItem">
+                        <span class="nav-item-icon">📸</span>
+                        <span>Photo Submissions</span>
+                    </div>
+                    <div class="nav-item" id="analyticsNavItem">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Analytics</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Reports</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Data Management</div>
+                    <div class="nav-item" id="bucketsNavItem">
+                        <span class="nav-item-icon">🗂️</span>
+                        <span>Buckets</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="nav-item-icon">🔧</span>
+                        <span>Settings</span>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
+                    <div style="margin-left: 8px;">
+                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
+                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title-section">
+                    <div>
+                        <h1 class="page-title" id="pageTitle">📊 Photo Submissions</h1>
+                        <div class="page-subtitle" id="pageSubtitle">Manage and analyze photo submission results</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters Toolbar -->
+            <div class="filters-toolbar" id="filtersToolbar" style="display: none;">
+                <div class="toolbar-left">
+                    <div class="view-toggle-group">
+                        <button class="view-toggle-btn active" id="tableViewBtn" title="Table View">
+                            <span>☰</span> Table
+                        </button>
+                        <button class="view-toggle-btn" id="cardViewBtn" title="Card View">
+                            <span>⊞</span> Cards
+                        </button>
+                    </div>
+                    <div class="filter-group">
+                        <select class="filter-select" id="statusFilter">
+                            <option value="all">All Status</option>
+                            <option value="valid">Valid</option>
+                            <option value="invalid">Invalid</option>
+                        </select>
+                        <select class="filter-select" id="ownerFilter">
+                            <option value="all">All Owners</option>
+                        </select>
+                    </div>
+                    <div class="active-filter-badge" id="activeFilterBadge" style="display: none;">
+                        <span id="activeFilterText">All Files</span>
+                        <button class="clear-filter-btn" id="clearFilterBtn">✕</button>
+                    </div>
+                    <button class="btn-compare" id="compareBtn" style="display: none;" title="Compare selected submissions">
+                        🔄 Compare (<span id="selectedCount">0</span>)
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search files...">
+                    </div>
+                    <div class="files-count-badge" id="fileCountBadge">0 files</div>
+                </div>
+            </div>
+            
+            <!-- Master-Detail Content Area -->
+            <div class="master-detail-container">
+                <!-- Master Section (Files Table/Cards) -->
+                <div class="master-section" id="masterSection">
+                    <!-- Table View -->
+                    <div class="table-view" id="tableView">
+                        <table class="data-table" id="filesTable">
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-column">
+                                        <input type="checkbox" id="selectAllCheckbox" title="Select all">
+                                    </th>
+                                    <th class="sortable" data-column="title">
+                                        <div class="th-content">
+                                            <span>Title</span>
+                                            <span class="sort-icon">↕</span>
+                                        </div>
+                                    </th>
+                                    <th class="sortable" data-column="owner">
+                                        <div class="th-content">
+                                            <span>Owner</span>
+                                            <span class="sort-icon">↕</span>
+                                        </div>
+                                    </th>
+                                    <th class="sortable" data-column="date">
+                                        <div class="th-content">
+                                            <span>Date</span>
+                                            <span class="sort-icon">↕</span>
+                                        </div>
+                                    </th>
+                                    <th class="sortable" data-column="status">
+                                        <div class="th-content">
+                                            <span>Status</span>
+                                            <span class="sort-icon">↕</span>
+                                        </div>
+                                    </th>
+                                    <th class="api-column">APIs</th>
+                                    <th class="actions-column">View</th>
+                                </tr>
+                            </thead>
+                            <tbody id="filesTableBody">
+                                <tr class="empty-row">
+                                    <td colspan="7">
+                                        <div class="empty-state">
+                                            <h3>No files loaded</h3>
+                                            <p>Please select a bucket to begin</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Card View (Hidden by default) -->
+                    <div class="card-view" id="cardView" style="display: none;">
+                        <div class="empty-state">
+                            <h3>No files loaded</h3>
+                            <p>Please select a bucket to begin</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resize Handle -->
+                <div class="resize-handle" id="resizeHandle"></div>
+                
+                <!-- Detail Section -->
+                <div class="detail-section" id="detailSection">
+                    <div class="detail-header">
+                        <div class="detail-header-left">
+                            <button class="btn-close-panel" id="closePanelBtn">✕</button>
+                            <div class="detail-title" id="viewerTitle">
+                                <span class="detail-icon">📄</span>
+                                <span>Select a file to view details</span>
+                            </div>
+                        </div>
+                        <div class="detail-actions" id="actionButtons" style="display: none;">
+                            <button class="btn-icon" id="pdfBtn" title="Export to PDF - Download detailed analysis report">📄</button>
+                            <button class="btn-icon" id="downloadBtn" title="Download JSON - Save raw data file">💾</button>
+                            <button class="btn-icon" id="copyBtn" title="Copy to Clipboard - Copy JSON data">📋</button>
+                            <button class="btn-icon" id="toggleViewBtn" title="Toggle View - Switch between formatted and raw JSON view">
+                                🔄
+                            </button>
+                        </div>
+                    </div>
+                    <div class="detail-content" id="viewerContent">
+                        <div class="empty-state">
+                            <h3>No file selected</h3>
+                            <p>Choose a file from the list to view detailed analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Buckets Management Section (hidden by default) -->
+            <div class="buckets-content" id="bucketsContent" style="display: none;">
+                <div class="buckets-header">
+                    <h2>🗂️ Bucket Management</h2>
+                    <p>Manage and switch between different GCP Storage buckets</p>
+                </div>
+                
+                <div class="current-bucket-card">
+                    <div class="card-header">
+                        <h3>Current Bucket</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="bucket-info">
+                            <div class="bucket-name-display" id="currentBucketDisplay">📦 vca-gcs-edc-loreal-internal-results-eu-dv</div>
+                            <div class="bucket-stats">
+                                <span class="stat"><strong id="bucketFileCount">0</strong> files</span>
+                                <span class="stat">Last accessed: <span id="lastAccessed">Never</span></span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="changeBucketBtn">Change Bucket</button>
+                    </div>
+                </div>
+                
+                <div class="bucket-actions">
+                    <div class="action-card">
+                        <h4>🔄 Quick Switch</h4>
+                        <p>Enter a bucket name to quickly switch</p>
+                        <div class="input-group">
+                            <input type="text" id="quickSwitchInput" placeholder="Enter bucket name..." class="form-input">
+                            <button class="btn btn-secondary" id="quickSwitchBtn">Switch</button>
+                        </div>
+                    </div>
+                    
+                    <div class="action-card">
+                        <h4>📋 Recent Buckets</h4>
+                        <p>Recently accessed buckets</p>
+                        <div class="recent-buckets" id="recentBuckets">
+                            <div class="recent-bucket-item">
+                                <span>vca-gcs-edc-loreal-internal-results-eu-dv</span>
+                                <button class="btn-link">Switch</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                </div>
+    </div>
+    
+    <!-- Loading Toast Popup -->
+    <div class="loading-toast" id="loadingToast" style="display: none;">
+        <div class="loading-toast-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-toast-text">
+                <div class="loading-toast-message">Loading file metadata...</div>
+                <div class="loading-toast-progress" id="loadingProgress">0 / 0 files</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Progress Modal -->
+    <div class="loading-progress-modal" id="loadingProgressModal" style="display: none;">
+        <div class="loading-progress-content">
+            <div class="loading-progress-header">
+                <h3>📥 Loading Files</h3>
+                <p>Please wait while we load file metadata from the bucket</p>
+            </div>
+            <div class="loading-progress-body">
+                <div class="progress-spinner"></div>
+                <div class="progress-info">
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <span class="progress-label">Loaded:</span>
+                            <span class="progress-value" id="progressLoaded">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-label">Total:</span>
+                            <span class="progress-value" id="progressTotal">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-label">Speed:</span>
+                            <span class="progress-value" id="progressSpeed">0 files/s</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBarFill"></div>
+                        <div class="progress-bar-text" id="progressBarText">0%</div>
+                    </div>
+                    <div class="progress-current-file" id="progressCurrentFile">Initializing...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pdfContent"></div>
+    
+    <!-- Comparison Modal -->
+    <div class="comparison-modal" id="comparisonModal" style="display: none;">
+        <div class="comparison-modal-content">
+            <div class="comparison-header">
+                <h2>📊 Submission Comparison</h2>
+                <button class="btn-close-modal" id="closeComparisonBtn">✕</button>
+            </div>
+            <div class="comparison-tabs">
+                <button class="comparison-tab active" data-tab="trends">
+                    <i class="fas fa-chart-line"></i> Trend Analysis & Insights
+                </button>
+                <button class="comparison-tab" data-tab="details">
+                    <i class="fas fa-table"></i> Detailed Comparison
+                </button>
+                <button class="comparison-tab" data-tab="charts">
+                    <i class="fas fa-chart-bar"></i> Skin Concerns Chart
+                </button>
+            </div>
+            <div class="comparison-body" id="comparisonBody">
+                <div class="tab-content active" id="trendsTab">
+                    <!-- Trend analysis content will be inserted here -->
+                </div>
+                <div class="tab-content" id="detailsTab">
+                    <!-- Detailed comparison table will be inserted here -->
+                </div>
+                <div class="tab-content" id="chartsTab">
+                    <!-- Charts will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/table-view.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

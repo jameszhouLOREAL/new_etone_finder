@@ -1,0 +1,1588 @@
+{
+  "askedZone": "FRONT_FACE",
+  "autoTakePict": true,
+  "browserName": "Edge141.0.0.0",
+  "captureMode": "auto",
+  "exif": {
+    "latitude": null,
+    "longitude": null,
+    "brightness": 131.612558341675,
+    "contrast": 32,
+    "deviceBrand": "Apple",
+    "deviceModel": "iPhone",
+    "deviceOS": "iOS18.5",
+    "exposureMode": "continuous",
+    "exposureTime": 10000,
+    "height": 1080,
+    "iso": null,
+    "saturation": 64,
+    "selfieDateTime": "2025-10-30T13:59:03.188Z",
+    "whiteBalanceMode": "continuous",
+    "width": 1920
+  },
+  "features": [
+    "Brightness",
+    "Lighting",
+    "LightColor",
+    "Distance",
+    "Framing",
+    "Neutral",
+    "Eyes",
+    "Eyebrow"
+  ],
+  "glassesDetected": null,
+  "networkQuality": "Excellent Connection",
+  "saVersion": "SA 3-6-4 DEV",
+  "scores": {
+    "eyes": {
+      "result": [
+        0.3260137464502767,
+        0.30888715678123213
+      ],
+      "status": "OK"
+    },
+    "mouth": {
+      "result": [
+        0.002432292888225204
+      ],
+      "status": "OK"
+    },
+    "eyebrow": {
+      "result": [
+        0.6608746651728319
+      ],
+      "status": "OK"
+    },
+    "neutral": {
+      "result": [
+        0.3666808388608013
+      ],
+      "status": "OK"
+    },
+    "distance": {
+      "result": [
+        11.580538641078064
+      ],
+      "status": "OK"
+    },
+    "lighting": {
+      "result": [
+        34.59990055656247
+      ],
+      "status": "OK"
+    },
+    "brightness": {
+      "result": [
+        131.612558341675
+      ],
+      "status": "OK"
+    },
+    "lightcolor": {
+      "result": [],
+      "status": "OK"
+    }
+  },
+  "selfieIssues": [],
+  "thresholds": {
+    "yawMax": 20,
+    "yawMin": -20,
+    "rollMax": 20,
+    "rollMin": -20,
+    "eyeClose": 0.15,
+    "pitchMax": 25,
+    "pitchMin": -25,
+    "brightMax": 200,
+    "brightMin": 90,
+    "smileRatio": 0.47,
+    "distanceFar": 10,
+    "leftProfile": 35,
+    "rightProfile": -35,
+    "distanceClose": 30,
+    "eyebrowHeight": 0.9,
+    "lightingValue": 70,
+    "lightColorValue": 20
+  },
+  "timeSpent": "PT0H0M16S",
+  "usedCamera": "FRONT",
+  "validSelfie": true,
+  "apiResults": {
+    "nexa": {
+      "ptosis": 0.569179892539978,
+      "version": "4.0",
+      "forehead": 0.22394680976867676,
+      "glabellar": 0.1197485327720642,
+      "upper_lip": 1.1016002893447876,
+      "inter_ocular": 2.944319725036621,
+      "cheek_pores_left": 0.8425040245056152,
+      "corner_lips_left": 1.125860571861267,
+      "cheek_pores_right": 0.7824654579162598,
+      "corner_lips_right": 0.9809787273406982,
+      "underneath_eye_left": 0.7891179323196411,
+      "nasolabial_fold_left": 0.3966391682624817,
+      "underneath_eye_right": 0.3831700086593628,
+      "nasolabial_fold_right": 0.3463982343673706,
+      "cheek_pigmentary_spots_left": 1.1756541728973389,
+      "cheek_pigmentary_spots_right": 2.494769334793091
+    },
+    "modiface": {
+      "id": "aa85fd51-4707-4920-8223-598e380c6e2f",
+      "gender": "m",
+      "ranges": [
+        {
+          "id": 3,
+          "code": "18-24",
+          "label": "18-24",
+          "concerns": [
+            {
+              "code": "finelines",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.07853721720831736"
+            },
+            {
+              "code": "deepwrinkles",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.21053425470987955"
+            },
+            {
+              "code": "lackoffirmness",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.09086386362711588"
+            },
+            {
+              "code": "largepores",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.1610173225402832"
+            },
+            {
+              "code": "blotchiness",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": null
+            },
+            {
+              "code": "darkpigmentation",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.08330407823835101"
+            },
+            {
+              "code": "wrinkles",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.10304506194023857"
+            },
+            {
+              "code": "eyecontour",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.10371180375417074"
+            },
+            {
+              "code": "homogeneity",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.10375990924381073"
+            },
+            {
+              "code": "crowsfeet",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.21053425470987955"
+            },
+            {
+              "code": "undereyefinelines",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.06235694885253906"
+            },
+            {
+              "code": "bagsundereyes",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.08176835378011067"
+            },
+            {
+              "code": "globalwrinkles",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.0815472233863104"
+            },
+            {
+              "code": "lackofradiance",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.26882870753119376"
+            },
+            {
+              "code": "acne",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.15944713354110718"
+            },
+            {
+              "code": "brokenveins",
+              "not_a_strength": null,
+              "better_than_25%": null,
+              "better_than_50%": null,
+              "better_than_75%": null,
+              "normalizedScore": "0.12832581996917725"
+            }
+          ],
+          "clinicalSigns": []
+        }
+      ],
+      "metadata": {
+        "crm": null,
+        "pos": null,
+        "brand": "randi",
+        "tenant": "lorealsa",
+        "country": "bel",
+        "service": null,
+        "skipETL": false,
+        "customer": null,
+        "platform": null,
+        "sourceCode": null,
+        "touchpoint": "web",
+        "environment": "dv",
+        "campaignName": null,
+        "campaignType": null,
+        "creationDate": "2025-10-30T13:59:24.2889485+00:00",
+        "isAnonymized": false,
+        "location_lat": null,
+        "location_lon": null,
+        "providercode": null,
+        "sourcePersonId": null,
+        "touchpoint_url": "https://www-dev.visual-capture-assistant.com",
+        "creationVersion": "skinanalysis.3.0",
+        "service_Version": null,
+        "modificationDate": "2025-10-30T13:59:24.2889485+00:00",
+        "structureVersion": "skinanalysis.3.0",
+        "service_BusinessName": null,
+        "processingTimePrediction": null
+      },
+      "acne_count": {
+        "front": {
+          "metadata": {
+            "sourceCode": "algorithm",
+            "providerCode": "modiface"
+          },
+          "pigmented": 1,
+          "retentional": 2,
+          "inflammatory": 2
+        }
+      },
+      "facePoints": {
+        "nose": [
+          {
+            "x": 857.6875610351562,
+            "y": 597.331298828125
+          },
+          {
+            "x": 851.6130981445312,
+            "y": 627.378173828125
+          },
+          {
+            "x": 880.995361328125,
+            "y": 642.7192993164062
+          },
+          {
+            "x": 916.6981201171876,
+            "y": 648.5021362304688
+          },
+          {
+            "x": 951.3943481445312,
+            "y": 640.4967041015625
+          },
+          {
+            "x": 980.3663940429688,
+            "y": 628.631103515625
+          },
+          {
+            "x": 979.2432250976562,
+            "y": 597.7467041015625
+          }
+        ],
+        "faceBox": {
+          "topLeft": {
+            "x": 714,
+            "y": 375
+          },
+          "bottomRight": {
+            "x": 1113,
+            "y": 761
+          }
+        },
+        "leftEye": [
+          {
+            "x": 851.6826171875,
+            "y": 484.8691711425781
+          },
+          {
+            "x": 836.8255004882812,
+            "y": 468.3324279785156
+          },
+          {
+            "x": 817.5028686523438,
+            "y": 456.4389343261719
+          },
+          {
+            "x": 791.5126342773438,
+            "y": 453.0333251953125
+          },
+          {
+            "x": 769.1705322265625,
+            "y": 460.3346252441406
+          },
+          {
+            "x": 751.1571044921875,
+            "y": 472.7794494628906
+          },
+          {
+            "x": 766.5310668945312,
+            "y": 486.36676025390625
+          },
+          {
+            "x": 787.1241455078125,
+            "y": 492.7810668945313
+          },
+          {
+            "x": 808.535400390625,
+            "y": 494.0226440429687
+          },
+          {
+            "x": 829.8975830078125,
+            "y": 489.7416687011719
+          }
+        ],
+        "leftBrow": [
+          {
+            "x": 864.5143432617188,
+            "y": 399.1321716308594
+          },
+          {
+            "x": 827.9281005859375,
+            "y": 386.1640625
+          },
+          {
+            "x": 768.5210571289062,
+            "y": 375.4676513671875
+          },
+          {
+            "x": 714.6998291015625,
+            "y": 417.96966552734375
+          },
+          {
+            "x": 767.3529052734375,
+            "y": 413.5109252929687
+          },
+          {
+            "x": 821.88916015625,
+            "y": 417.4328308105469
+          },
+          {
+            "x": 868.3486328125,
+            "y": 423.20013427734375
+          }
+        ],
+        "rightEye": [
+          {
+            "x": 988.1307983398438,
+            "y": 487.2039794921875
+          },
+          {
+            "x": 1003.327880859375,
+            "y": 473.8092041015625
+          },
+          {
+            "x": 1023.6475830078124,
+            "y": 461.7492370605469
+          },
+          {
+            "x": 1045.854736328125,
+            "y": 457.9704284667969
+          },
+          {
+            "x": 1065.798828125,
+            "y": 462.9869079589844
+          },
+          {
+            "x": 1083.0777587890625,
+            "y": 476.1030578613281
+          },
+          {
+            "x": 1066.626953125,
+            "y": 487.6244812011719
+          },
+          {
+            "x": 1047.179931640625,
+            "y": 494.3737182617187
+          },
+          {
+            "x": 1028.83251953125,
+            "y": 495.6784973144531
+          },
+          {
+            "x": 1008.9112548828124,
+            "y": 491.6007385253906
+          }
+        ],
+        "rightBrow": [
+          {
+            "x": 973.8931274414062,
+            "y": 397.2666931152344
+          },
+          {
+            "x": 1012.3135375976562,
+            "y": 380.5488586425781
+          },
+          {
+            "x": 1068.4334716796875,
+            "y": 382.1286010742187
+          },
+          {
+            "x": 1113.8580322265625,
+            "y": 424.7739562988281
+          },
+          {
+            "x": 1072.0120849609375,
+            "y": 416.4073181152344
+          },
+          {
+            "x": 1023.9877319335938,
+            "y": 414.4260559082031
+          },
+          {
+            "x": 975.6025390625,
+            "y": 424.1628112792969
+          }
+        ],
+        "innerMouth": [
+          {
+            "x": 859.3323974609375,
+            "y": 713.3220825195312
+          },
+          {
+            "x": 887.9352416992188,
+            "y": 716.2760620117188
+          },
+          {
+            "x": 919.1967163085938,
+            "y": 721.596435546875
+          },
+          {
+            "x": 951.7489013671876,
+            "y": 715.5419921875
+          },
+          {
+            "x": 976.9448852539062,
+            "y": 710.8878173828125
+          },
+          {
+            "x": 950.7178344726562,
+            "y": 715.7261352539062
+          },
+          {
+            "x": 919.479736328125,
+            "y": 722.5460205078125
+          },
+          {
+            "x": 887.6770629882812,
+            "y": 718.51416015625
+          }
+        ],
+        "outerMouth": [
+          {
+            "x": 836.9419555664062,
+            "y": 710.6395874023438
+          },
+          {
+            "x": 869.9107666015625,
+            "y": 697.51708984375
+          },
+          {
+            "x": 896.9501953125,
+            "y": 693.0830688476562
+          },
+          {
+            "x": 920.1611938476562,
+            "y": 699.0873413085938
+          },
+          {
+            "x": 942.9515991210938,
+            "y": 688.1377563476562
+          },
+          {
+            "x": 974.4876708984376,
+            "y": 697.1552124023438
+          },
+          {
+            "x": 999.9475708007812,
+            "y": 704.7252807617188
+          },
+          {
+            "x": 982.017333984375,
+            "y": 727.1937866210938
+          },
+          {
+            "x": 964.2566528320312,
+            "y": 746.5330810546875
+          },
+          {
+            "x": 936.9000244140624,
+            "y": 758.7001342773438
+          },
+          {
+            "x": 904.227294921875,
+            "y": 761.3527221679688
+          },
+          {
+            "x": 874.5457763671875,
+            "y": 748.4320678710938
+          },
+          {
+            "x": 854.0015258789062,
+            "y": 730.4083251953125
+          }
+        ],
+        "faceContour": [
+          {
+            "x": 677.6950073242188,
+            "y": 550.5237426757812
+          },
+          {
+            "x": 913.2702026367188,
+            "y": 837.7199096679688
+          },
+          {
+            "x": 1129.9893798828125,
+            "y": 561.7107543945312
+          }
+        ]
+      },
+      "acne_points": {
+        "front": [
+          {
+            "x": 833,
+            "y": 760.5,
+            "type": "inflammatory"
+          },
+          {
+            "x": 890.5,
+            "y": 909,
+            "type": "pigmented"
+          },
+          {
+            "x": 876,
+            "y": 634.5,
+            "type": "inflammatory"
+          },
+          {
+            "x": 597.5,
+            "y": 850,
+            "type": "retentional"
+          },
+          {
+            "x": 605.5,
+            "y": 861,
+            "type": "retentional"
+          }
+        ]
+      },
+      "measurement": {
+        "analytic": [
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "finelines"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "yes"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "deepwrinkles"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "none"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "lackoffirmness"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "low"
+              },
+              {
+                "field": "zones",
+                "value": "lowerpartoftheface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "largepores"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "yes"
+              },
+              {
+                "field": "zones",
+                "value": "cheek"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "blotchiness"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "yes"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "darkpigmentation"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "low"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "wrinkles"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "low"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "eyecontour"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "medium"
+              },
+              {
+                "field": "zones",
+                "value": "eye"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "homogeneity"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "low"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "crowsfeet"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "medium"
+              },
+              {
+                "field": "zones",
+                "value": "corneroftheeyes"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "undereyefinelines"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "low"
+              },
+              {
+                "field": "zones",
+                "value": "undereye"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "bagsundereyes"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "medium"
+              },
+              {
+                "field": "zones",
+                "value": "undereye"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "globalwrinkles"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "low"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "lackofradiance"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "yes"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "acne"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "low"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          },
+          {
+            "bmdmValue": null,
+            "bmdmEntity": "concerns",
+            "bmdmValues": [
+              {
+                "field": "code",
+                "value": "brokenveins"
+              },
+              {
+                "field": "gapscore",
+                "value": "0"
+              },
+              {
+                "field": "rangecode",
+                "value": "yes"
+              },
+              {
+                "field": "zones",
+                "value": "wholeface"
+              }
+            ],
+            "analyticPath": "analysis/skinProfile/priorities/concerns"
+          }
+        ]
+      },
+      "skinProfile": {
+        "routine": null,
+        "priority": {
+          "items": [
+            {
+              "concerns": [
+                {
+                  "code": "finelines",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.07853721720831736,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "code": "deepwrinkles",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.21053425470987955,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "none"
+                },
+                {
+                  "code": "lackoffirmness",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.09086386362711588,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "low"
+                },
+                {
+                  "code": "largepores",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.1610173225402832,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "code": "blotchiness",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "code": "darkpigmentation",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.08330407823835101,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "low"
+                },
+                {
+                  "code": "wrinkles",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.10304506194023856,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "low"
+                },
+                {
+                  "code": "eyecontour",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.10371180375417074,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "medium"
+                },
+                {
+                  "code": "homogeneity",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.10375990924381072,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "low"
+                },
+                {
+                  "code": "crowsfeet",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.21053425470987955,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "medium"
+                },
+                {
+                  "code": "undereyefinelines",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.06235694885253906,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "low"
+                },
+                {
+                  "code": "bagsundereyes",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.08176835378011067,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "medium"
+                },
+                {
+                  "code": "globalwrinkles",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.0815472233863104,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "low"
+                },
+                {
+                  "code": "lackofradiance",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.26882870753119376,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "code": "acne",
+                  "geaScore": 1,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.15944713354110718,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "low"
+                },
+                {
+                  "code": "brokenveins",
+                  "geaScore": null,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "gapScoreBy10": 0,
+                  "percentScore": 0.12832581996917725,
+                  "gapFromAverage": null,
+                  "concernRangeCode": "yes"
+                }
+              ],
+              "metadata": {
+                "sourceCode": null,
+                "creationDate": "0001-01-01T00:00:00",
+                "providerCode": null
+              },
+              "clinicalSigns": [],
+              "concernsExtended": [
+                {
+                  "id": "539373f4-ad43-4468-9a2d-24759cec3fbf",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "finelines",
+                  "percentScore": 0.07853721720831736,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "id": "9748ba1f-f137-45a6-afc7-bcac1cbef015",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "deepwrinkles",
+                  "percentScore": 0.21053425470987955,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "none"
+                },
+                {
+                  "id": "6547d2ef-5f8e-4072-8ec2-cb9aa43939c7",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "lackoffirmness",
+                  "percentScore": 0.09086386362711588,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "lowerpartoftheface"
+                    ]
+                  },
+                  "concernRangeCode": "low"
+                },
+                {
+                  "id": "1620185f-644b-4e04-93ad-a0f7be1873d6",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "largepores",
+                  "percentScore": 0.1610173225402832,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "cheek"
+                    ]
+                  },
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "id": "5550e7c4-ada4-4305-a9c6-2d5e6d20311e",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "blotchiness",
+                  "percentScore": 0,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "id": "6d0643a9-820a-4b38-9723-2844681a9ac7",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "darkpigmentation",
+                  "percentScore": 0.08330407823835101,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "low"
+                },
+                {
+                  "id": "e9fe7293-7ec1-48e0-8a06-9c4e4cd1c773",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "wrinkles",
+                  "percentScore": 0.10304506194023856,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "low"
+                },
+                {
+                  "id": "76c25b12-3fe7-4876-ad04-aeea2551fb97",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "eyecontour",
+                  "percentScore": 0.10371180375417074,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "eye"
+                    ]
+                  },
+                  "concernRangeCode": "medium"
+                },
+                {
+                  "id": "ebbe96a4-c187-4b41-93f4-7246342c5e02",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "homogeneity",
+                  "percentScore": 0.10375990924381072,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "low"
+                },
+                {
+                  "id": "45283181-5426-48d2-8ddf-087f45ab8032",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "crowsfeet",
+                  "percentScore": 0.21053425470987955,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "corneroftheeyes"
+                    ]
+                  },
+                  "concernRangeCode": "medium"
+                },
+                {
+                  "id": "d231bbca-a5c9-4cf0-b16e-189bb30b542d",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "undereyefinelines",
+                  "percentScore": 0.06235694885253906,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "undereye"
+                    ]
+                  },
+                  "concernRangeCode": "low"
+                },
+                {
+                  "id": "372b306a-bad9-4fec-b2b9-a18f577eb226",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "bagsundereyes",
+                  "percentScore": 0.08176835378011067,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "undereye"
+                    ]
+                  },
+                  "concernRangeCode": "medium"
+                },
+                {
+                  "id": "05bef83d-78ef-4a1f-81b4-ba5819e90664",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "globalwrinkles",
+                  "percentScore": 0.0815472233863104,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "low"
+                },
+                {
+                  "id": "ce6f3b7f-c16c-4ef2-97e1-ef21b5ba8db4",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "lackofradiance",
+                  "percentScore": 0.26882870753119376,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "yes"
+                },
+                {
+                  "id": "94eff91b-6d65-4330-90b5-60fdab0a5949",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "acne",
+                  "percentScore": 0.15944713354110718,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "low"
+                },
+                {
+                  "id": "19feef4e-74b4-4607-93d9-9fa561942195",
+                  "active": false,
+                  "metadata": {
+                    "sourceCode": "equation",
+                    "providerCode": "modiface"
+                  },
+                  "analysisId": "aa85fd51-4707-4920-8223-598e380c6e2f",
+                  "calculated": true,
+                  "concernCode": "brokenveins",
+                  "percentScore": 0.12832581996917725,
+                  "additionalData": {},
+                  "concernDetails": {
+                    "zones": [
+                      "wholeface"
+                    ]
+                  },
+                  "concernRangeCode": "yes"
+                }
+              ],
+              "skinMotivationCode": null,
+              "clinicalSignsExtended": [],
+              "lipChapDryOccasionCode": null,
+              "concernImprovementGoals": null
+            }
+          ]
+        },
+        "preference": null,
+        "description": {
+          "shade": null,
+          "skinType": {
+            "items": [
+              {
+                "code": "combination",
+                "zones": [
+                  "wholeface"
+                ],
+                "metadata": {
+                  "sourceCode": "survey",
+                  "creationDate": "2025-10-30T13:59:25.7697835+00:00",
+                  "providerCode": "brandsite",
+                  "creationVersion": null,
+                  "modificationDate": "2025-10-30T13:59:25.7697836+00:00",
+                  "structureVersion": null
+                }
+              }
+            ]
+          },
+          "skinTones": [],
+          "skinToneCode": null,
+          "skinUndertones": [],
+          "skinSensitivity": {
+            "items": []
+          },
+          "sunReactionCode": null,
+          "kakushitsu_index": {
+            "score": 2
+          },
+          "skinUndertoneCode": null,
+          "encryptedSkinColorLab": null,
+          "complexionfreckledCode": null
+        }
+      },
+      "generalProfile": {
+        "routine": null,
+        "priority": null,
+        "preference": null,
+        "description": {
+          "age": {
+            "metadata": {
+              "sourceCode": "survey",
+              "providerCode": "brandsite"
+            },
+            "rawScore": 20
+          },
+          "gender": "male",
+          "faceShape": null,
+          "mouthWidth": null,
+          "personality": null,
+          "faceShapeCode": null,
+          "foreheadSizes": null,
+          "mouthWidthCode": null,
+          "cupidVisibility": null,
+          "externalFactors": null,
+          "eyesDescription": null,
+          "internalFactors": null,
+          "lipsDescription": null,
+          "noseDescription": null,
+          "personalityCode": null,
+          "ingredientLimits": null,
+          "foreheadSizesCode": null,
+          "cupidVisibilityCode": null,
+          "lipsDescriptionCode": null,
+          "noseDescriptionCode": null
+        }
+      },
+      "beautyProfileId": "de88c61c-4253-425b-b7f3-5c07c8d2852c",
+      "analysisTypeCode": "skin"
+    }
+  }
+}

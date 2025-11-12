@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCA Dashboard - Form View</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        /* Form Viewer Specific Styles */
+        .form-viewer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-6);
+        }
+        
+        .form-viewer-header {
+            text-align: center;
+            margin-bottom: var(--spacing-6);
+        }
+        
+        .form-viewer-header h2 {
+            color: var(--primary-green);
+            font-size: 28px;
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .form-viewer-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        
+        .form-input-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-5);
+        }
+        
+        .form-input-group {
+            display: flex;
+            gap: var(--spacing-3);
+            align-items: stretch;
+        }
+        
+        .form-url-input {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        
+        .form-url-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .form-url-input::placeholder {
+            color: var(--text-tertiary);
+        }
+        
+        .load-form-button {
+            padding: 12px 32px;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .load-form-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .load-form-button:active {
+            transform: translateY(0);
+        }
+        
+        .iframe-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .form-viewer-iframe {
+            width: 100%;
+            height: 80vh;
+            min-height: 600px;
+            border: none;
+            display: block;
+        }
+        
+        .iframe-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 600px;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+        }
+        
+        .iframe-placeholder i {
+            font-size: 64px;
+            color: var(--primary-green);
+            margin-bottom: var(--spacing-4);
+            opacity: 0.5;
+        }
+        
+        .iframe-placeholder h3 {
+            font-size: 20px;
+            margin-bottom: var(--spacing-2);
+            color: var(--text-primary);
+        }
+        
+        .iframe-placeholder p {
+            font-size: 14px;
+        }
+        
+        .quick-links {
+            margin-top: var(--spacing-4);
+            padding: var(--spacing-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+        
+        .quick-links h4 {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .quick-link-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-2);
+        }
+        
+        .quick-link-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: var(--primary-green);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-link-btn:hover {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-viewer-container {
+                padding: var(--spacing-4);
+            }
+            
+            .form-input-group {
+                flex-direction: column;
+            }
+            
+            .load-form-button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .form-viewer-iframe {
+                min-height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>📷</span>
+                    <span>Visual Capture Assistant</span>
+                </div>
+                <div class="sidebar-subtitle">Photo Analysis Platform</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Selfie Admin</div>
+                    <div class="nav-item" id="studyManagementNavItem">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Study Management</span>
+                    </div>
+                    <div class="nav-item" id="algorithmManagementNavItem">
+                        <span class="nav-item-icon">🧠</span>
+                        <span>Algorithm Management</span>
+                    </div>
+                    <div class="nav-item" id="urlGeneratorNavItem">
+                        <span class="nav-item-icon">🔗</span>
+                        <span>Selfie URL Generator</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Analysis Tools</div>
+                    <div class="nav-item" id="submissionsNavItem">
+                        <span class="nav-item-icon">📸</span>
+                        <span>Photo Submissions</span>
+                    </div>
+                    <div class="nav-item" id="analyticsNavItem">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Analytics</span>
+                    </div>
+                    <div class="nav-item active" id="formViewNavItem">
+                        <span class="nav-item-icon">📝</span>
+                        <span>Form View</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Data Management</div>
+                    <div class="nav-item" id="bucketsNavItem">
+                        <span class="nav-item-icon">🗂️</span>
+                        <span>Buckets</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="nav-item-icon">🔧</span>
+                        <span>Settings</span>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
+                    <div style="margin-left: 8px;">
+                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
+                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="form-viewer-container">
+                <!-- Header -->
+                <div class="form-viewer-header">
+                    <h2><i class="fas fa-file-alt"></i> Form Viewer</h2>
+                    <p>View and interact with web-based forms and surveys</p>
+                </div>
+                
+                <!-- Input Section -->
+                <div class="form-input-section">
+                    <div class="form-input-group">
+                        <input 
+                            type="text" 
+                            id="msFormUrlInput" 
+                            class="form-url-input" 
+                            placeholder="Enter form URL here... (e.g., Google Forms, Typeform, JotForm, etc.)"
+                            aria-label="Form URL">
+                        <button id="loadFormButton" class="load-form-button">
+                            <i class="fas fa-play-circle"></i>
+                            Load Form
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Links Section -->
+                    <div class="quick-links">
+                        <h4>Supported Form Platforms:</h4>
+                        <div class="quick-link-buttons">
+                            <button class="quick-link-btn" data-url="https://docs.google.com/forms/d/e/1FAIpQLSdFakeGoogleFormExample/viewform">
+                                <i class="fab fa-google"></i> Google Forms
+                            </button>
+                            <button class="quick-link-btn" data-url="https://www.typeform.com">
+                                Typeform
+                            </button>
+                            <button class="quick-link-btn" data-url="https://www.jotform.com">
+                                JotForm
+                            </button>
+                        </div>
+                        <p style="margin-top: 12px; font-size: 12px; color: var(--text-tertiary);">
+                            <i class="fas fa-info-circle"></i> Note: Microsoft Forms will open in a new tab due to security restrictions.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- iFrame Container -->
+                <div class="iframe-container">
+                    <!-- Placeholder shown when no form is loaded -->
+                    <div id="iframePlaceholder" class="iframe-placeholder">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No form loaded</h3>
+                        <p>Enter a Microsoft Forms URL above and click "Load Form" to get started</p>
+                    </div>
+                    
+                    <!-- iFrame for displaying the form -->
+                    <iframe 
+                        id="msFormViewer" 
+                        class="form-viewer-iframe" 
+                        style="display: none;"
+                        allow="fullscreen; camera; microphone; geolocation"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="Microsoft Form Viewer">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ==========================================
+        // Navigation Functions
+        // ==========================================
+        
+        function navigateToSubmissions() {
+            window.location.href = '/photosubmission';
+        }
+        
+        function navigateToBuckets() {
+            window.location.href = '/photosubmission?page=buckets';
+        }
+        
+        function navigateToURLGenerator() {
+            window.location.href = '/urlgenerator';
+        }
+        
+        function navigateToStudyManagement() {
+            window.location.href = '/studymanagement';
+        }
+        
+        function navigateToAlgorithmManagement() {
+            window.location.href = '/algorithmmanagement';
+        }
+        
+        function navigateToAnalytics() {
+            window.location.href = '/analytics';
+        }
+        
+        function navigateToFormView() {
+            window.location.href = '/formview';
+        }
+        
+        // ==========================================
+        // Form Viewer Functionality
+        // ==========================================
+        
+        // Get DOM elements
+        const urlInput = document.getElementById('msFormUrlInput');
+        const loadButton = document.getElementById('loadFormButton');
+        const formIframe = document.getElementById('msFormViewer');
+        const placeholder = document.getElementById('iframePlaceholder');
+        const quickLinkButtons = document.querySelectorAll('.quick-link-btn');
+        
+        /**
+         * Validates if the provided URL is valid
+         * @param {string} url - The URL to validate
+         * @returns {boolean} - True if valid, false otherwise
+         */
+        function isValidUrl(url) {
+            // Check if URL is not empty
+            if (!url || url.trim() === '') {
+                return false;
+            }
+            
+            // Check if URL starts with http:// or https://
+            const urlPattern = /^https?:\/\/.+/i;
+            return urlPattern.test(url.trim());
+        }
+        
+        /**
+         * Loads the Microsoft Form in the iframe
+         */
+        function loadForm() {
+            // Get the URL from the input field
+            const formUrl = urlInput.value.trim();
+            
+            // Validate the URL
+            if (!isValidUrl(formUrl)) {
+                alert('Please enter a valid URL.\n\nThe URL should start with http:// or https://');
+                urlInput.focus();
+                return;
+            }
+            
+            // Check if it's a Microsoft Forms URL
+            if (formUrl.includes('forms.office.com') || formUrl.includes('forms.microsoft.com')) {
+                // Microsoft Forms blocks iframe embedding - open in new tab instead
+                const confirmOpen = confirm(
+                    'Microsoft Forms cannot be embedded due to security restrictions.\n\n' +
+                    'Would you like to open this form in a new tab instead?'
+                );
+                
+                if (confirmOpen) {
+                    window.open(formUrl, '_blank', 'noopener,noreferrer');
+                }
+                return;
+            }
+            
+            // For other URLs, try to load in iframe
+            placeholder.style.display = 'none';
+            formIframe.style.display = 'block';
+            
+            // Set the iframe source to the provided URL
+            formIframe.src = formUrl;
+            
+            // Add error handler for iframe
+            formIframe.onerror = function() {
+                placeholder.style.display = 'flex';
+                formIframe.style.display = 'none';
+                alert('Failed to load the form. The website may not allow embedding.');
+            };
+            
+            console.log('Loading form:', formUrl);
+        }
+        
+        /**
+         * Clears the form viewer
+         */
+        function clearForm() {
+            formIframe.style.display = 'none';
+            placeholder.style.display = 'flex';
+            formIframe.src = '';
+        }
+        
+        // ==========================================
+        // Event Listeners
+        // ==========================================
+        
+        // Load form when button is clicked
+        loadButton.addEventListener('click', loadForm);
+        
+        // Load form when Enter key is pressed in the input field
+        urlInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                loadForm();
+            }
+        });
+        
+        // Quick link buttons
+        quickLinkButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                urlInput.value = url;
+                loadForm();
+            });
+        });
+        
+        // Add event listeners to navigation items
+        document.addEventListener('DOMContentLoaded', () => {
+            const submissionsNav = document.getElementById('submissionsNavItem');
+            const bucketsNav = document.getElementById('bucketsNavItem');
+            const urlGeneratorNav = document.getElementById('urlGeneratorNavItem');
+            const studyManagementNav = document.getElementById('studyManagementNavItem');
+            const algorithmManagementNav = document.getElementById('algorithmManagementNavItem');
+            const analyticsNav = document.getElementById('analyticsNavItem');
+            const formViewNav = document.getElementById('formViewNavItem');
+            
+            if (submissionsNav) submissionsNav.addEventListener('click', navigateToSubmissions);
+            if (bucketsNav) bucketsNav.addEventListener('click', navigateToBuckets);
+            if (urlGeneratorNav) urlGeneratorNav.addEventListener('click', navigateToURLGenerator);
+            if (studyManagementNav) studyManagementNav.addEventListener('click', navigateToStudyManagement);
+            if (algorithmManagementNav) algorithmManagementNav.addEventListener('click', navigateToAlgorithmManagement);
+            if (analyticsNav) analyticsNav.addEventListener('click', navigateToAnalytics);
+            if (formViewNav) formViewNav.addEventListener('click', navigateToFormView);
+        });
+    </script>
+</body>
+</html>

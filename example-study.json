@@ -1,0 +1,67 @@
+{
+  "title": "Customer Satisfaction Survey",
+  "description": "Help us improve our services by sharing your feedback. This survey takes approximately 5 minutes to complete.",
+  "settings": {
+    "startDate": "2025-01-01",
+    "endDate": "2025-12-31",
+    "responseLimit": "500",
+    "themeColor": "#10b981"
+  },
+  "questions": [
+    {
+      "id": 1,
+      "type": "short-text",
+      "text": "What is your name?",
+      "required": true,
+      "options": [],
+      "logic": null
+    },
+    {
+      "id": 2,
+      "type": "single-choice",
+      "text": "How satisfied are you with our service?",
+      "required": true,
+      "options": [
+        "Very Satisfied",
+        "Satisfied",
+        "Neutral",
+        "Dissatisfied",
+        "Very Dissatisfied"
+      ],
+      "logic": null
+    },
+    {
+      "id": 3,
+      "type": "rating",
+      "text": "How likely are you to recommend us to a friend?",
+      "required": true,
+      "options": [],
+      "maxRating": 10,
+      "logic": null
+    },
+    {
+      "id": 4,
+      "type": "long-text",
+      "text": "Do you have any additional comments or suggestions?",
+      "required": false,
+      "options": [],
+      "logic": null
+    },
+    {
+      "id": 5,
+      "type": "multiple-choice",
+      "text": "Which features do you use most often? (Select all that apply)",
+      "required": false,
+      "options": [
+        "Photo Upload",
+        "Analytics Dashboard",
+        "Study Management",
+        "URL Generator",
+        "Form Builder"
+      ],
+      "logic": null
+    }
+  ],
+  "version": "1.0",
+  "createdAt": "2025-11-11T12:00:00.000Z"
+}
