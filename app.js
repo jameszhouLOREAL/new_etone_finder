@@ -341,6 +341,11 @@ app.get('/mobilepreview', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/mobilepreview.html'));
 });
 
+// Serve the Submission Results page
+app.get('/submissionresults', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/submissionresults.html'));
+});
+
 // API Routes - Study Management
 
 // GET /api/studies - List all studies

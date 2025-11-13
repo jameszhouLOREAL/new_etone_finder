@@ -283,7 +283,9 @@ class StudyManager {
                 <td style="text-align: center;">
                     ${selfieNeeded ? '<i class="fas fa-camera" style="color: #10b981; font-size: 18px;" title="Selfie Required"></i>' : '<i class="fas fa-minus-circle" style="color: #d1d5db; font-size: 18px;" title="No Selfie"></i>'}
                 </td>
-                <td style="text-align: center;">24</td>
+                <td style="text-align: center;">
+                    <a href="/submissionresults?studyId=${study.id}" style="color: #3b82f6; text-decoration: none; font-weight: 500;">24</a>
+                </td>
                 <td>
                     <span class="status-badge ${statusClass}">
                         ${study.status}
