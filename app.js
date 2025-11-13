@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files
 app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use('/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', (req, res) => {
@@ -335,6 +336,11 @@ app.get('/analytics', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/analytics.html'));
 });
 
+// Serve the Mobile Preview page
+app.get('/mobilepreview', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/mobilepreview.html'));
+});
+
 // API Routes - Study Management
 
 // GET /api/studies - List all studies
@@ -393,6 +399,8 @@ app.post('/api/studies', (req, res) => {
   try {
     const study = req.body;
     
+    console.log('POST /api/studies - Received status:', study.status);
+    
     // Validate required fields
     if (!study.studyId || !study.label) {
       return res.status(400).json({ error: 'Missing required fields: studyId and label' });
@@ -415,7 +423,7 @@ app.post('/api/studies', (req, res) => {
     
     fs.writeFileSync(filePath, JSON.stringify(study, null, 2), 'utf-8');
     
-    console.log('Study saved:', fileName);
+    console.log('Study saved:', fileName, '- Status saved as:', study.status);
     res.json({ success: true, study });
   } catch (error) {
     console.error('Error saving study:', error);
@@ -427,7 +435,9 @@ app.post('/api/studies', (req, res) => {
 app.put('/api/studies/:studyId', (req, res) => {
   try {
     const { studyId } = req.params;
-    const study = req.body;
+    const updatedData = req.body;
+    
+    console.log('PUT /api/studies/:studyId - Received status:', updatedData.status);
     
     const studiesDir = path.join(__dirname, 'studies');
     const fileName = `${studyId}.json`;
@@ -438,13 +448,25 @@ app.put('/api/studies/:studyId', (req, res) => {
       return res.status(404).json({ error: 'Study not found' });
     }
     
-    // Update timestamp
-    study.updatedAt = new Date().toISOString();
+    // Read existing study to preserve fields like createdAt
+    const existingStudy = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    console.log('Existing study status:', existingStudy.status);
+    
+    // Merge existing data with updates, preserving createdAt and studyId
+    const study = {
+      ...existingStudy,
+      ...updatedData,
+      studyId: existingStudy.studyId, // Keep original studyId
+      createdAt: existingStudy.createdAt, // Preserve creation date
+      updatedAt: new Date().toISOString()
+    };
+    
+    console.log('Merged study status:', study.status);
     
     // Save updated study
     fs.writeFileSync(filePath, JSON.stringify(study, null, 2), 'utf-8');
     
-    console.log('Study updated:', fileName);
+    console.log('Study updated:', fileName, '- Status saved as:', study.status);
     res.json({ success: true, study });
   } catch (error) {
     console.error('Error updating study:', error);

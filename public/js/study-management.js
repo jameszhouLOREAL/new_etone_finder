@@ -17,10 +17,10 @@ class StudyManager {
             if (response.ok) {
                 this.studies = await response.json();
                 
-                // Add sequential IDs for display purposes
+                // Use studyId as the display ID
                 this.studies = this.studies.map((study, index) => ({
                     ...study,
-                    id: index + 1
+                    id: study.studyId || `study-${index + 1}`
                 }));
                 
                 console.log('Loaded', this.studies.length, 'studies from server');
@@ -42,7 +42,7 @@ class StudyManager {
         const createBtn = document.getElementById('createStudyBtn');
         if (createBtn) {
             createBtn.addEventListener('click', () => {
-                window.location.href = '/studydesign';
+                window.location.href = '/studydesign?new=true';
             });
         }
 
@@ -209,18 +209,19 @@ class StudyManager {
         const searchInput = document.getElementById('searchInput');
         const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
         const activeOnlyFilter = document.getElementById('activeOnlyFilter');
-        const activeOnly = activeOnlyFilter ? activeOnlyFilter.checked : true;
+        const activeOnly = activeOnlyFilter ? activeOnlyFilter.checked : false;
 
         console.log('Filtering studies. Total:', this.studies.length, 'ActiveOnly:', activeOnly, 'SearchTerm:', searchTerm);
 
         this.filteredStudies = this.studies.filter(study => {
             const matchesSearch = !searchTerm || 
-                study.studyId.toLowerCase().includes(searchTerm) ||
+                (study.title && study.title.toLowerCase().includes(searchTerm)) ||
                 study.label.toLowerCase().includes(searchTerm) ||
                 study.edc.toLowerCase().includes(searchTerm) ||
                 study.id.toString().includes(searchTerm);
 
-            const matchesStatus = !activeOnly || study.status === 'Active';
+            // Filter for published studies only if the toggle is checked
+            const matchesStatus = !activeOnly || study.status === 'Published' || study.status === 'Active';
 
             return matchesSearch && matchesStatus;
         });
@@ -246,30 +247,70 @@ class StudyManager {
 
         console.log('Rendering', pageStudies.length, 'studies for this page');
 
-        tbody.innerHTML = pageStudies.map(study => `
+        tbody.innerHTML = pageStudies.map(study => {
+            // Determine status badge class
+            let statusClass = 'status-inactive';
+            if (study.status === 'Active') {
+                statusClass = 'status-active';
+            } else if (study.status === 'Draft') {
+                statusClass = 'status-draft';
+            } else if (study.status === 'Published') {
+                statusClass = 'status-published';
+            }
+            
+            const questionCount = study.questions ? study.questions.length : 0;
+            const selfieNeeded = study.selfieConfig && study.selfieConfig.enabled;
+            
+            // Format created date
+            let createdDate = 'N/A';
+            if (study.createdAt) {
+                const date = new Date(study.createdAt);
+                createdDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric'
+                });
+            }
+            
+            return `
             <tr>
                 <td>
-                    <input type="checkbox" class="study-checkbox" data-id="${study.id}">
+                    <input type="checkbox" class="study-checkbox" data-id="${study.studyId}">
                 </td>
                 <td>${study.id}</td>
-                <td><strong>${study.studyId}</strong></td>
-                <td>${study.label || '<em>No label</em>'}</td>
+                <td><strong>${study.title || study.label || '<em>No title</em>'}</strong></td>
+                <td style="text-align: center;">${questionCount}</td>
+                <td style="text-align: center;">
+                    ${selfieNeeded ? '<i class="fas fa-camera" style="color: #10b981; font-size: 18px;" title="Selfie Required"></i>' : '<i class="fas fa-minus-circle" style="color: #d1d5db; font-size: 18px;" title="No Selfie"></i>'}
+                </td>
+                <td style="text-align: center;">24</td>
                 <td>
-                    <span class="status-badge ${study.status === 'Active' ? 'status-active' : 'status-inactive'}">
+                    <span class="status-badge ${statusClass}">
                         ${study.status}
                     </span>
                 </td>
-                <td>${study.edc}</td>
-                <td>
-                    <button class="action-btn edit" onclick="studyManager.editStudy(${study.id})" title="Edit">
-                        <i class="fas fa-pencil-alt"></i>
-                    </button>
-                    <button class="action-btn delete" onclick="studyManager.deleteStudy(${study.id})" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                <td style="font-size: 13px; color: #6b7280;">${createdDate}</td>
+                <td style="text-align: center; position: relative;">
+                    <div class="action-menu-container">
+                        <button class="action-menu-btn" onclick="studyManager.toggleActionMenu(event, '${study.id}')" title="Actions">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="action-menu" id="action-menu-${study.id}" style="display: none;">
+                            <div class="action-menu-item" onclick="studyManager.editStudy('${study.id}')">
+                                <i class="fas fa-pencil-alt"></i> Edit
+                            </div>
+                            <div class="action-menu-item" onclick="studyManager.openMobilePreview('${study.studyId}')">
+                                <i class="fas fa-mobile-alt"></i> Mobile Preview
+                            </div>
+                            <div class="action-menu-item delete" onclick="studyManager.deleteStudy('${study.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </div>
+                        </div>
+                    </div>
                 </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
 
         // Update pagination info
         const totalStudies = this.filteredStudies.length;
@@ -394,7 +435,37 @@ class StudyManager {
             }
         }
     }
+
+    openMobilePreview(studyId) {
+        // Open mobile preview in new tab
+        const previewUrl = `/mobilepreview?studyId=${encodeURIComponent(studyId)}`;
+        window.open(previewUrl, '_blank');
+    }
+
+    toggleActionMenu(event, studyId) {
+        event.stopPropagation();
+        const menu = document.getElementById(`action-menu-${studyId}`);
+        
+        // Close all other menus
+        document.querySelectorAll('.action-menu').forEach(m => {
+            if (m.id !== `action-menu-${studyId}`) {
+                m.style.display = 'none';
+            }
+        });
+        
+        // Toggle current menu
+        if (menu) {
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+    }
 }
+
+// Close menus when clicking outside
+document.addEventListener('click', () => {
+    document.querySelectorAll('.action-menu').forEach(menu => {
+        menu.style.display = 'none';
+    });
+});
 
 // Initialize on page load
 let studyManager;

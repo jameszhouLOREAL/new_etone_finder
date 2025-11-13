@@ -102,6 +102,14 @@
             background: #fee2e2;
             color: #991b1b;
         }
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-published {
+            background: #dbeafe;
+            color: #1e40af;
+        }
         .action-btn {
             border: none;
             background: none;
@@ -211,6 +219,62 @@
             content: " *";
             color: #dc2626;
         }
+        
+        /* Action Menu Styles */
+        .action-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        .action-menu-btn {
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+        .action-menu-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #374151;
+        }
+        .action-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            min-width: 180px;
+            overflow: hidden;
+        }
+        .action-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #374151;
+            transition: background 0.2s;
+        }
+        .action-menu-item:hover {
+            background: #f9fafb;
+        }
+        .action-menu-item.delete {
+            color: #dc2626;
+        }
+        .action-menu-item.delete:hover {
+            background: #fef2f2;
+        }
+        .action-menu-item i {
+            width: 16px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -231,10 +295,6 @@
                     <div class="nav-item active">
                         <span class="nav-item-icon">📋</span>
                         <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="studyDesignNavItem">
-                        <span class="nav-item-icon">✏️</span>
-                        <span>Study Design</span>
                     </div>
                     <div class="nav-item" id="algorithmManagementNavItem">
                         <span class="nav-item-icon">🧠</span>
@@ -306,10 +366,10 @@
                 <div class="table-toolbar">
                     <div class="d-flex align-items-center gap-2">
                         <label class="toggle-switch mb-0">
-                            <input type="checkbox" id="activeOnlyFilter" checked>
+                            <input type="checkbox" id="activeOnlyFilter">
                             <span class="toggle-slider"></span>
                         </label>
-                        <span style="font-size: 13px; white-space: nowrap;">Display only active studies</span>
+                        <span style="font-size: 13px; white-space: nowrap;">Display only published studies</span>
                     </div>
                     <div style="display: flex; gap: var(--spacing-3);">
                         <button class="btn btn-primary" id="createStudyBtn">
@@ -335,12 +395,14 @@
                             <th style="width: 50px;">
                                 <input type="checkbox" id="selectAll">
                             </th>
-                            <th style="width: 80px;">ID</th>
-                            <th>Study ID</th>
-                            <th>Label</th>
+                            <th style="width: 140px;">Study ID</th>
+                            <th>Study Title</th>
+                            <th style="width: 100px;">Questions</th>
+                            <th style="width: 100px; text-align: center;">Selfie</th>
+                            <th style="width: 120px;">Submissions</th>
                             <th style="width: 120px;">Status</th>
-                            <th style="width: 180px;">EDC</th>
-                            <th style="width: 100px;">Actions</th>
+                            <th style="width: 160px;">Created</th>
+                            <th style="width: 150px; text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="studyTableBody">
@@ -542,9 +604,6 @@
             document.getElementById('urlGeneratorNavItem')?.addEventListener('click', navigateToURLGenerator);
             document.getElementById('studyManagementNavItem')?.addEventListener('click', navigateToStudyManagement);
             document.getElementById('algorithmManagementNavItem')?.addEventListener('click', navigateToAlgorithmManagement);
-            document.getElementById('studyDesignNavItem')?.addEventListener('click', () => {
-                window.location.href = '/studydesign';
-            });
             document.getElementById('analyticsNavItem')?.addEventListener('click', () => {
                 window.location.href = '/analytics';
             });

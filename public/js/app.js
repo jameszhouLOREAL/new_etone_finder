@@ -549,10 +549,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showStudyManagement();
     });
     
-    document.getElementById('studyDesignNavItem')?.addEventListener('click', function() {
-        window.location.href = '/studydesign';
-    });
-    
     document.getElementById('algorithmManagementNavItem')?.addEventListener('click', function() {
         showAlgorithmManagement();
     });

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mobile Capture UI</title>
+  <style>
+    :root{
+      --ok:#1fc26b;
+      --bg:#0b0b0c;
+      --fg:#f7f7f8;
+      --muted:#a7a8ad;
+      --pill:#cfead6;
+      --accent:#0ea5e9;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:#111;font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
+    /* App frame (mobile) */
+    .phone{
+      height:100dvh; width:100%;
+      max-width:440px; margin:0 auto; position:relative;
+      background:#000; color:var(--fg); overflow:hidden;
+    }
+    /* Fake status bar */
+    .status{
+      position:absolute; top:0; left:0; right:0;
+      height:56px; padding:8px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; background:rgba(0,0,0,.55); backdrop-filter: blur(6px);
+      z-index:10;
+    }
+    .status .left, .status .right{display:flex; align-items:center; gap:10px; font-weight:600}
+    .pill{
+      background:#1f2937; color:#e5e7eb; border-radius:20px; padding:4px 10px; font-size:12px;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}
+    /* Top OK checks */
+    .checks{
+      position:absolute; top:56px; left:0; right:0;
+      background:linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.0));
+      padding:8px 14px; display:flex; justify-content:space-between; z-index:9; font-size:12px;
+    }
+    .checks span b{color:var(--ok)}
+    /* Camera preview area */
+    .preview{
+      position:absolute; inset:0; display:grid; place-items:center;
+    }
+    .preview img, .preview .placeholder{
+      position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    }
+    .placeholder{
+      background:
+        radial-gradient(60% 60% at 50% 35%, #333 0%, #111 60%),
+        linear-gradient(180deg, #222, #000);
+    }
+    /* Bottom controls */
+    .bottom{
+      position:absolute; left:0; right:0; bottom:0;
+      padding:18px 16px 24px; display:grid; gap:16px; z-index:10;
+      background:linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,0) 60%);
+    }
+    .prompt{
+      margin:0 auto; padding:12px 18px; font-weight:600;
+      background:var(--pill); color:#0b3b20; border-radius:18px; max-width:85%;
+      text-align:center;
+    }
+    .tray{
+      display:flex; align-items:center; justify-content:space-between; padding:0 8px;
+    }
+    /* AUTO toggle */
+    .toggle{
+      display:flex; align-items:center; gap:10px; font-size:12px; color:#cbd5e1;
+    }
+    .sw{
+      inline-size:46px; block-size:26px; background:#0a0a0a; border:1px solid #2b2b2b;
+      border-radius:999px; position:relative; cursor:pointer;
+    }
+    .sw.on{background:#052e1d; border-color:#0d5a3a;}
+    .knob{
+      position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%;
+      background:#e5e7eb; transition:left .18s ease;
+    }
+    .sw.on .knob{ left:22px; background:#e7ffe8; }
+    .label{font-weight:700; color:#b9ffcb; background:#06361f; padding:2px 8px; border-radius:12px; letter-spacing:.5px}
+    /* Countdown */
+    .count{
+      width:84px; height:84px; border-radius:50%;
+      border:4px solid rgba(255,255,255,.15);
+      display:grid; place-items:center; font-weight:800; font-size:40px; color:#fff; opacity:.95;
+      box-shadow:0 6px 20px rgba(0,0,0,.45);
+    }
+    /* Shutter button */
+    .shutter{
+      width:64px; height:64px; border-radius:50%; display:grid; place-items:center;
+      background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); cursor:pointer;
+    }
+    .shutter .inner{
+      width:46px; height:46px; border-radius:50%; background:#fff;
+      box-shadow:inset 0 0 0 3px rgba(0,0,0,.05);
+      transition:transform .08s ease;
+    }
+    .shutter:active .inner{ transform:scale(.94); }
+    /* Safe area for iOS notches */
+    .status{padding-top:calc(8px + env(safe-area-inset-top));}
+    .bottom{padding-bottom:calc(24px + env(safe-area-inset-bottom));}
+    /* Small helpers */
+    .sr{position:absolute; width:1px; height:1px; clip:rect(0 0 0 0); overflow:hidden; white-space:nowrap}
+    @media (min-width:600px){
+      .phone{border-radius:28px; box-shadow:0 30px 80px rgba(0,0,0,.6); margin:14px auto}
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" role="application" aria-label="Face capture screen">
+    <!-- STATUS BAR (mock) -->
+    <div class="status" aria-hidden="true">
+      <div class="left">
+        <span class="pill">3:08</span>
+        <span class="pill">LTE</span>
+      </div>
+      <div class="right">
+        <span class="pill">🔔</span>
+        <span class="pill">94%</span>
+      </div>
+    </div>
+
+    <!-- TOP OK CHECKS -->
+    <div class="checks" aria-live="polite">
+      <span><i class="dot"></i>Distance <b>OK</b></span>
+      <span><i class="dot"></i>Tilt <b>OK</b></span>
+      <span><i class="dot"></i>Light <b>OK</b></span>
+      <span><i class="dot"></i>Eyes <b>OK</b></span>
+    </div>
+
+    <!-- PREVIEW -->
+    <section class="preview" aria-label="Camera preview">
+      <!-- Replace image src with a webcam stream/canvas in your app -->
+      <!-- <img src="face.jpg" alt="" /> -->
+      <div class="placeholder" aria-hidden="true"></div>
+    </section>
+
+    <!-- BOTTOM UI -->
+    <section class="bottom" aria-label="Controls">
+      <p class="prompt" id="prompt">Hold still, ready to take</p>
+
+      <div class="tray">
+        <!-- AUTO toggle -->
+        <div class="toggle">
+          <button id="autoSwitch" class="sw on" aria-pressed="true" aria-label="Auto capture on">
+            <span class="knob"></span>
+          </button>
+          <span class="label">AUTO</span>
+        </div>
+
+        <!-- Countdown -->
+        <div class="count" id="count">2</div>
+
+        <!-- Shutter -->
+        <button id="shutter" class="shutter" aria-label="Take photo">
+          <span class="inner"></span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Simple interactivity: toggle AUTO, fake countdown + capture
+    const sw = document.getElementById('autoSwitch');
+    const count = document.getElementById('count');
+    const shutter = document.getElementById('shutter');
+    const promptEl = document.getElementById('prompt');
+
+    sw.addEventListener('click', () => {
+      const on = sw.classList.toggle('on');
+      sw.setAttribute('aria-pressed', String(on));
+    });
+
+    let ticking = false;
+    function runCountdown(start=2){
+      if(ticking) return;
+      ticking = true;
+      promptEl.textContent = 'Hold still, ready to take';
+      let n = start;
+      count.textContent = n;
+      const id = setInterval(()=> {
+        n -= 1;
+        count.textContent = Math.max(n,0);
+        if(n <= 0){
+          clearInterval(id);
+          flash();
+          promptEl.textContent = 'Captured';
+          setTimeout(()=>{ promptEl.textContent = 'Hold still, ready to take'; ticking=false; }, 900);
+        }
+      }, 1000);
+    }
+
+    function flash(){
+      const f = document.createElement('div');
+      f.style.position='absolute';
+      f.style.inset='0';
+      f.style.background='white';
+      f.style.opacity='0.9';
+      f.style.transition='opacity .25s ease';
+      document.querySelector('.phone').appendChild(f);
+      requestAnimationFrame(()=> f.style.opacity='0');
+      setTimeout(()=> f.remove(), 260);
+    }
+
+    shutter.addEventListener('click', ()=> runCountdown(2));
+    // Auto mode: start a countdown on load
+    window.addEventListener('load', ()=> runCountdown(2));
+  </script>
+</body>
+</html>

@@ -5,6 +5,11 @@ let questions = [];
 let questionIdCounter = 1;
 let currentStudyId = null; // Store the current study ID if editing
 
+// Generate unique study ID using timestamp
+function generateStudyId() {
+    return Date.now().toString();
+}
+
 // Initialize the form builder
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
@@ -15,6 +20,14 @@ document.addEventListener('DOMContentLoaded', function() {
 async function checkForEditMode() {
     const urlParams = new URLSearchParams(window.location.search);
     const studyId = urlParams.get('studyId');
+    const isNewStudy = urlParams.get('new');
+    
+    // If explicitly creating a new study, clear everything
+    if (isNewStudy === 'true') {
+        clearStudyForm();
+        console.log('Starting new study from scratch');
+        return;
+    }
     
     if (studyId) {
         try {
@@ -44,6 +57,13 @@ function loadStudyData(study) {
     // Set form title and description
     if (study.title) {
         document.getElementById('formTitle').value = study.title;
+        // Update page title to include study name
+        document.title = `Edit: ${study.title} - Study Design`;
+        // Update the study title header
+        const titleDisplay = document.getElementById('studyTitleDisplay');
+        if (titleDisplay) {
+            titleDisplay.textContent = study.title;
+        }
     }
     if (study.description) {
         document.getElementById('formDescription').value = study.description;
@@ -71,14 +91,102 @@ function loadStudyData(study) {
         publishBtn.innerHTML = '<i class="fas fa-save"></i> Update Study';
     }
     
+    // When editing, go directly to questionnaire tab
+    if (typeof switchTab === 'function') {
+        switchTab('questionnaire');
+    }
+    
     updatePreview();
 }
 
 // Event Listeners
 function initializeEventListeners() {
     // Form title and description updates
-    document.getElementById('formTitle').addEventListener('input', updatePreview);
+    document.getElementById('formTitle').addEventListener('input', function() {
+        updatePreview();
+        // Update the study title header when title changes
+        const titleValue = this.value.trim();
+        const titleDisplay = document.getElementById('studyTitleDisplay');
+        if (titleDisplay) {
+            titleDisplay.textContent = titleValue || 'New Study';
+        }
+        // Hide error if title is not empty
+        const titleError = document.getElementById('titleError');
+        if (titleError && titleValue) {
+            titleError.classList.remove('visible');
+            this.style.borderColor = '#d1d5db';
+        }
+    });
+    
+    document.getElementById('formTitle').addEventListener('blur', function() {
+        // Show error if title is empty on blur
+        const titleValue = this.value.trim();
+        const titleError = document.getElementById('titleError');
+        if (titleError && !titleValue) {
+            titleError.classList.add('visible');
+            this.style.borderColor = '#ef4444';
+        }
+    });
+    
     document.getElementById('formDescription').addEventListener('input', updatePreview);
+    
+    // Customer instruction fields
+    const instructionTitleField = document.getElementById('instructionTitle');
+    const instructionTextField = document.getElementById('instructionText');
+    if (instructionTitleField) {
+        instructionTitleField.addEventListener('input', updatePreview);
+    }
+    if (instructionTextField) {
+        instructionTextField.addEventListener('input', updatePreview);
+    }
+    
+    // Selfie configuration master toggle
+    const selfieNeededCheckbox = document.getElementById('selfieNeeded');
+    if (selfieNeededCheckbox) {
+        selfieNeededCheckbox.addEventListener('change', function() {
+            const configOptions = document.getElementById('selfieConfigOptions');
+            if (configOptions) {
+                configOptions.style.display = this.checked ? 'block' : 'none';
+            }
+        });
+    }
+    
+    // Selfie configuration validation toggles
+    const enableValidationsCheckbox = document.getElementById('enableValidations');
+    if (enableValidationsCheckbox) {
+        enableValidationsCheckbox.addEventListener('change', function() {
+            const validationOptions = document.getElementById('validationOptions');
+            if (validationOptions) {
+                validationOptions.style.display = this.checked ? 'block' : 'none';
+            }
+        });
+    }
+    
+    // Individual validation checkboxes
+    const validationTypes = ['light', 'distance', 'tilt', 'expression', 'eyes'];
+    validationTypes.forEach(type => {
+        const checkbox = document.getElementById(`${type}Validation`);
+        const thresholds = document.getElementById(`${type}Thresholds`);
+        if (checkbox && thresholds) {
+            checkbox.addEventListener('change', function() {
+                thresholds.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+    });
+    
+    // Click outside to exit edit mode
+    document.addEventListener('click', function(e) {
+        // Check if click is outside any question card
+        const clickedCard = e.target.closest('.question-card');
+        if (!clickedCard) {
+            // Exit all edit modes
+            const hasEditMode = questions.some(q => q.editMode);
+            if (hasEditMode) {
+                questions.forEach(q => q.editMode = false);
+                reRenderAllQuestions();
+            }
+        }
+    });
     
     // Question type buttons
     document.querySelectorAll('.question-type-btn').forEach(btn => {
@@ -91,13 +199,63 @@ function initializeEventListeners() {
     
     // Add question button
     document.getElementById('addQuestionBtn').addEventListener('click', function() {
-        addQuestion('text'); // Add a default text question directly
+        addQuestionQuick();
     });
     
     // Action buttons
     document.getElementById('saveDraftBtn').addEventListener('click', saveDraft);
     document.getElementById('publishBtn').addEventListener('click', publishStudy);
-    document.getElementById('previewBtn').addEventListener('click', showPreview);
+    // Preview button now handled by togglePreview() in HTML
+}
+
+// Quick add question from inline input (React prototype style)
+function addQuestionQuick() {
+    const input = document.getElementById('quickQuestionInput');
+    const typeSelect = document.getElementById('quickQuestionType');
+    
+    const questionText = input ? input.value.trim() : '';
+    const questionType = typeSelect ? typeSelect.value : 'text';
+    
+    if (!questionText && input) {
+        // If empty, just add a default question in edit mode
+        addQuestion(questionType);
+        return;
+    }
+    
+    if (questionText) {
+        // Set all existing questions to preview mode
+        questions.forEach(q => q.editMode = false);
+        
+        const question = {
+            id: questionIdCounter++,
+            type: questionType,
+            text: questionText,
+            required: false,
+            options: [],
+            logic: null,
+            editMode: false // Add directly to preview mode since we have text
+        };
+        
+        // Set default options for choice-based questions
+        if (questionType === 'choice' || ['single-choice', 'multiple-choice', 'dropdown'].includes(questionType)) {
+            question.options = ['Option 1', 'Option 2', 'Option 3'];
+        } else if (questionType === 'ranking') {
+            question.options = ['Item 1', 'Item 2', 'Item 3'];
+        } else if (questionType === 'likert') {
+            question.options = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+        } else if (questionType === 'rating') {
+            question.maxRating = 5;
+        }
+        
+        questions.push(question);
+        
+        // Clear input
+        if (input) input.value = '';
+        
+        // Re-render and update
+        reRenderAllQuestions();
+        updatePreview();
+    }
 }
 
 // Toggle question toolbar visibility
@@ -142,6 +300,18 @@ function addQuestion(type) {
     // Re-render all questions to update their modes
     reRenderAllQuestions();
     updatePreview();
+    
+    // Auto-focus on the new question's input field
+    setTimeout(() => {
+        const newQuestionCard = document.querySelector(`[data-question-id="${question.id}"]`);
+        if (newQuestionCard) {
+            const inputField = newQuestionCard.querySelector('.question-text-input');
+            if (inputField) {
+                inputField.focus();
+                inputField.select(); // Also select the text if any
+            }
+        }
+    }, 100); // Increased timeout slightly for more reliable focus
 }
 
 // Render a question card
@@ -155,32 +325,33 @@ function renderQuestion(question) {
     const questionNumber = questions.findIndex(q => q.id === question.id) + 1;
     
     if (question.editMode) {
-        // Edit Mode - Full editing interface
+        // Edit Mode - Minimal editing interface
         questionCard.innerHTML = `
             <div class="question-header">
+                <div class="question-header-left">
+                    <span class="question-number">Q${questionNumber}</span>
+                    <input type="text" class="question-text-input" placeholder="Type your question..." value="${question.text}" 
+                           onchange="updateQuestionText(${question.id}, this.value)"
+                           style="flex: 1; font-size: 14px; font-weight: 500; border: none; outline: none; padding: 0; color: #111827; line-height: 1.5;">
+                    <select class="question-type-selector" onchange="changeQuestionType(${question.id}, this.value)"
+                           style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; background: white;">
+                        ${getQuestionTypeOptions(question.type)}
+                    </select>
+                </div>
                 <div class="question-actions">
+                    <button class="question-action-btn" title="Drag to reorder">
+                        <i class="fas fa-grip-vertical"></i>
+                    </button>
                     <button class="question-action-btn" onclick="duplicateQuestion(${question.id})" title="Duplicate">
                         <i class="far fa-copy"></i>
                     </button>
                     <button class="question-action-btn" onclick="deleteQuestion(${question.id})" title="Delete">
                         <i class="far fa-trash-alt"></i>
                     </button>
-                    <button class="question-action-btn" title="Drag to reorder">
-                        <i class="fas fa-grip-vertical"></i>
-                    </button>
                 </div>
             </div>
             
             <div class="question-content">
-                <div class="question-input-row">
-                    <div class="question-number">${questionNumber}</div>
-                    <input type="text" placeholder="Enter your question" value="${question.text}" 
-                           onchange="updateQuestionText(${question.id}, this.value)">
-                    
-                    <select class="question-type-selector" onchange="changeQuestionType(${question.id}, this.value)">
-                        ${getQuestionTypeOptions(question.type)}
-                    </select>
-                </div>
                 
                 ${renderQuestionOptions(question)}
             </div>
@@ -194,25 +365,34 @@ function renderQuestion(question) {
                 <label class="question-setting-toggle">
                     <input type="checkbox" ${question.logic ? 'checked' : ''} 
                            onchange="toggleLogic(${question.id}, this.checked)">
-                    Add Logic
+                    Add logic
                 </label>
+                <span class="question-settings-divider">•</span>
+                <span>Type: ${getQuestionTypeLabel(question.type)}</span>
             </div>
             
             ${question.logic ? renderLogicSection(question) : ''}
         `;
     } else {
-        // Preview Mode - Shows question with options
+        // Preview Mode - Minimal preview with Q# format
         const questionText = question.text || 'Enter your question';
-        const typeIcon = getQuestionTypeIcon(question.type);
         const previewOptions = renderQuestionPreview(question);
         
         questionCard.innerHTML = `
             <div class="question-preview" onclick="enterEditMode(${question.id})">
                 <div class="question-preview-header">
-                    <div class="question-number">${questionNumber}</div>
                     <div class="question-preview-title">
-                        <div class="question-preview-text">${questionText}</div>
+                        <span class="question-number-label">Q${questionNumber}</span>
+                        <span class="question-preview-text">${questionText}</span>
                         ${question.required ? '<span class="required-badge">Required</span>' : ''}
+                    </div>
+                    <div class="question-actions">
+                        <button class="question-action-btn" onclick="event.stopPropagation(); duplicateQuestion(${question.id})" title="Duplicate">
+                            <i class="far fa-copy"></i>
+                        </button>
+                        <button class="question-action-btn" onclick="event.stopPropagation(); deleteQuestion(${question.id})" title="Delete">
+                            <i class="far fa-trash-alt"></i>
+                        </button>
                     </div>
                 </div>
                 ${previewOptions}
@@ -232,16 +412,32 @@ function renderQuestion(question) {
 // Get question type options for dropdown
 function getQuestionTypeOptions(selectedType) {
     const types = [
-        { value: 'text', label: '📝 Text Question', icon: '📝' },
-        { value: 'choice', label: '⚪ Choice', icon: '⚪' },
-        { value: 'rating', label: '⭐ Rating', icon: '⭐' },
-        { value: 'date', label: '📅 Date', icon: '📅' },
-        { value: 'ranking', label: '🔢 Ranking', icon: '🔢' }
+        { value: 'text', label: 'Text' },
+        { value: 'choice', label: 'Multiple Choice' },
+        { value: 'rating', label: 'Rating' },
+        { value: 'date', label: 'Date' },
+        { value: 'ranking', label: 'Ranking' }
     ];
     
     return types.map(type => 
         `<option value="${type.value}" ${type.value === selectedType ? 'selected' : ''}>${type.label}</option>`
     ).join('');
+}
+
+// Get question type label
+function getQuestionTypeLabel(type) {
+    const labels = {
+        'text': 'Text',
+        'choice': 'Multiple Choice',
+        'single-choice': 'Multiple Choice',
+        'multiple-choice': 'Checkboxes',
+        'rating': 'Rating',
+        'date': 'Date',
+        'ranking': 'Ranking',
+        'likert': 'Likert Scale',
+        'dropdown': 'Dropdown'
+    };
+    return labels[type] || 'Text';
 }
 
 // Get question type icon
@@ -530,14 +726,33 @@ function updatePreview() {
     const title = document.getElementById('formTitle').value || 'Untitled Study';
     const description = document.getElementById('formDescription').value || 'Add a description for your study...';
     
-    document.getElementById('previewTitle').textContent = title;
-    document.getElementById('previewDescription').textContent = description;
+    document.getElementById('previewTitle').textContent = 'Please answer questions';
+    document.getElementById('previewDescription').style.display = 'none';
+    
+    // Check if instruction page exists - always show instruction page
+    const instructionTitle = document.getElementById('instructionTitle')?.value || '';
+    const instructionText = document.getElementById('instructionText')?.value || '';
+    const hasInstructionPage = true; // Always show instruction page
+    
+    // Check if selfie is needed
+    const selfieNeeded = document.getElementById('selfieNeeded')?.checked || false;
+    
+    const instructionSection = document.getElementById('previewInstructionSection');
+    const previewInstructionTitle = document.getElementById('previewInstructionTitle');
+    const previewInstructionText = document.getElementById('previewInstructionText');
+    const previewHeader = document.querySelector('.preview-form-header');
+    const previewQuestions = document.getElementById('previewQuestions');
+    
+    // Update instruction content - show empty if no content
+    if (previewInstructionTitle) previewInstructionTitle.textContent = instructionTitle;
+    if (previewInstructionText) previewInstructionText.textContent = instructionText;
     
     // Filter out section breaks for pagination
     const displayableQuestions = questions.filter(q => q.type !== 'section-break');
     
-    // Update total pages
-    const totalPages = Math.max(1, displayableQuestions.length);
+    // Calculate total pages (instruction page + question pages + selfie page if needed)
+    const questionPages = Math.max(1, displayableQuestions.length);
+    const totalPages = questionPages + 1 + (selfieNeeded ? 1 : 0); // Instruction + questions + (optionally selfie)
     document.getElementById('previewTotalPages').textContent = totalPages;
     
     // Ensure current page is within bounds
@@ -545,8 +760,38 @@ function updatePreview() {
         previewCurrentPage = Math.max(0, totalPages - 1);
     }
     
+    // Determine if we're on the instruction page or selfie page
+    const isInstructionPage = hasInstructionPage && previewCurrentPage === 0;
+    const isSelfiePage = selfieNeeded && previewCurrentPage === totalPages - 1;
+    
+    // Show/hide instruction section vs questionnaire vs selfie
+    if (isInstructionPage) {
+        // Show instruction page
+        if (instructionSection) instructionSection.style.display = 'block';
+        if (previewHeader) previewHeader.style.display = 'none';
+        if (previewQuestions) previewQuestions.style.display = 'none';
+    } else if (isSelfiePage) {
+        // Show selfie page - remove padding for full screen
+        if (instructionSection) instructionSection.style.display = 'none';
+        if (previewHeader) previewHeader.style.display = 'none';
+        if (previewQuestions) {
+            previewQuestions.style.display = 'block';
+            previewQuestions.style.padding = '0';
+            previewQuestions.style.position = 'relative';
+        }
+    } else {
+        // Show questionnaire page - restore normal padding
+        if (instructionSection) instructionSection.style.display = 'none';
+        if (previewHeader) previewHeader.style.display = 'block';
+        if (previewQuestions) {
+            previewQuestions.style.display = 'block';
+            previewQuestions.style.padding = '20px 16px';
+            previewQuestions.style.position = 'static';
+        }
+    }
+    
     // Update current page display
-    document.getElementById('previewCurrentPage').textContent = totalPages > 0 ? previewCurrentPage + 1 : 1;
+    document.getElementById('previewCurrentPage').textContent = previewCurrentPage + 1;
     
     // Update progress bar
     const progressPercentage = totalPages > 0 ? ((previewCurrentPage + 1) / totalPages) * 100 : 0;
@@ -569,31 +814,45 @@ function updatePreview() {
         nextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
     }
     
-    // Render current question
-    const previewQuestions = document.getElementById('previewQuestions');
-    previewQuestions.innerHTML = '';
-    
-    if (displayableQuestions.length > 0 && previewCurrentPage < displayableQuestions.length) {
-        const question = displayableQuestions[previewCurrentPage];
-        const questionIndex = questions.indexOf(question);
+    // Render current question (only if not on instruction page)
+    if (!isInstructionPage) {
+        const questionContainer = document.getElementById('previewQuestions');
+        questionContainer.innerHTML = '';
         
-        const questionDiv = document.createElement('div');
-        questionDiv.className = 'preview-question';
-        
-        const label = document.createElement('div');
-        label.className = 'preview-question-label';
-        label.innerHTML = `${questionIndex + 1}. ${question.text || 'Question text'}`;
-        if (question.required) {
-            label.innerHTML += ' <span class="required-indicator">*</span>';
+        if (isSelfiePage) {
+            // Show selfie mockup - Fill entire screen
+            questionContainer.innerHTML = `
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; padding: 0; margin: 0;">
+                    <img src="/public/selfiemockup.png" alt="Selfie Capture" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+            `;
+        } else {
+            // Adjust question index if instruction page exists
+            const adjustedPage = hasInstructionPage ? previewCurrentPage - 1 : previewCurrentPage;
+            
+            if (displayableQuestions.length > 0 && adjustedPage >= 0 && adjustedPage < displayableQuestions.length) {
+                const question = displayableQuestions[adjustedPage];
+                const questionIndex = questions.indexOf(question);
+                
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'preview-question';
+                
+                const label = document.createElement('div');
+                label.className = 'preview-question-label';
+                label.innerHTML = `${questionIndex + 1}. ${question.text || 'Question text'}`;
+                if (question.required) {
+                    label.innerHTML += ' <span class="required-indicator">*</span>';
+                }
+                questionDiv.appendChild(label);
+                
+                const inputDiv = renderPreviewInput(question);
+                questionDiv.appendChild(inputDiv);
+                
+                questionContainer.appendChild(questionDiv);
+            } else if (displayableQuestions.length === 0) {
+                questionContainer.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 40px 20px;">No questions added yet</div>';
+            }
         }
-        questionDiv.appendChild(label);
-        
-        const inputDiv = renderPreviewInput(question);
-        questionDiv.appendChild(inputDiv);
-        
-        previewQuestions.appendChild(questionDiv);
-    } else if (displayableQuestions.length === 0) {
-        previewQuestions.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 40px 20px;">No questions added yet</div>';
     }
 }
 
@@ -606,7 +865,10 @@ function previewPrevPage() {
 
 function previewNextPage() {
     const displayableQuestions = questions.filter(q => q.type !== 'section-break');
-    if (previewCurrentPage < displayableQuestions.length - 1) {
+    const selfieNeeded = document.getElementById('selfieNeeded')?.checked || false;
+    const totalPages = displayableQuestions.length + 1 + (selfieNeeded ? 1 : 0);
+    
+    if (previewCurrentPage < totalPages - 1) {
         previewCurrentPage++;
         updatePreview();
     }
@@ -746,16 +1008,58 @@ function handleDragEnd(e) {
 }
 
 // Action button handlers
-function saveDraft() {
+async function saveDraft() {
+    const title = document.getElementById('formTitle').value;
+    
+    if (!title.trim()) {
+        alert('Please enter a study title before saving draft.');
+        return;
+    }
+    
     const formData = getFormData();
+    formData.status = 'Draft';
     
-    // Save to localStorage
-    localStorage.setItem('studyDraft', JSON.stringify(formData));
+    // Use existing study ID or generate a new one using timestamp
+    if (currentStudyId) {
+        formData.studyId = currentStudyId;
+    } else if (!formData.studyId) {
+        formData.studyId = generateStudyId();
+    }
     
-    // Download as JSON file
-    downloadJSON(formData, `study-draft-${Date.now()}.json`);
+    formData.label = title;
+    formData.edc = 'VCA-STUDY';
     
-    alert('✓ Draft saved successfully!\n\nThe study has been saved to localStorage and downloaded as a JSON file.');
+    try {
+        // Use PUT for updates, POST for new drafts
+        const method = currentStudyId ? 'PUT' : 'POST';
+        const url = currentStudyId ? `/api/studies/${encodeURIComponent(currentStudyId)}` : '/api/studies';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            // Save to localStorage
+            localStorage.setItem('studyDraft', JSON.stringify(formData));
+            
+            // Update current study ID if this was a new draft
+            if (!currentStudyId) {
+                currentStudyId = formData.studyId;
+            }
+            
+            alert('✓ Draft saved successfully!\n\nThe study has been saved as a draft.');
+        } else {
+            const error = await response.json();
+            alert('Failed to save draft: ' + (error.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error saving draft:', error);
+        alert('Failed to save draft. Please try again.');
+    }
 }
 
 async function publishStudy() {
@@ -772,30 +1076,33 @@ async function publishStudy() {
     }
     
     const confirmMessage = currentStudyId 
-        ? `Are you sure you want to update "${title}"?\n\nThis will save your changes.`
+        ? `Are you sure you want to publish "${title}"?\n\nThis will update the study status to Published.`
         : `Are you sure you want to publish "${title}"?\n\nThis will save the study to the system.`;
     
     if (confirm(confirmMessage)) {
         const formData = getFormData();
         formData.publishedAt = new Date().toISOString();
-        formData.status = 'Active';
+        formData.status = 'Published';
         
-        // Use existing study ID or generate a new one
+        // Use existing study ID or generate a new one using timestamp
         if (currentStudyId) {
             formData.studyId = currentStudyId;
         } else if (!formData.studyId) {
-            const timestamp = Date.now();
-            const cleanTitle = title.toUpperCase().replace(/[^A-Z0-9]/g, '-').substring(0, 20);
-            formData.studyId = `${cleanTitle}-${timestamp}`;
+            formData.studyId = generateStudyId();
         }
         
         formData.label = title;
         formData.edc = 'VCA-STUDY';
         
+        console.log('Publishing study with status:', formData.status);
+        console.log('Study ID:', formData.studyId);
+        
         try {
             // Use PUT for updates, POST for new studies
             const method = currentStudyId ? 'PUT' : 'POST';
             const url = currentStudyId ? `/api/studies/${encodeURIComponent(currentStudyId)}` : '/api/studies';
+            
+            console.log('Using method:', method, 'URL:', url);
             
             const response = await fetch(url, {
                 method: method,
@@ -807,18 +1114,20 @@ async function publishStudy() {
             
             if (response.ok) {
                 const successMessage = currentStudyId 
-                    ? '✓ Study updated successfully!\n\nRedirecting to Study Management...'
+                    ? '✓ Study published successfully!\n\nRedirecting to Study Management...'
                     : '✓ Study published successfully!\n\nRedirecting to Study Management...';
                 alert(successMessage);
+                // Clear localStorage draft
+                localStorage.removeItem('studyDraft');
                 // Redirect to study management page
                 window.location.href = '/studymanagement';
             } else {
                 const error = await response.json();
-                alert('Failed to save study: ' + (error.error || 'Unknown error'));
+                alert('Failed to publish study: ' + (error.error || 'Unknown error'));
             }
         } catch (error) {
-            console.error('Error saving study:', error);
-            alert('Failed to save study. Please try again.');
+            console.error('Error publishing study:', error);
+            alert('Failed to publish study. Please try again.');
         }
     }
 }
@@ -827,14 +1136,93 @@ async function publishStudy() {
 function getFormData() {
     const titleElement = document.getElementById('formTitle');
     const descriptionElement = document.getElementById('formDescription');
+    const instructionTitleElement = document.getElementById('instructionTitle');
+    const instructionTextElement = document.getElementById('instructionText');
     
-    return {
+    // Collect selfie configuration
+    const selfieNeeded = document.getElementById('selfieNeeded')?.checked || false;
+    let selfieConfig = null;
+    
+    if (selfieNeeded) {
+        selfieConfig = {
+            enabled: true,
+            language: document.getElementById('selfieLanguage')?.value || 'en',
+            camera: document.getElementById('selfieCamera')?.value || 'FRONT',
+            askedZone: document.getElementById('askedZone')?.value || 'FRONT_FACE',
+            autoTake: document.getElementById('autoTake')?.checked || false,
+            showTutorial: document.getElementById('showTutorial')?.checked || false,
+            validations: {}
+        };
+        
+        // Check if custom validations are enabled
+        const validationsEnabled = document.getElementById('enableValidations')?.checked || false;
+        
+        if (validationsEnabled) {
+            // Light validation
+            if (document.getElementById('lightValidation')?.checked) {
+                selfieConfig.validations.light = {
+                    brightnessMin: parseInt(document.getElementById('brightMin')?.value) || 90,
+                    brightnessMax: parseInt(document.getElementById('brightMax')?.value) || 200,
+                    lightingValue: parseInt(document.getElementById('lightingValue')?.value) || 70,
+                    lightColorValue: parseInt(document.getElementById('lightColorValue')?.value) || 20
+                };
+            }
+            
+            // Distance validation
+            if (document.getElementById('distanceValidation')?.checked) {
+                selfieConfig.validations.distance = {
+                    far: parseInt(document.getElementById('distanceFar')?.value) || 10,
+                    close: parseInt(document.getElementById('distanceClose')?.value) || 30
+                };
+            }
+            
+            // Tilt validation
+            if (document.getElementById('tiltValidation')?.checked) {
+                selfieConfig.validations.tilt = {
+                    pitchMin: parseInt(document.getElementById('pitchMin')?.value) || -25,
+                    pitchMax: parseInt(document.getElementById('pitchMax')?.value) || 25,
+                    rollMin: parseInt(document.getElementById('rollMin')?.value) || -20,
+                    rollMax: parseInt(document.getElementById('rollMax')?.value) || 20,
+                    yawMin: parseInt(document.getElementById('yawMin')?.value) || -20,
+                    yawMax: parseInt(document.getElementById('yawMax')?.value) || 20,
+                    rightProfile: parseInt(document.getElementById('rightProfile')?.value) || -35,
+                    leftProfile: parseInt(document.getElementById('leftProfile')?.value) || 35
+                };
+            }
+            
+            // Expression validation
+            if (document.getElementById('expressionValidation')?.checked) {
+                selfieConfig.validations.expression = {
+                    smileRatio: parseFloat(document.getElementById('smileRatio')?.value) || 0.47,
+                    eyebrowHeight: parseFloat(document.getElementById('eyebrowHeight')?.value) || 0.9
+                };
+            }
+            
+            // Eyes validation
+            if (document.getElementById('eyesValidation')?.checked) {
+                selfieConfig.validations.eyes = {
+                    eyeCloseThreshold: parseFloat(document.getElementById('eyeClose')?.value) || 0.15
+                };
+            }
+        }
+    }
+    
+    const formData = {
         title: titleElement ? titleElement.value : 'Untitled Study',
         description: descriptionElement ? descriptionElement.value : '',
+        instructionTitle: instructionTitleElement ? instructionTitleElement.value : '',
+        instructionText: instructionTextElement ? instructionTextElement.value : '',
         questions: questions,
-        createdAt: new Date().toISOString(),
+        selfieConfig: selfieConfig,
         version: '1.0'
     };
+    
+    // Only set createdAt for new studies
+    if (!currentStudyId) {
+        formData.createdAt = new Date().toISOString();
+    }
+    
+    return formData;
 }
 
 // Download data as JSON file
@@ -881,6 +1269,18 @@ function loadStudyData(data) {
     document.getElementById('formTitle').value = data.title || '';
     document.getElementById('formDescription').value = data.description || '';
     
+    // Update the study title header
+    const titleDisplay = document.getElementById('studyTitleDisplay');
+    if (titleDisplay) {
+        titleDisplay.textContent = data.title || 'New Study';
+    }
+    
+    // Load customer instruction fields
+    const instructionTitleElement = document.getElementById('instructionTitle');
+    const instructionTextElement = document.getElementById('instructionText');
+    if (instructionTitleElement) instructionTitleElement.value = data.instructionTitle || '';
+    if (instructionTextElement) instructionTextElement.value = data.instructionText || '';
+    
     // Load settings
     if (data.settings) {
         document.getElementById('startDate').value = data.settings.startDate || '';
@@ -915,6 +1315,118 @@ function loadStudyData(data) {
         });
     }
     
+    // Load selfie configuration
+    if (data.selfieConfig) {
+        const selfieNeededCheckbox = document.getElementById('selfieNeeded');
+        if (selfieNeededCheckbox) {
+            selfieNeededCheckbox.checked = data.selfieConfig.enabled || false;
+            
+            // Trigger change event to show/hide config options
+            const configOptions = document.getElementById('selfieConfigOptions');
+            if (configOptions) {
+                configOptions.style.display = data.selfieConfig.enabled ? 'block' : 'none';
+            }
+        }
+        
+        if (data.selfieConfig.enabled) {
+            // Load basic configuration
+            if (document.getElementById('selfieLanguage')) {
+                document.getElementById('selfieLanguage').value = data.selfieConfig.language || 'en';
+            }
+            if (document.getElementById('selfieCamera')) {
+                document.getElementById('selfieCamera').value = data.selfieConfig.camera || 'FRONT';
+            }
+            if (document.getElementById('askedZone')) {
+                document.getElementById('askedZone').value = data.selfieConfig.askedZone || 'FRONT_FACE';
+            }
+            if (document.getElementById('autoTake')) {
+                document.getElementById('autoTake').checked = data.selfieConfig.autoTake || false;
+            }
+            if (document.getElementById('showTutorial')) {
+                document.getElementById('showTutorial').checked = data.selfieConfig.showTutorial || false;
+            }
+            
+            // Load validations
+            if (data.selfieConfig.validations && Object.keys(data.selfieConfig.validations).length > 0) {
+                const enableValidationsCheckbox = document.getElementById('enableValidations');
+                if (enableValidationsCheckbox) {
+                    enableValidationsCheckbox.checked = true;
+                    const validationOptions = document.getElementById('validationOptions');
+                    if (validationOptions) {
+                        validationOptions.style.display = 'block';
+                    }
+                }
+                
+                // Light validation
+                if (data.selfieConfig.validations.light) {
+                    const lightCheckbox = document.getElementById('lightValidation');
+                    if (lightCheckbox) {
+                        lightCheckbox.checked = true;
+                        const lightThresholds = document.getElementById('lightThresholds');
+                        if (lightThresholds) lightThresholds.style.display = 'block';
+                    }
+                    document.getElementById('brightMin').value = data.selfieConfig.validations.light.brightnessMin || 90;
+                    document.getElementById('brightMax').value = data.selfieConfig.validations.light.brightnessMax || 200;
+                    document.getElementById('lightingValue').value = data.selfieConfig.validations.light.lightingValue || 70;
+                    document.getElementById('lightColorValue').value = data.selfieConfig.validations.light.lightColorValue || 20;
+                }
+                
+                // Distance validation
+                if (data.selfieConfig.validations.distance) {
+                    const distanceCheckbox = document.getElementById('distanceValidation');
+                    if (distanceCheckbox) {
+                        distanceCheckbox.checked = true;
+                        const distanceThresholds = document.getElementById('distanceThresholds');
+                        if (distanceThresholds) distanceThresholds.style.display = 'block';
+                    }
+                    document.getElementById('distanceFar').value = data.selfieConfig.validations.distance.far || 10;
+                    document.getElementById('distanceClose').value = data.selfieConfig.validations.distance.close || 30;
+                }
+                
+                // Tilt validation
+                if (data.selfieConfig.validations.tilt) {
+                    const tiltCheckbox = document.getElementById('tiltValidation');
+                    if (tiltCheckbox) {
+                        tiltCheckbox.checked = true;
+                        const tiltThresholds = document.getElementById('tiltThresholds');
+                        if (tiltThresholds) tiltThresholds.style.display = 'block';
+                    }
+                    document.getElementById('pitchMin').value = data.selfieConfig.validations.tilt.pitchMin || -25;
+                    document.getElementById('pitchMax').value = data.selfieConfig.validations.tilt.pitchMax || 25;
+                    document.getElementById('rollMin').value = data.selfieConfig.validations.tilt.rollMin || -20;
+                    document.getElementById('rollMax').value = data.selfieConfig.validations.tilt.rollMax || 20;
+                    document.getElementById('yawMin').value = data.selfieConfig.validations.tilt.yawMin || -20;
+                    document.getElementById('yawMax').value = data.selfieConfig.validations.tilt.yawMax || 20;
+                    document.getElementById('rightProfile').value = data.selfieConfig.validations.tilt.rightProfile || -35;
+                    document.getElementById('leftProfile').value = data.selfieConfig.validations.tilt.leftProfile || 35;
+                }
+                
+                // Expression validation
+                if (data.selfieConfig.validations.expression) {
+                    const expressionCheckbox = document.getElementById('expressionValidation');
+                    if (expressionCheckbox) {
+                        expressionCheckbox.checked = true;
+                        const expressionThresholds = document.getElementById('expressionThresholds');
+                        if (expressionThresholds) expressionThresholds.style.display = 'block';
+                    }
+                    document.getElementById('smileRatio').value = data.selfieConfig.validations.expression.smileRatio || 0.47;
+                    document.getElementById('eyebrowHeight').value = data.selfieConfig.validations.expression.eyebrowHeight || 0.9;
+                }
+                
+                // Eyes validation
+                if (data.selfieConfig.validations.eyes) {
+                    const eyesCheckbox = document.getElementById('eyesValidation');
+                    if (eyesCheckbox) {
+                        eyesCheckbox.checked = true;
+                        const eyesThresholds = document.getElementById('eyesThresholds');
+                        if (eyesThresholds) eyesThresholds.style.display = 'block';
+                    }
+                    document.getElementById('eyeClose').value = data.selfieConfig.validations.eyes.eyeCloseThreshold || 0.15;
+                }
+            }
+        }
+    }
+    
     updatePreview();
 }
 
@@ -946,6 +1458,38 @@ function loadInitialContent() {
 function loadSampleQuestion() {
     addQuestion('text');
     updateQuestionText(questions[0].id, 'What is your age?');
+}
+
+// Clear study form for creating a new study from scratch
+function clearStudyForm() {
+    // Clear localStorage draft
+    localStorage.removeItem('studyDraft');
+    
+    // Reset all form fields
+    document.getElementById('formTitle').value = '';
+    document.getElementById('formDescription').value = '';
+    
+    // Clear all questions
+    questions = [];
+    questionIdCounter = 1;
+    currentStudyId = null;
+    
+    // Clear the questions container
+    const questionsContainer = document.getElementById('questionsContainer');
+    if (questionsContainer) {
+        questionsContainer.innerHTML = '';
+    }
+    
+    // Reset button text to create mode
+    const publishBtn = document.getElementById('publishBtn');
+    if (publishBtn) {
+        publishBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Study';
+    }
+    
+    // Update preview
+    updatePreview();
+    
+    console.log('Study form cleared - starting fresh');
 }
 
 // Show JSON format help

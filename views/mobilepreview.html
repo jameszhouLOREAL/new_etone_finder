@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Study Preview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .mobile-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+        
+        .study-header {
+            background: #10b981;
+            color: white;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+        }
+        
+        .study-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .study-header p {
+            font-size: 14px;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+        
+        .progress-bar-container {
+            background: #e5e7eb;
+            padding: 12px 20px;
+            border-bottom: 1px solid #d1d5db;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .progress-text {
+            font-size: 13px;
+            color: #6b7280;
+            text-align: center;
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 20px;
+            background: #f9fafb;
+        }
+        
+        .instruction-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+        }
+        
+        .instruction-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .instruction-text {
+            font-size: 15px;
+            color: #374151;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .question-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #10b981;
+            flex-shrink: 0;
+        }
+        
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #111827;
+            line-height: 1.5;
+        }
+        
+        .required-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .question-options {
+            margin-top: 12px;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option-item:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        
+        .option-item.selected {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+        
+        .option-item input[type="radio"],
+        .option-item input[type="checkbox"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #10b981;
+        }
+        
+        .option-label {
+            font-size: 15px;
+            color: #374151;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .text-input,
+        .textarea-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #111827;
+            background: #fff;
+            transition: border-color 0.2s ease;
+        }
+        
+        .text-input:focus,
+        .textarea-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .textarea-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .date-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #111827;
+            background: #fff;
+        }
+        
+        .rating-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 0;
+        }
+        
+        .star-btn {
+            background: none;
+            border: none;
+            font-size: 36px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 4px;
+        }
+        
+        .star-btn.active {
+            color: #fbbf24;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: move;
+        }
+        
+        .ranking-item.dragging {
+            opacity: 0.5;
+        }
+        
+        .drag-handle {
+            margin-right: 12px;
+            color: #9ca3af;
+            font-size: 20px;
+        }
+        
+        .ranking-text {
+            font-size: 15px;
+            color: #374151;
+            flex: 1;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #d1d5db;
+            background: #fff;
+            color: #374151;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .nav-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .nav-btn-primary {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .nav-btn-primary:active {
+            background: #059669;
+        }
+        
+        .error-message {
+            display: none;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        
+        .error-message.visible {
+            display: block;
+        }
+        
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 16px;
+            font-size: 16px;
+            color: #6b7280;
+        }
+        
+        .error-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 64px;
+            color: #ef4444;
+            margin-bottom: 16px;
+        }
+        
+        .error-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+        
+        .error-description {
+            font-size: 15px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        
+        .submit-success {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 72px;
+            color: #10b981;
+            margin-bottom: 24px;
+        }
+        
+        .success-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+        
+        .success-description {
+            font-size: 16px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading study...</div>
+    </div>
+    
+    <div id="errorScreen" class="error-screen" style="display: none;">
+        <div class="error-icon"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="error-title">Unable to Load Study</div>
+        <div class="error-description" id="errorMessage">Please check the URL and try again.</div>
+    </div>
+    
+    <div id="mainContent" class="mobile-container" style="display: none;">
+        <div class="study-header">
+            <h1 id="studyTitle">Study Title</h1>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+            </div>
+        </div>
+        
+        <div class="content-area" id="contentArea">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+        
+        <div class="navigation-buttons">
+            <button class="nav-btn" id="prevBtn" onclick="previousPage()" disabled>
+                <i class="fas fa-chevron-left"></i> Back
+            </button>
+            <button class="nav-btn nav-btn-primary" id="nextBtn" onclick="nextPage()">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="successScreen" class="submit-success" style="display: none;">
+        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="success-title">Thank You!</div>
+        <div class="success-description">Your responses have been successfully submitted.</div>
+    </div>
+    
+    <script>
+        let studyData = null;
+        let currentPageIndex = 0;
+        let totalPages = 0;
+        let hasInstructionPage = false;
+        let responses = {};
+        
+        // Get study ID from URL parameter
+        function getStudyIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('studyId');
+        }
+        
+        // Load study data
+        async function loadStudy() {
+            const studyId = getStudyIdFromUrl();
+            
+            if (!studyId) {
+                showError('No study ID provided in URL.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/studies/${studyId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Study not found');
+                }
+                
+                studyData = await response.json();
+                
+                // Check if study is published (allow Draft for testing)
+                if (studyData.status !== 'Published' && studyData.status !== 'Active' && studyData.status !== 'Draft') {
+                    showError('This study is not currently available.');
+                    return;
+                }
+                
+                initializeStudy();
+                
+            } catch (error) {
+                console.error('Error loading study:', error);
+                showError('Unable to load study. Please try again later.');
+            }
+        }
+        
+        // Initialize study display
+        function initializeStudy() {
+            // Set browser tab title
+            document.title = studyData.title || 'Study Preview';
+            
+            // Set header information - static title
+            document.getElementById('studyTitle').textContent = 'Visual and Data Capture';
+            
+            // Always show instruction page as first page
+            hasInstructionPage = true;
+            
+            // Calculate total pages (1 instruction page + questions)
+            const questionCount = studyData.questions ? studyData.questions.length : 0;
+            totalPages = questionCount + 1; // Always include instruction page
+            
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            // Hide loading, show content
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'flex';
+            
+            // Render first page (instruction)
+            renderPage();
+        }
+        
+        // Render current page
+        function renderPage() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = '';
+            
+            // Update progress - show 0% on instruction page, then progress through questions
+            let progress;
+            if (currentPageIndex === 0) {
+                // Instruction page - no progress yet
+                progress = 0;
+            } else {
+                // Questions - calculate progress based on question completion
+                const questionCount = totalPages - 1; // Exclude instruction page
+                const questionsCompleted = currentPageIndex; // Number of questions seen so far
+                progress = (questionsCompleted / questionCount) * 100;
+            }
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Update page indicator text
+            const progressTextDiv = document.querySelector('.progress-text');
+            if (currentPageIndex === 0) {
+                progressTextDiv.innerHTML = 'Introduction';
+            } else {
+                const questionNum = currentPageIndex; // Current question number (1-based)
+                const totalQuestions = totalPages - 1; // Total questions (excluding instruction)
+                progressTextDiv.innerHTML = `Question ${questionNum} of ${totalQuestions}`;
+            }
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentPageIndex === 0;
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentPageIndex === totalPages - 1) {
+                nextBtn.innerHTML = 'Submit <i class="fas fa-check"></i>';
+            } else {
+                nextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+            }
+            
+            // Render instruction page
+            if (currentPageIndex === 0) {
+                renderInstructionPage(contentArea);
+                return;
+            }
+            
+            // Render question
+            const questionIndex = currentPageIndex - 1; // Adjust for instruction page
+            if (studyData.questions && studyData.questions[questionIndex]) {
+                renderQuestion(contentArea, studyData.questions[questionIndex], questionIndex);
+            }
+        }
+        
+        // Render instruction page
+        function renderInstructionPage(container) {
+            const instructionSection = document.createElement('div');
+            instructionSection.className = 'instruction-section';
+            
+            // Show title (use default if not provided)
+            const title = document.createElement('div');
+            title.className = 'instruction-title';
+            title.textContent = studyData.instructionTitle || 'Welcome to the Study';
+            instructionSection.appendChild(title);
+            
+            // Show instruction text (use default if not provided)
+            const text = document.createElement('div');
+            text.className = 'instruction-text';
+            text.textContent = studyData.instructionText || 'Thank you for participating in this study. Please read each question carefully and provide your honest responses. Click "Next" to begin.';
+            instructionSection.appendChild(text);
+            
+            container.appendChild(instructionSection);
+        }
+        
+        // Render question
+        function renderQuestion(container, question, index) {
+            const questionCard = document.createElement('div');
+            questionCard.className = 'question-card';
+            
+            // Question header
+            const header = document.createElement('div');
+            header.className = 'question-header';
+            
+            const questionNumber = document.createElement('span');
+            questionNumber.className = 'question-number';
+            questionNumber.textContent = `Q${index + 1}.`;
+            
+            const questionText = document.createElement('span');
+            questionText.className = 'question-text';
+            questionText.textContent = question.question;
+            
+            header.appendChild(questionNumber);
+            header.appendChild(questionText);
+            
+            if (question.required) {
+                const badge = document.createElement('span');
+                badge.className = 'required-badge';
+                badge.textContent = 'Required';
+                header.appendChild(badge);
+            }
+            
+            questionCard.appendChild(header);
+            
+            // Question input based on type
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'question-options';
+            
+            switch (question.type) {
+                case 'multiple-choice':
+                    renderMultipleChoice(optionsDiv, question, index);
+                    break;
+                case 'checkboxes':
+                    renderCheckboxes(optionsDiv, question, index);
+                    break;
+                case 'text':
+                    renderTextInput(optionsDiv, question, index);
+                    break;
+                case 'textarea':
+                    renderTextarea(optionsDiv, question, index);
+                    break;
+                case 'date':
+                    renderDateInput(optionsDiv, question, index);
+                    break;
+                case 'rating':
+                    renderRating(optionsDiv, question, index);
+                    break;
+                case 'ranking':
+                    renderRanking(optionsDiv, question, index);
+                    break;
+            }
+            
+            questionCard.appendChild(optionsDiv);
+            container.appendChild(questionCard);
+        }
+        
+        // Render multiple choice
+        function renderMultipleChoice(container, question, qIndex) {
+            question.options.forEach((option, oIndex) => {
+                const optionItem = document.createElement('label');
+                optionItem.className = 'option-item';
+                
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `question_${qIndex}`;
+                radio.value = option;
+                radio.checked = responses[qIndex] === option;
+                radio.onchange = () => {
+                    responses[qIndex] = option;
+                    updateOptionSelection(qIndex);
+                };
+                
+                const label = document.createElement('span');
+                label.className = 'option-label';
+                label.textContent = option;
+                
+                optionItem.appendChild(radio);
+                optionItem.appendChild(label);
+                container.appendChild(optionItem);
+            });
+        }
+        
+        // Render checkboxes
+        function renderCheckboxes(container, question, qIndex) {
+            if (!responses[qIndex]) responses[qIndex] = [];
+            
+            question.options.forEach((option, oIndex) => {
+                const optionItem = document.createElement('label');
+                optionItem.className = 'option-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = option;
+                checkbox.checked = responses[qIndex].includes(option);
+                checkbox.onchange = (e) => {
+                    if (e.target.checked) {
+                        if (!responses[qIndex].includes(option)) {
+                            responses[qIndex].push(option);
+                        }
+                    } else {
+                        responses[qIndex] = responses[qIndex].filter(v => v !== option);
+                    }
+                };
+                
+                const label = document.createElement('span');
+                label.className = 'option-label';
+                label.textContent = option;
+                
+                optionItem.appendChild(checkbox);
+                optionItem.appendChild(label);
+                container.appendChild(optionItem);
+            });
+        }
+        
+        // Render text input
+        function renderTextInput(container, question, qIndex) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'text-input';
+            input.placeholder = 'Enter your answer...';
+            input.value = responses[qIndex] || '';
+            input.oninput = (e) => {
+                responses[qIndex] = e.target.value;
+            };
+            container.appendChild(input);
+        }
+        
+        // Render textarea
+        function renderTextarea(container, question, qIndex) {
+            const textarea = document.createElement('textarea');
+            textarea.className = 'textarea-input';
+            textarea.placeholder = 'Enter your answer...';
+            textarea.value = responses[qIndex] || '';
+            textarea.oninput = (e) => {
+                responses[qIndex] = e.target.value;
+            };
+            container.appendChild(textarea);
+        }
+        
+        // Render date input
+        function renderDateInput(container, question, qIndex) {
+            const input = document.createElement('input');
+            input.type = 'date';
+            input.className = 'date-input';
+            input.value = responses[qIndex] || '';
+            input.onchange = (e) => {
+                responses[qIndex] = e.target.value;
+            };
+            container.appendChild(input);
+        }
+        
+        // Render rating
+        function renderRating(container, question, qIndex) {
+            const ratingDiv = document.createElement('div');
+            ratingDiv.className = 'rating-container';
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('button');
+                star.type = 'button';
+                star.className = 'star-btn';
+                star.innerHTML = '<i class="fas fa-star"></i>';
+                star.onclick = () => {
+                    responses[qIndex] = i;
+                    updateStars(ratingDiv, i);
+                };
+                
+                if (responses[qIndex] && i <= responses[qIndex]) {
+                    star.classList.add('active');
+                }
+                
+                ratingDiv.appendChild(star);
+            }
+            
+            container.appendChild(ratingDiv);
+        }
+        
+        // Update star rating display
+        function updateStars(container, rating) {
+            const stars = container.querySelectorAll('.star-btn');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        
+        // Render ranking
+        function renderRanking(container, question, qIndex) {
+            if (!responses[qIndex]) {
+                responses[qIndex] = [...question.options];
+            }
+            
+            responses[qIndex].forEach((option, index) => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                item.draggable = true;
+                
+                const handle = document.createElement('span');
+                handle.className = 'drag-handle';
+                handle.innerHTML = '<i class="fas fa-grip-lines"></i>';
+                
+                const text = document.createElement('span');
+                text.className = 'ranking-text';
+                text.textContent = `${index + 1}. ${option}`;
+                
+                item.appendChild(handle);
+                item.appendChild(text);
+                container.appendChild(item);
+                
+                // Add drag event listeners
+                item.ondragstart = (e) => handleDragStart(e, index);
+                item.ondragover = (e) => handleDragOver(e);
+                item.ondrop = (e) => handleDrop(e, index, qIndex);
+            });
+        }
+        
+        let draggedIndex = null;
+        
+        function handleDragStart(e, index) {
+            draggedIndex = index;
+            e.target.classList.add('dragging');
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+        
+        function handleDrop(e, dropIndex, qIndex) {
+            e.preventDefault();
+            
+            if (draggedIndex !== null && draggedIndex !== dropIndex) {
+                const items = responses[qIndex];
+                const draggedItem = items[draggedIndex];
+                
+                items.splice(draggedIndex, 1);
+                items.splice(dropIndex, 0, draggedItem);
+                
+                responses[qIndex] = items;
+                renderPage();
+            }
+            
+            draggedIndex = null;
+        }
+        
+        // Update option selection styling
+        function updateOptionSelection(qIndex) {
+            const options = document.querySelectorAll(`input[name="question_${qIndex}"]`);
+            options.forEach(option => {
+                if (option.checked) {
+                    option.parentElement.classList.add('selected');
+                } else {
+                    option.parentElement.classList.remove('selected');
+                }
+            });
+        }
+        
+        // Validate current page
+        function validateCurrentPage() {
+            // Skip validation for instruction page
+            if (currentPageIndex === 0) {
+                return true;
+            }
+            
+            const questionIndex = currentPageIndex - 1; // Adjust for instruction page
+            const question = studyData.questions[questionIndex];
+            
+            if (!question || !question.required) {
+                return true;
+            }
+            
+            const response = responses[questionIndex];
+            
+            if (question.type === 'checkboxes') {
+                return response && response.length > 0;
+            }
+            
+            return response !== undefined && response !== null && response !== '';
+        }
+        
+        // Next page
+        function nextPage() {
+            if (!validateCurrentPage()) {
+                alert('Please answer this required question before continuing.');
+                return;
+            }
+            
+            if (currentPageIndex < totalPages - 1) {
+                currentPageIndex++;
+                renderPage();
+                window.scrollTo(0, 0);
+            } else {
+                submitStudy();
+            }
+        }
+        
+        // Previous page
+        function previousPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                renderPage();
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        // Submit study
+        async function submitStudy() {
+            try {
+                const submission = {
+                    studyId: studyData.studyId,
+                    responses: responses,
+                    submittedAt: new Date().toISOString()
+                };
+                
+                // Here you would send the data to your backend
+                // const response = await fetch('/api/submissions', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(submission)
+                // });
+                
+                console.log('Study submission:', submission);
+                
+                // Show success screen
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('successScreen').style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error submitting study:', error);
+                alert('There was an error submitting your responses. Please try again.');
+            }
+        }
+        
+        // Show error screen
+        function showError(message) {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorScreen').style.display = 'flex';
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', loadStudy);
+    </script>
+</body>
+</html>
