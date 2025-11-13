@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submission Results - Visual Capture Assistant</title>
+    <title>Submission Results - E-Tone Finder 2.0</title>
+    <meta name="google-signin-client_id" content="434775612504-337vvnh0ufstp9a7n4kdom0eu1tn6st1.apps.googleusercontent.com">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         .dashboard {
             min-height: 100vh;
@@ -20,9 +24,11 @@
             margin-left: 280px;
         }
         .content-area {
-            padding: var(--spacing-6) var(--spacing-4);
+            padding: 0;
             flex: 1;
             background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
         }
         .page-header {
             background: white;
@@ -30,7 +36,7 @@
             border-bottom: 1px solid var(--border-light);
             display: flex;
             justify-content: flex-start;
-            align-items: center;
+           
             gap: 16px;
             width: 100%;
         }
@@ -42,7 +48,7 @@
         }
         .back-btn {
             padding: 8px 16px;
-            border: 1px solid #d1d5db;
+            border: 0px solid #d1d5db;
             background: white;
             color: #374151;
             border-radius: 6px;
@@ -92,10 +98,19 @@
         /* Tab Content */
         .tab-content {
             display: none;
-            padding: var(--spacing-5);
+            flex: 1;
         }
         .tab-content.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Photos Tab Specific Styles */
+        #photosTab {
+            padding: 0;
+        }
+        #answersTab, #analyticsTab {
+            padding: var(--spacing-5);
         }
         
         /* Photos Grid */
@@ -129,31 +144,206 @@
             color: #6b7280;
         }
         
-        /* Answers Table */
-        .answers-table {
+        /* Answers Tab */
+        .answers-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
             background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            gap: 12px;
+            flex-wrap: wrap;
         }
-        .answers-table table {
+        .answers-toolbar-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .answers-toolbar-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .answers-table-wrapper {
+            background: white;
+            overflow-x: auto;
+        }
+        .answers-table {
             width: 100%;
             border-collapse: collapse;
         }
         .answers-table th {
-            background: #f9fafb;
-            padding: 12px 16px;
+            background: white;
+            padding: 10px 12px;
             text-align: left;
             font-weight: 600;
             color: #374151;
             border-bottom: 2px solid #e5e7eb;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .answers-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 10px 12px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+            color: #374151;
+        }
+        .answers-table tbody tr {
+            background: white;
+            transition: background 0.2s;
+        }
+        .answers-table tbody tr:hover {
+            background: #f9fafb;
         }
         .answers-table tr:last-child td {
             border-bottom: none;
+        }
+        .submission-id {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .participant-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .participant-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+        .participant-name {
+            font-weight: 500;
+            color: #374151;
+            font-size: 13px;
+        }
+        .participant-email {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 1px;
+        }
+        .submission-date {
+            color: #374151;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .submission-time {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 1px;
+        }
+        .completion-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .completion-badge.complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .completion-badge.partial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .completion-progress {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        .response-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .answer-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn-small {
+            padding: 5px 10px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn-small:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .action-btn-small.primary {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        .action-btn-small.primary:hover {
+            background: #059669;
+        }
+        .action-btn-small i {
+            font-size: 10px;
+        }
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+        .pagination-info {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .pagination-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .pagination-btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         /* Analytics Cards */
@@ -168,6 +358,16 @@
             padding: 24px;
             border-radius: 12px;
             border: 1px solid #e5e7eb;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
         }
         .stat-label {
             font-size: 14px;
@@ -178,6 +378,232 @@
             font-size: 32px;
             font-weight: 700;
             color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .stat-change {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .stat-change.positive {
+            color: #10b981;
+        }
+        .stat-change.negative {
+            color: #ef4444;
+        }
+        
+        /* Charts */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .chart-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .chart-filter {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #374151;
+        }
+        .chart-body {
+            position: relative;
+            height: 300px;
+        }
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        .legend-label {
+            color: #6b7280;
+        }
+        .legend-value {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        /* Insights Section */
+        .insights-section {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .insights-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .insights-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .insights-badge {
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .insights-grid {
+            display: grid;
+            gap: 16px;
+        }
+        .insight-card {
+            background: #f9fafb;
+            border-left: 4px solid;
+            padding: 16px;
+            border-radius: 6px;
+            display: flex;
+            gap: 12px;
+            align-items: start;
+        }
+        .insight-card.success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+        .insight-card.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .insight-card.info {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .insight-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .insight-content {
+            flex: 1;
+        }
+        .insight-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .insight-description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        /* Detailed Analytics */
+        .detailed-analytics {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+        }
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .analytics-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .export-btn {
+            padding: 8px 16px;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .export-btn:hover {
+            background: #059669;
+        }
+        .analytics-table-container {
+            overflow-x: auto;
+        }
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .analytics-table th {
+            background: #f9fafb;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 14px;
+        }
+        .analytics-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+        .analytics-table tr:last-child td {
+            border-bottom: none;
+        }
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .trend-badge.up {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .trend-badge.down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .trend-badge.stable {
+            background: #f3f4f6;
+            color: #6b7280;
         }
         
         /* Empty State */
@@ -193,13 +619,88 @@
     </style>
 </head>
 <body>
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <div class="logo">🔐</div>
+            <h2>Sign In Required</h2>
+            <p>Please sign in with your Google account to access E-Tone Finder</p>
+            <div id="g_id_onload"
+                 data-client_id="434775612504-337vvnh0ufstp9a7n4kdom0eu1tn6st1.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" 
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left"
+                 data-width="280">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Define essential functions early so they're available for onclick handlers
+        function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const targetTab = document.getElementById(tabName + 'Tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+            
+            // Update active button
+            event.target.classList.add('active');
+            
+            // If switching to analytics tab, initialize/update analytics
+            if (tabName === 'analytics') {
+                setTimeout(() => {
+                    if (typeof initializeAnalytics === 'function') {
+                        initializeAnalytics();
+                    }
+                }, 100);
+            }
+            
+            // If switching to answers tab, ensure data is loaded
+            if (tabName === 'answers') {
+                setTimeout(() => {
+                    const tbody = document.getElementById('answersTableBody');
+                    if (tbody && tbody.children.length === 0) {
+                        if (typeof populateAnswersTab === 'function') {
+                            populateAnswersTab();
+                        }
+                    }
+                }, 100);
+            }
+        }
+        
+        function viewAnswerDetails(submissionId) {
+            alert(`Viewing details for ${submissionId}\n\nThis would open a modal or navigate to a detail page showing all responses.`);
+        }
+        
+        function downloadAnswers(submissionId) {
+            alert(`Downloading answers for ${submissionId}\n\nThis would export the submission data as JSON or CSV.`);
+        }
+    </script>
+
     <div class="dashboard">
         <!-- Sidebar Navigation -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
                     <span>📷</span>
-                    <span>Visual Capture Assistant</span>
+                    <span>E-Tone Finder 2.0</span>
                 </div>
                 <div class="sidebar-subtitle">Photo Analysis Platform</div>
             </div>
@@ -210,10 +711,6 @@
                     <div class="nav-item" id="studyManagementNavItem">
                         <span class="nav-item-icon">📋</span>
                         <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="algorithmManagementNavItem">
-                        <span class="nav-item-icon">🧠</span>
-                        <span>Algorithm Management</span>
                     </div>
                     <div class="nav-item" id="urlGeneratorNavItem">
                         <span class="nav-item-icon">🔗</span>
@@ -237,15 +734,27 @@
                     </div>
                 </div>
             </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
+                    <div style="margin-left: 8px;">
+                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
+                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
-                <a href="/studymanagement" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Back to Studies
-                </a>
-                <h1 class="page-title" id="studyTitle">Submission Results</h1>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <a href="/studymanagement" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> 
+                    </a>
+                    <h1 class="page-title" id="studyTitle">Submission Results</h1>
+                </div>
                 <div style="color: #6b7280; font-size: 14px; margin-left: auto;">
                     <span id="submissionCount">24</span> submissions
                 </div>
@@ -268,73 +777,915 @@
             <div class="content-area">
                 <!-- Photos Tab -->
                 <div class="tab-content active" id="photosTab">
-                    <div class="photos-grid" id="photosGrid">
-                        <!-- Photo cards will be added here dynamically -->
+                    <!-- Filters Toolbar -->
+                    <div class="filters-toolbar" id="filtersToolbar">
+                        <div class="toolbar-left">
+                            <div class="view-toggle-group">
+                                <button class="view-toggle-btn active" id="tableViewBtn" title="Table View">
+                                    <span>☰</span> Table
+                                </button>
+                                <button class="view-toggle-btn" id="cardViewBtn" title="Card View">
+                                    <span>⊞</span> Cards
+                                </button>
+                            </div>
+                            <div class="filter-group">
+                                <select class="filter-select" id="statusFilter">
+                                    <option value="all">All Status</option>
+                                    <option value="valid">Valid</option>
+                                    <option value="invalid">Invalid</option>
+                                </select>
+                                <select class="filter-select" id="ownerFilter">
+                                    <option value="all">All Owners</option>
+                                </select>
+                            </div>
+                            <div class="active-filter-badge" id="activeFilterBadge" style="display: none;">
+                                <span id="activeFilterText">All Files</span>
+                                <button class="clear-filter-btn" id="clearFilterBtn">✕</button>
+                            </div>
+                            <button class="btn-compare" id="compareBtn" style="display: none;" title="Compare selected submissions">
+                                🔄 Compare (<span id="selectedCount">0</span>)
+                            </button>
+                        </div>
+                        <div class="toolbar-right">
+                            <div class="search-container">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" class="search-input" id="searchInput" placeholder="Search files...">
+                            </div>
+                            <div class="files-count-badge" id="fileCountBadge">0 files</div>
+                        </div>
                     </div>
-                    <div class="empty-state" id="photosEmpty">
-                        <i class="fas fa-camera"></i>
-                        <p>No photos submitted yet</p>
+                    
+                    <!-- Master-Detail Content Area -->
+                    <div class="master-detail-container">
+                        <!-- Master Section (Files Table/Cards) -->
+                        <div class="master-section" id="masterSection">
+                            <!-- Table View -->
+                            <div class="table-view" id="tableView">
+                                <table class="data-table" id="filesTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="checkbox-column">
+                                                <input type="checkbox" id="selectAllCheckbox" title="Select all">
+                                            </th>
+                                            <th class="sortable" data-column="title">
+                                                <div class="th-content">
+                                                    <span>Title</span>
+                                                    <span class="sort-icon">↕</span>
+                                                </div>
+                                            </th>
+                                            <th class="sortable" data-column="owner">
+                                                <div class="th-content">
+                                                    <span>Owner</span>
+                                                    <span class="sort-icon">↕</span>
+                                                </div>
+                                            </th>
+                                            <th class="sortable" data-column="date">
+                                                <div class="th-content">
+                                                    <span>Date</span>
+                                                    <span class="sort-icon">↕</span>
+                                                </div>
+                                            </th>
+                                            <th class="sortable" data-column="status">
+                                                <div class="th-content">
+                                                    <span>Status</span>
+                                                    <span class="sort-icon">↕</span>
+                                                </div>
+                                            </th>
+                                            <th class="api-column">APIs</th>
+                                            <th class="actions-column">View</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="filesTableBody">
+                                        <tr class="empty-row">
+                                            <td colspan="7">
+                                                <div class="empty-state">
+                                                    <h3>No files loaded</h3>
+                                                    <p>Please select a bucket to begin</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Card View (Hidden by default) -->
+                            <div class="card-view" id="cardView" style="display: none;">
+                                <div class="empty-state">
+                                    <h3>No files loaded</h3>
+                                    <p>Please select a bucket to begin</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Resize Handle -->
+                        <div class="resize-handle" id="resizeHandle"></div>
+                        
+                        <!-- Detail Section -->
+                        <div class="detail-section" id="detailSection">
+                            <div class="detail-header">
+                                <div class="detail-header-left">
+                                    <button class="btn-close-panel" id="closePanelBtn">✕</button>
+                                    <div class="detail-title" id="viewerTitle">
+                                        <span class="detail-icon">📄</span>
+                                        <span>Select a file to view details</span>
+                                    </div>
+                                </div>
+                                <div class="detail-actions" id="actionButtons" style="display: none;">
+                                    <button class="btn-icon" id="pdfBtn" title="Export to PDF - Download detailed analysis report">📄</button>
+                                    <button class="btn-icon" id="downloadBtn" title="Download JSON - Save raw data file">💾</button>
+                                    <button class="btn-icon" id="copyBtn" title="Copy to Clipboard - Copy JSON data">📋</button>
+                                    <button class="btn-icon" id="toggleViewBtn" title="Toggle View - Switch between formatted and raw JSON view">
+                                        🔄
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="detail-content" id="viewerContent">
+                                <div class="empty-state">
+                                    <h3>No file selected</h3>
+                                    <p>Choose a file from the list to view detailed analysis</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Answers Tab -->
                 <div class="tab-content" id="answersTab">
-                    <div class="answers-table">
-                        <table>
+                    <!-- Filters and Search -->
+               
+                    
+                    <div class="answers-table-wrapper">
+                        <table class="answers-table">
                             <thead>
                                 <tr>
+                                    <th>
+                                        <input type="checkbox" id="selectAllAnswers" title="Select all">
+                                    </th>
                                     <th>Submission ID</th>
                                     <th>Participant</th>
-                                    <th>Date</th>
+                                    <th>Date & Time</th>
+                                    <th>Completion</th>
                                     <th>Responses</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="answersTableBody">
-                                <!-- Answers will be added here dynamically -->
+                                <!-- Dummy data will be populated here -->
                             </tbody>
                         </table>
                     </div>
-                    <div class="empty-state" id="answersEmpty" style="display: none;">
-                        <i class="fas fa-clipboard-list"></i>
-                        <p>No answers submitted yet</p>
+                    
+                    <script>
+                    // Inline data population - runs immediately when this HTML loads
+                    (function() {
+                        const answers = [
+                            { id: 'SUB-2024-001', participant: { name: 'Sarah Johnson', email: 'sarah.j@email.com', initials: 'SJ' }, date: '2024-11-13', time: '10:24 AM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-002', participant: { name: 'Michael Chen', email: 'mchen@email.com', initials: 'MC' }, date: '2024-11-13', time: '09:15 AM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-003', participant: { name: 'Emma Wilson', email: 'emma.w@email.com', initials: 'EW' }, date: '2024-11-12', time: '04:32 PM', completion: 75, responses: 9, status: 'partial' },
+                            { id: 'SUB-2024-004', participant: { name: 'James Rodriguez', email: 'jrodriguez@email.com', initials: 'JR' }, date: '2024-11-12', time: '02:18 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-005', participant: { name: 'Olivia Martinez', email: 'olivia.m@email.com', initials: 'OM' }, date: '2024-11-12', time: '11:45 AM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-006', participant: { name: 'Liam Brown', email: 'lbrown@email.com', initials: 'LB' }, date: '2024-11-11', time: '05:20 PM', completion: 58, responses: 7, status: 'partial' },
+                            { id: 'SUB-2024-007', participant: { name: 'Sophia Anderson', email: 'sophia.a@email.com', initials: 'SA' }, date: '2024-11-11', time: '03:10 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-008', participant: { name: 'Noah Taylor', email: 'ntaylor@email.com', initials: 'NT' }, date: '2024-11-11', time: '01:55 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-009', participant: { name: 'Ava Garcia', email: 'ava.garcia@email.com', initials: 'AG' }, date: '2024-11-10', time: '04:40 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-010', participant: { name: 'Ethan Lee', email: 'elee@email.com', initials: 'EL' }, date: '2024-11-10', time: '02:25 PM', completion: 92, responses: 11, status: 'partial' },
+                            { id: 'SUB-2024-011', participant: { name: 'Isabella White', email: 'isabella.w@email.com', initials: 'IW' }, date: '2024-11-10', time: '10:30 AM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-012', participant: { name: 'Mason Harris', email: 'mharris@email.com', initials: 'MH' }, date: '2024-11-09', time: '03:15 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-013', participant: { name: 'Charlotte Clark', email: 'c.clark@email.com', initials: 'CC' }, date: '2024-11-09', time: '01:20 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-014', participant: { name: 'Lucas Lewis', email: 'lucas.l@email.com', initials: 'LL' }, date: '2024-11-09', time: '11:05 AM', completion: 67, responses: 8, status: 'partial' },
+                            { id: 'SUB-2024-015', participant: { name: 'Amelia Walker', email: 'awalker@email.com', initials: 'AW' }, date: '2024-11-08', time: '04:50 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-016', participant: { name: 'Benjamin Hall', email: 'bhall@email.com', initials: 'BH' }, date: '2024-11-08', time: '02:35 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-017', participant: { name: 'Mia Allen', email: 'mia.allen@email.com', initials: 'MA' }, date: '2024-11-08', time: '10:15 AM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-018', participant: { name: 'Henry Young', email: 'hyoung@email.com', initials: 'HY' }, date: '2024-11-07', time: '05:10 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-019', participant: { name: 'Harper King', email: 'harper.k@email.com', initials: 'HK' }, date: '2024-11-07', time: '03:45 PM', completion: 83, responses: 10, status: 'partial' },
+                            { id: 'SUB-2024-020', participant: { name: 'Alexander Wright', email: 'awright@email.com', initials: 'AW' }, date: '2024-11-07', time: '01:30 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-021', participant: { name: 'Evelyn Scott', email: 'evelyn.s@email.com', initials: 'ES' }, date: '2024-11-06', time: '04:20 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-022', participant: { name: 'Daniel Green', email: 'dgreen@email.com', initials: 'DG' }, date: '2024-11-06', time: '02:00 PM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-023', participant: { name: 'Abigail Baker', email: 'a.baker@email.com', initials: 'AB' }, date: '2024-11-06', time: '11:40 AM', completion: 100, responses: 12, status: 'complete' },
+                            { id: 'SUB-2024-024', participant: { name: 'Matthew Adams', email: 'madams@email.com', initials: 'MA' }, date: '2024-11-05', time: '03:55 PM', completion: 100, responses: 12, status: 'complete' }
+                        ];
+                        const gradients = ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)','linear-gradient(135deg, #f093fb 0%, #f5576c 100%)','linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)','linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)','linear-gradient(135deg, #fa709a 0%, #fee140 100%)','linear-gradient(135deg, #30cfd0 0%, #330867 100%)','linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)','linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'];
+                        
+                        const tbody = document.getElementById('answersTableBody');
+                        if (tbody) {
+                            tbody.innerHTML = answers.map(a => `
+                                <tr>
+                                    <td><input type="checkbox" class="answer-checkbox"></td>
+                                    <td><span class="submission-id">${a.id}</span></td>
+                                    <td>
+                                        <div class="participant-info">
+                                            <div>
+                                                <div class="participant-name">${a.participant.name}</div>
+                                                <div class="participant-email">${a.participant.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><div class="submission-date">${a.date}</div><div class="submission-time">${a.time}</div></td>
+                                    <td><span class="completion-badge ${a.status}">${a.status==='complete'?'✓':'○'} ${a.completion}%</span>${a.status==='partial'?`<div class="completion-progress">${a.responses}/12 questions</div>`:''}</td>
+                                    <td><span class="response-count"><i class="fas fa-comment-dots"></i> ${a.responses} answers</span></td>
+                                    <td>
+                                        <div class="answer-actions">
+                                            <button class="action-btn-small primary" onclick="alert('Viewing ${a.id}')"><i class="fas fa-eye"></i> View</button>
+                                            <button class="action-btn-small" onclick="alert('Downloading ${a.id}')"><i class="fas fa-download"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('');
+                            console.log('Populated answers table with', answers.length, 'entries');
+                        }
+                    })();
+                    </script>
+                    
+                    <!-- Pagination -->
+                    <div class="pagination-controls">
+                        <div class="pagination-info">
+                            Showing <strong id="answersShowingStart">1</strong> to <strong id="answersShowingEnd">10</strong> of <strong id="answersTotalCount">24</strong> submissions
+                        </div>
+                        <div class="pagination-buttons">
+                            <button class="pagination-btn" id="answersPrevBtn" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="pagination-btn" id="answersNextBtn">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Analytics Tab -->
                 <div class="tab-content" id="analyticsTab">
+                    <!-- Key Metrics Cards -->
                     <div class="analytics-grid">
                         <div class="stat-card">
+                            <div class="stat-icon" style="color: #10b981;">📊</div>
                             <div class="stat-label">Total Submissions</div>
-                            <div class="stat-value">24</div>
+                            <div class="stat-value" id="totalSubmissions">0</div>
+                            <div class="stat-change positive" id="submissionsChange">+0 this week</div>
                         </div>
                         <div class="stat-card">
+                            <div class="stat-icon" style="color: #3b82f6;">📸</div>
                             <div class="stat-label">With Photos</div>
-                            <div class="stat-value">18</div>
+                            <div class="stat-value" id="withPhotos">0</div>
+                            <div class="stat-change" id="photosPercentage">0% of total</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Completion Rate</div>
-                            <div class="stat-value">92%</div>
+                            <div class="stat-icon" style="color: #8b5cf6;">✅</div>
+                            <div class="stat-label">Valid Selfies</div>
+                            <div class="stat-value" id="validSelfies">0</div>
+                            <div class="stat-change" id="validPercentage">0% valid rate</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Avg. Response Time</div>
-                            <div class="stat-value">3.2m</div>
+                            <div class="stat-icon" style="color: #f59e0b;">⚠️</div>
+                            <div class="stat-label">Invalid Selfies</div>
+                            <div class="stat-value" id="invalidSelfies">0</div>
+                            <div class="stat-change negative" id="invalidPercentage">0% invalid</div>
                         </div>
                     </div>
                     
-                    <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb;">
-                        <h3 style="margin-bottom: 20px; color: #374151;">Submission Timeline</h3>
-                        <div class="empty-state">
-                            <i class="fas fa-chart-line"></i>
-                            <p>Chart placeholder - Coming soon</p>
+                    <!-- Charts Row 1 -->
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>📈 Submission Timeline</h3>
+                                <select id="timelineRange" class="chart-filter">
+                                    <option value="7">Last 7 days</option>
+                                    <option value="14">Last 14 days</option>
+                                    <option value="30" selected>Last 30 days</option>
+                                    <option value="90">Last 90 days</option>
+                                </select>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="submissionTimelineChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>🎯 Selfie Validation Status</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="validationStatusChart"></canvas>
+                            </div>
+                            <div class="chart-legend" id="validationLegend"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Row 2 -->
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>🏆 Top Skin Concerns</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="skinConcernsChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>📱 Device Distribution</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="deviceDistributionChart"></canvas>
+                            </div>
+                            <div class="chart-legend" id="deviceLegend"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Insights Section -->
+                    <div class="insights-section">
+                        <div class="insights-header">
+                            <h3>💡 Key Insights</h3>
+                            <span class="insights-badge" id="insightsBadge">0 insights</span>
+                        </div>
+                        <div class="insights-grid" id="insightsGrid">
+                            <!-- Insights will be dynamically generated -->
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Analytics Table -->
+                    <div class="detailed-analytics">
+                        <div class="analytics-header">
+                            <h3>📋 Detailed Breakdown</h3>
+                            <button class="export-btn" id="exportAnalyticsBtn">
+                                <i class="fas fa-download"></i> Export Data
+                            </button>
+                        </div>
+                        <div class="analytics-table-container">
+                            <table class="analytics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Count</th>
+                                        <th>Percentage</th>
+                                        <th>Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analyticsTableBody">
+                                    <!-- Rows will be dynamically generated -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+                
+                <script>
+                // Inline Analytics Initialization - runs when user switches to Analytics tab
+                (function() {
+                    const originalSwitchTab = window.switchTab;
+                    window.switchTab = function(tabName) {
+                        if (originalSwitchTab) originalSwitchTab(tabName);
+                        
+                        if (tabName === 'analytics') {
+                            setTimeout(() => {
+                                initAnalytics();
+                            }, 100);
+                        }
+                    };
+                    
+                    function initAnalytics() {
+                        console.log('Initializing analytics...');
+                        
+                        // Update stat cards with dummy data
+                        document.getElementById('totalSubmissions').textContent = '24';
+                        document.getElementById('withPhotos').textContent = '24';
+                        document.getElementById('validSelfies').textContent = '20';
+                        document.getElementById('invalidSelfies').textContent = '4';
+                        document.getElementById('submissionsChange').textContent = '+8 this week';
+                        document.getElementById('photosPercentage').textContent = '100% of total';
+                        document.getElementById('validPercentage').textContent = '83.3% valid rate';
+                        document.getElementById('invalidPercentage').textContent = '16.7% invalid';
+                        
+                        // Timeline Chart
+                        const timelineCanvas = document.getElementById('submissionTimelineChart');
+                        if (timelineCanvas && window.Chart) {
+                            const ctx = timelineCanvas.getContext('2d');
+                            if (timelineCanvas.chart) timelineCanvas.chart.destroy();
+                            timelineCanvas.chart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: ['Nov 5', 'Nov 6', 'Nov 7', 'Nov 8', 'Nov 9', 'Nov 10', 'Nov 11', 'Nov 12', 'Nov 13'],
+                                    datasets: [{
+                                        label: 'Submissions',
+                                        data: [1, 3, 3, 3, 3, 3, 3, 3, 2],
+                                        borderColor: '#10b981',
+                                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                        tension: 0.4,
+                                        fill: true
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } },
+                                    scales: {
+                                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // Validation Status Chart
+                        const validationCanvas = document.getElementById('validationStatusChart');
+                        if (validationCanvas && window.Chart) {
+                            const ctx = validationCanvas.getContext('2d');
+                            if (validationCanvas.chart) validationCanvas.chart.destroy();
+                            validationCanvas.chart = new Chart(ctx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['Valid', 'Invalid', 'Unknown'],
+                                    datasets: [{
+                                        data: [20, 4, 0],
+                                        backgroundColor: ['#10b981', '#ef4444', '#9ca3af'],
+                                        borderWidth: 2,
+                                        borderColor: '#fff'
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } }
+                                }
+                            });
+                            
+                            document.getElementById('validationLegend').innerHTML = `
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #10b981;"></div>
+                                    <span class="legend-label">Valid:</span>
+                                    <span class="legend-value">20</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #ef4444;"></div>
+                                    <span class="legend-label">Invalid:</span>
+                                    <span class="legend-value">4</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #9ca3af;"></div>
+                                    <span class="legend-label">Unknown:</span>
+                                    <span class="legend-value">0</span>
+                                </div>
+                            `;
+                        }
+                        
+                        // Skin Concerns Chart
+                        const concernsCanvas = document.getElementById('skinConcernsChart');
+                        if (concernsCanvas && window.Chart) {
+                            const ctx = concernsCanvas.getContext('2d');
+                            if (concernsCanvas.chart) concernsCanvas.chart.destroy();
+                            concernsCanvas.chart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: ['Acne', 'Wrinkles', 'Dark Spots', 'Dryness', 'Oiliness'],
+                                    datasets: [{
+                                        label: 'Count',
+                                        data: [15, 10, 7, 12, 8],
+                                        backgroundColor: ['#ef4444', '#f59e0b', '#8b5cf6', '#3b82f6', '#10b981']
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } },
+                                    scales: {
+                                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // Device Distribution Chart
+                        const deviceCanvas = document.getElementById('deviceDistributionChart');
+                        if (deviceCanvas && window.Chart) {
+                            const ctx = deviceCanvas.getContext('2d');
+                            if (deviceCanvas.chart) deviceCanvas.chart.destroy();
+                            deviceCanvas.chart = new Chart(ctx, {
+                                type: 'pie',
+                                data: {
+                                    labels: ['With Device Info', 'Without Device Info'],
+                                    datasets: [{
+                                        data: [18, 6],
+                                        backgroundColor: ['#3b82f6', '#e5e7eb'],
+                                        borderWidth: 2,
+                                        borderColor: '#fff'
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } }
+                                }
+                            });
+                            
+                            document.getElementById('deviceLegend').innerHTML = `
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #3b82f6;"></div>
+                                    <span class="legend-label">With Device:</span>
+                                    <span class="legend-value">18</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #e5e7eb;"></div>
+                                    <span class="legend-label">Without:</span>
+                                    <span class="legend-value">6</span>
+                                </div>
+                            `;
+                        }
+                        
+                        // Insights
+                        document.getElementById('insightsBadge').textContent = '3 insights';
+                        document.getElementById('insightsGrid').innerHTML = `
+                            <div class="insight-card success">
+                                <div class="insight-icon">✅</div>
+                                <div class="insight-content">
+                                    <div class="insight-title">High Quality Submissions</div>
+                                    <div class="insight-description">83.3% of submissions have valid selfies. Great quality control!</div>
+                                </div>
+                            </div>
+                            <div class="insight-card success">
+                                <div class="insight-icon">🎯</div>
+                                <div class="insight-content">
+                                    <div class="insight-title">Excellent Completion Rate</div>
+                                    <div class="insight-description">100% of participants submitted photos. Outstanding engagement!</div>
+                                </div>
+                            </div>
+                            <div class="insight-card info">
+                                <div class="insight-icon">📱</div>
+                                <div class="insight-content">
+                                    <div class="insight-title">Device Data Available</div>
+                                    <div class="insight-description">18 submissions (75%) include device information for analysis.</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Analytics Table
+                        document.getElementById('analyticsTableBody').innerHTML = `
+                            <tr>
+                                <td><strong>Total Submissions</strong></td>
+                                <td>24</td>
+                                <td>100%</td>
+                                <td><span class="trend-badge stable">→ Stable</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Submissions with Photos</strong></td>
+                                <td>24</td>
+                                <td>100%</td>
+                                <td><span class="trend-badge up">↗ Growing</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Valid Selfies</strong></td>
+                                <td>20</td>
+                                <td>83.3%</td>
+                                <td><span class="trend-badge up">↗ Growing</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Invalid Selfies</strong></td>
+                                <td>4</td>
+                                <td>16.7%</td>
+                                <td><span class="trend-badge down">↘ Declining</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>With Device Info</strong></td>
+                                <td>18</td>
+                                <td>75%</td>
+                                <td><span class="trend-badge stable">→ Stable</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Skin Scores</strong></td>
+                                <td>52</td>
+                                <td>-</td>
+                                <td><span class="trend-badge up">↗ Growing</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Acne Detections</strong></td>
+                                <td>15</td>
+                                <td>-</td>
+                                <td><span class="trend-badge stable">→ Stable</span></td>
+                            </tr>
+                        `;
+                        
+                        console.log('Analytics initialized successfully');
+                    }
+                })();
+                </script>
             </div>
         </div>
     </div>
     
     <script>
+        // ===== DUMMY DATA AND FUNCTIONS - DEFINED FIRST =====
+        // Dummy data for answers
+        const dummyAnswers = [
+            {
+                id: 'SUB-2024-001',
+                participant: { name: 'Sarah Johnson', email: 'sarah.j@email.com', initials: 'SJ' },
+                date: '2024-11-13',
+                time: '10:24 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-002',
+                participant: { name: 'Michael Chen', email: 'mchen@email.com', initials: 'MC' },
+                date: '2024-11-13',
+                time: '09:15 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-003',
+                participant: { name: 'Emma Wilson', email: 'emma.w@email.com', initials: 'EW' },
+                date: '2024-11-12',
+                time: '04:32 PM',
+                completion: 75,
+                responses: 9,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-004',
+                participant: { name: 'James Rodriguez', email: 'jrodriguez@email.com', initials: 'JR' },
+                date: '2024-11-12',
+                time: '02:18 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-005',
+                participant: { name: 'Olivia Martinez', email: 'olivia.m@email.com', initials: 'OM' },
+                date: '2024-11-12',
+                time: '11:45 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-006',
+                participant: { name: 'Liam Brown', email: 'lbrown@email.com', initials: 'LB' },
+                date: '2024-11-11',
+                time: '05:20 PM',
+                completion: 58,
+                responses: 7,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-007',
+                participant: { name: 'Sophia Anderson', email: 'sophia.a@email.com', initials: 'SA' },
+                date: '2024-11-11',
+                time: '03:10 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-008',
+                participant: { name: 'Noah Taylor', email: 'ntaylor@email.com', initials: 'NT' },
+                date: '2024-11-11',
+                time: '01:55 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-009',
+                participant: { name: 'Ava Garcia', email: 'ava.garcia@email.com', initials: 'AG' },
+                date: '2024-11-10',
+                time: '04:40 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-010',
+                participant: { name: 'Ethan Lee', email: 'elee@email.com', initials: 'EL' },
+                date: '2024-11-10',
+                time: '02:25 PM',
+                completion: 92,
+                responses: 11,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-011',
+                participant: { name: 'Isabella White', email: 'isabella.w@email.com', initials: 'IW' },
+                date: '2024-11-10',
+                time: '10:30 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-012',
+                participant: { name: 'Mason Harris', email: 'mharris@email.com', initials: 'MH' },
+                date: '2024-11-09',
+                time: '03:15 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-013',
+                participant: { name: 'Charlotte Clark', email: 'c.clark@email.com', initials: 'CC' },
+                date: '2024-11-09',
+                time: '01:20 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-014',
+                participant: { name: 'Lucas Lewis', email: 'lucas.l@email.com', initials: 'LL' },
+                date: '2024-11-09',
+                time: '11:05 AM',
+                completion: 67,
+                responses: 8,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-015',
+                participant: { name: 'Amelia Walker', email: 'awalker@email.com', initials: 'AW' },
+                date: '2024-11-08',
+                time: '04:50 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-016',
+                participant: { name: 'Benjamin Hall', email: 'bhall@email.com', initials: 'BH' },
+                date: '2024-11-08',
+                time: '02:35 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-017',
+                participant: { name: 'Mia Allen', email: 'mia.allen@email.com', initials: 'MA' },
+                date: '2024-11-08',
+                time: '10:15 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-018',
+                participant: { name: 'Henry Young', email: 'hyoung@email.com', initials: 'HY' },
+                date: '2024-11-07',
+                time: '05:10 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-019',
+                participant: { name: 'Harper King', email: 'harper.k@email.com', initials: 'HK' },
+                date: '2024-11-07',
+                time: '03:45 PM',
+                completion: 83,
+                responses: 10,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-020',
+                participant: { name: 'Alexander Wright', email: 'awright@email.com', initials: 'AW' },
+                date: '2024-11-07',
+                time: '01:30 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-021',
+                participant: { name: 'Evelyn Scott', email: 'evelyn.s@email.com', initials: 'ES' },
+                date: '2024-11-06',
+                time: '04:20 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-022',
+                participant: { name: 'Daniel Green', email: 'dgreen@email.com', initials: 'DG' },
+                date: '2024-11-06',
+                time: '02:00 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-023',
+                participant: { name: 'Abigail Baker', email: 'a.baker@email.com', initials: 'AB' },
+                date: '2024-11-06',
+                time: '11:40 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-024',
+                participant: { name: 'Matthew Adams', email: 'madams@email.com', initials: 'MA' },
+                date: '2024-11-05',
+                time: '03:55 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            }
+        ];
+        
+        function getRandomGradient() {
+            const gradients = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            ];
+            return gradients[Math.floor(Math.random() * gradients.length)];
+        }
+        
+        function populateAnswersTab() {
+            console.log('Populating answers tab with', dummyAnswers.length, 'answers');
+            const tbody = document.getElementById('answersTableBody');
+            
+            if (!tbody) {
+                console.error('answersTableBody element not found');
+                return;
+            }
+            
+            tbody.innerHTML = dummyAnswers.map(answer => `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="answer-checkbox">
+                    </td>
+                    <td>
+                        <span class="submission-id">${answer.id}</span>
+                    </td>
+                    <td>
+                        <div class="participant-info">
+                            <div class="participant-avatar" style="background: ${getRandomGradient()}">
+                                ${answer.participant.initials}
+                            </div>
+                            <div>
+                                <div class="participant-name">${answer.participant.name}</div>
+                                <div class="participant-email">${answer.participant.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="submission-date">${answer.date}</div>
+                        <div class="submission-time">${answer.time}</div>
+                    </td>
+                    <td>
+                        <span class="completion-badge ${answer.status}">
+                            ${answer.status === 'complete' ? '✓' : '○'} 
+                            ${answer.completion}%
+                        </span>
+                        ${answer.status === 'partial' ? `<div class="completion-progress">${answer.responses}/12 questions</div>` : ''}
+                    </td>
+                    <td>
+                        <span class="response-count">
+                            <i class="fas fa-comment-dots"></i>
+                            ${answer.responses} answers
+                        </span>
+                    </td>
+                    <td>
+                        <div class="answer-actions">
+                            <button class="action-btn-small primary" onclick="viewAnswerDetails('${answer.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="action-btn-small" onclick="downloadAnswers('${answer.id}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            console.log('Successfully populated', dummyAnswers.length, 'answers');
+            
+            // Update pagination info
+            const totalCount = document.getElementById('answersTotalCount');
+            const showingStart = document.getElementById('answersShowingStart');
+            const showingEnd = document.getElementById('answersShowingEnd');
+            
+            if (totalCount) totalCount.textContent = dummyAnswers.length;
+            if (showingStart) showingStart.textContent = '1';
+            if (showingEnd) showingEnd.textContent = Math.min(10, dummyAnswers.length);
+        }
+        
+        function viewAnswerDetails(submissionId) {
+            alert(`Viewing details for ${submissionId}\n\nThis would open a modal or navigate to a detail page showing all responses.`);
+        }
+        
+        function downloadAnswers(submissionId) {
+            alert(`Downloading answers for ${submissionId}\n\nThis would export the submission data as JSON or CSV.`);
+        }
+        
+        // ===== END DUMMY DATA AND FUNCTIONS =====
+        
         // Get study ID from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const studyId = urlParams.get('studyId');
@@ -343,6 +1694,15 @@
         if (studyId) {
             loadStudyData(studyId);
             loadSubmissions(studyId);
+        } else {
+            // Even without studyId, populate the dummy data
+            console.log('No studyId, but will populate dummy answers');
+            // Wait a moment for DOM to be ready
+            setTimeout(function() {
+                if (typeof populateAnswersTab === 'function') {
+                    populateAnswersTab();
+                }
+            }, 100);
         }
         
         async function loadStudyData(studyId) {
@@ -359,11 +1719,111 @@
         }
         
         function loadSubmissions(studyId) {
-            // Placeholder - Load actual submissions from API
-            // For now, showing empty state
-            document.getElementById('photosEmpty').style.display = 'block';
-            document.getElementById('answersEmpty').style.display = 'block';
+            // Initialize photo submissions view
+            // The app.js will handle authentication and file loading automatically
+            console.log('Loading submissions for study:', studyId);
+            
+            // Populate answers tab with dummy data
+            populateAnswersTab();
         }
+        
+        function getRandomGradient() {
+            const gradients = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            ];
+            return gradients[Math.floor(Math.random() * gradients.length)];
+        }
+        
+        function viewAnswerDetails(submissionId) {
+            alert(`Viewing details for ${submissionId}\n\nThis would open a modal or navigate to a detail page showing all responses.`);
+        }
+        
+        function downloadAnswers(submissionId) {
+            alert(`Downloading answers for ${submissionId}\n\nThis would export the submission data as JSON or CSV.`);
+        }
+        
+        // Export answers functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded #1 - Setting up answer functionality and populating table');
+            
+            // Populate answers tab immediately
+            populateAnswersTab();
+            
+            const exportAnswersBtn = document.getElementById('exportAnswersBtn');
+            if (exportAnswersBtn) {
+                exportAnswersBtn.addEventListener('click', function() {
+                    // Convert to CSV format
+                    const headers = ['Submission ID', 'Name', 'Email', 'Date', 'Time', 'Completion', 'Responses', 'Status'];
+                    const csvRows = [headers.join(',')];
+                    
+                    dummyAnswers.forEach(answer => {
+                        const row = [
+                            answer.id,
+                            answer.participant.name,
+                            answer.participant.email,
+                            answer.date,
+                            answer.time,
+                            answer.completion + '%',
+                            answer.responses,
+                            answer.status
+                        ];
+                        csvRows.push(row.join(','));
+                    });
+                    
+                    const csvContent = csvRows.join('\n');
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `answers-export-${Date.now()}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+            
+            // Select all checkbox
+            const selectAllAnswers = document.getElementById('selectAllAnswers');
+            if (selectAllAnswers) {
+                selectAllAnswers.addEventListener('change', function() {
+                    document.querySelectorAll('.answer-checkbox').forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                });
+            }
+            
+            // Search functionality
+            const answersSearch = document.getElementById('answersSearch');
+            if (answersSearch) {
+                answersSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#answersTableBody tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+        });
+        
+        // Initialize photos tab on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication and auto-load files from default bucket
+            // The app.js script handles authentication check and auto-loads files for localhost
+            console.log('Submission results page loaded');
+            
+            // Populate answers tab with dummy data
+            setTimeout(() => {
+                populateAnswersTab();
+            }, 500);
+        });
         
         function switchTab(tabName) {
             // Hide all tabs
@@ -377,14 +1837,842 @@
             // Show selected tab
             document.getElementById(tabName + 'Tab').classList.add('active');
             event.target.classList.add('active');
+            
+            // If switching to analytics tab, initialize/update analytics
+            if (tabName === 'analytics') {
+                setTimeout(() => {
+                    initializeAnalytics();
+                }, 100);
+            }
+            
+            // If switching to answers tab, ensure data is loaded
+            if (tabName === 'answers') {
+                setTimeout(() => {
+                    const tbody = document.getElementById('answersTableBody');
+                    if (tbody && tbody.children.length === 0) {
+                        populateAnswersTab();
+                    }
+                }, 100);
+            }
         }
+        
+        // Analytics functionality
+        let analyticsCharts = {};
+        
+        function initializeAnalytics() {
+            if (!window.allFilesData || allFilesData.length === 0) {
+                console.log('No data available for analytics');
+                return;
+            }
+            
+            console.log('Initializing analytics with', allFilesData.length, 'files');
+            
+            // Calculate metrics
+            const metrics = calculateMetrics(allFilesData);
+            
+            // Update stat cards
+            updateStatCards(metrics);
+            
+            // Create charts
+            createSubmissionTimelineChart(allFilesData);
+            createValidationStatusChart(metrics);
+            createSkinConcernsChart(allFilesData);
+            createDeviceDistributionChart(allFilesData);
+            
+            // Generate insights
+            generateInsights(metrics, allFilesData);
+            
+            // Populate detailed table
+            populateAnalyticsTable(metrics);
+        }
+        
+        function calculateMetrics(data) {
+            const metrics = {
+                total: data.length,
+                withPhotos: data.filter(f => f.loaded).length,
+                validSelfies: data.filter(f => f.validSelfie === true).length,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-003',
+                participant: { name: 'Emma Wilson', email: 'emma.w@email.com', initials: 'EW' },
+                date: '2024-11-12',
+                time: '04:32 PM',
+                completion: 75,
+                responses: 9,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-004',
+                participant: { name: 'James Rodriguez', email: 'jrodriguez@email.com', initials: 'JR' },
+                date: '2024-11-12',
+                time: '02:18 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-005',
+                participant: { name: 'Olivia Martinez', email: 'olivia.m@email.com', initials: 'OM' },
+                date: '2024-11-12',
+                time: '11:45 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-006',
+                participant: { name: 'Liam Brown', email: 'lbrown@email.com', initials: 'LB' },
+                date: '2024-11-11',
+                time: '05:20 PM',
+                completion: 58,
+                responses: 7,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-007',
+                participant: { name: 'Sophia Anderson', email: 'sophia.a@email.com', initials: 'SA' },
+                date: '2024-11-11',
+                time: '03:10 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-008',
+                participant: { name: 'Noah Taylor', email: 'ntaylor@email.com', initials: 'NT' },
+                date: '2024-11-11',
+                time: '01:55 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-009',
+                participant: { name: 'Ava Garcia', email: 'ava.garcia@email.com', initials: 'AG' },
+                date: '2024-11-10',
+                time: '04:40 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-010',
+                participant: { name: 'Ethan Lee', email: 'elee@email.com', initials: 'EL' },
+                date: '2024-11-10',
+                time: '02:25 PM',
+                completion: 92,
+                responses: 11,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-011',
+                participant: { name: 'Isabella White', email: 'isabella.w@email.com', initials: 'IW' },
+                date: '2024-11-10',
+                time: '10:30 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-012',
+                participant: { name: 'Mason Harris', email: 'mharris@email.com', initials: 'MH' },
+                date: '2024-11-09',
+                time: '03:15 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-013',
+                participant: { name: 'Charlotte Clark', email: 'c.clark@email.com', initials: 'CC' },
+                date: '2024-11-09',
+                time: '01:20 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-014',
+                participant: { name: 'Lucas Lewis', email: 'lucas.l@email.com', initials: 'LL' },
+                date: '2024-11-09',
+                time: '11:05 AM',
+                completion: 67,
+                responses: 8,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-015',
+                participant: { name: 'Amelia Walker', email: 'awalker@email.com', initials: 'AW' },
+                date: '2024-11-08',
+                time: '04:50 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-016',
+                participant: { name: 'Benjamin Hall', email: 'bhall@email.com', initials: 'BH' },
+                date: '2024-11-08',
+                time: '02:35 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-017',
+                participant: { name: 'Mia Allen', email: 'mia.allen@email.com', initials: 'MA' },
+                date: '2024-11-08',
+                time: '10:15 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-018',
+                participant: { name: 'Henry Young', email: 'hyoung@email.com', initials: 'HY' },
+                date: '2024-11-07',
+                time: '05:10 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-019',
+                participant: { name: 'Harper King', email: 'harper.k@email.com', initials: 'HK' },
+                date: '2024-11-07',
+                time: '03:45 PM',
+                completion: 83,
+                responses: 10,
+                status: 'partial'
+            },
+            {
+                id: 'SUB-2024-020',
+                participant: { name: 'Alexander Wright', email: 'awright@email.com', initials: 'AW' },
+                date: '2024-11-07',
+                time: '01:30 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-021',
+                participant: { name: 'Evelyn Scott', email: 'evelyn.s@email.com', initials: 'ES' },
+                date: '2024-11-06',
+                time: '04:20 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-022',
+                participant: { name: 'Daniel Green', email: 'dgreen@email.com', initials: 'DG' },
+                date: '2024-11-06',
+                time: '02:00 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-023',
+                participant: { name: 'Abigail Baker', email: 'a.baker@email.com', initials: 'AB' },
+                date: '2024-11-06',
+                time: '11:40 AM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            },
+            {
+                id: 'SUB-2024-024',
+                participant: { name: 'Matthew Adams', email: 'madams@email.com', initials: 'MA' },
+                date: '2024-11-05',
+                time: '03:55 PM',
+                completion: 100,
+                responses: 12,
+                status: 'complete'
+            }
+        ];
+        
+        function populateAnswersTab() {
+            console.log('Populating answers tab with', dummyAnswers.length, 'answers');
+            const tbody = document.getElementById('answersTableBody');
+            
+            if (!tbody) {
+                console.error('answersTableBody element not found');
+                return;
+            }
+            
+            tbody.innerHTML = dummyAnswers.map(answer => `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="answer-checkbox">
+                    </td>
+                    <td>
+                        <span class="submission-id">${answer.id}</span>
+                    </td>
+                    <td>
+                        <div class="participant-info">
+                            <div class="participant-avatar" style="background: ${getRandomGradient()}">
+                                ${answer.participant.initials}
+                            </div>
+                            <div>
+                                <div class="participant-name">${answer.participant.name}</div>
+                                <div class="participant-email">${answer.participant.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="submission-date">${answer.date}</div>
+                        <div class="submission-time">${answer.time}</div>
+                    </td>
+                    <td>
+                        <span class="completion-badge ${answer.status}">
+                            ${answer.status === 'complete' ? '✓' : '○'} 
+                            ${answer.completion}%
+                        </span>
+                        ${answer.status === 'partial' ? `<div class="completion-progress">${answer.responses}/12 questions</div>` : ''}
+                    </td>
+                    <td>
+                        <span class="response-count">
+                            <i class="fas fa-comment-dots"></i>
+                            ${answer.responses} answers
+                        </span>
+                    </td>
+                    <td>
+                        <div class="answer-actions">
+                            <button class="action-btn-small primary" onclick="viewAnswerDetails('${answer.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="action-btn-small" onclick="downloadAnswers('${answer.id}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            console.log('Successfully populated', dummyAnswers.length, 'answers');
+            
+            // Update pagination info
+            const totalCount = document.getElementById('answersTotalCount');
+            const showingStart = document.getElementById('answersShowingStart');
+            const showingEnd = document.getElementById('answersShowingEnd');
+            
+            if (totalCount) totalCount.textContent = dummyAnswers.length;
+            if (showingStart) showingStart.textContent = '1';
+            if (showingEnd) showingEnd.textContent = Math.min(10, dummyAnswers.length);
+        }
+        
+        function getRandomGradient() {
+            const gradients = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            ];
+            return gradients[Math.floor(Math.random() * gradients.length)];
+        }
+        
+        function viewAnswerDetails(submissionId) {
+            alert(`Viewing details for ${submissionId}\n\nThis would open a modal or navigate to a detail page showing all responses.`);
+        }
+        
+        function downloadAnswers(submissionId) {
+            alert(`Downloading answers for ${submissionId}\n\nThis would export the submission data as JSON or CSV.`);
+        }
+        
+        // Export answers functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded #1 - Setting up answer functionality and populating table');
+            
+            // Populate answers tab immediately
+            populateAnswersTab();
+            
+            const exportAnswersBtn = document.getElementById('exportAnswersBtn');
+            if (exportAnswersBtn) {
+                exportAnswersBtn.addEventListener('click', function() {
+                    // Convert to CSV format
+                    const headers = ['Submission ID', 'Name', 'Email', 'Date', 'Time', 'Completion', 'Responses', 'Status'];
+                    const csvRows = [headers.join(',')];
+                    
+                    dummyAnswers.forEach(answer => {
+                        const row = [
+                            answer.id,
+                            answer.participant.name,
+                            answer.participant.email,
+                            answer.date,
+                            answer.time,
+                            answer.completion + '%',
+                            answer.responses,
+                            answer.status
+                        ];
+                        csvRows.push(row.join(','));
+                    });
+                    
+                    const csvContent = csvRows.join('\n');
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `answers-export-${Date.now()}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+            
+            // Select all checkbox
+            const selectAllAnswers = document.getElementById('selectAllAnswers');
+            if (selectAllAnswers) {
+                selectAllAnswers.addEventListener('change', function() {
+                    document.querySelectorAll('.answer-checkbox').forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                });
+            }
+            
+            // Search functionality
+            const answersSearch = document.getElementById('answersSearch');
+            if (answersSearch) {
+                answersSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#answersTableBody tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+        });
+        
+        // Initialize photos tab on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication and auto-load files from default bucket
+            // The app.js script handles authentication check and auto-loads files for localhost
+            console.log('Submission results page loaded');
+            
+            // Populate answers tab with dummy data
+            setTimeout(() => {
+                populateAnswersTab();
+            }, 500);
+        });
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // If switching to analytics tab, initialize/update analytics
+            if (tabName === 'analytics') {
+                setTimeout(() => {
+                    initializeAnalytics();
+                }, 100);
+            }
+            
+            // If switching to answers tab, ensure data is loaded
+            if (tabName === 'answers') {
+                setTimeout(() => {
+                    const tbody = document.getElementById('answersTableBody');
+                    if (tbody && tbody.children.length === 0) {
+                        populateAnswersTab();
+                    }
+                }, 100);
+            }
+        }
+        
+        // Analytics functionality
+        let analyticsCharts = {};
+        
+        function initializeAnalytics() {
+            if (!window.allFilesData || allFilesData.length === 0) {
+                console.log('No data available for analytics');
+                return;
+            }
+            
+            console.log('Initializing analytics with', allFilesData.length, 'files');
+            
+            // Calculate metrics
+            const metrics = calculateMetrics(allFilesData);
+            
+            // Update stat cards
+            updateStatCards(metrics);
+            
+            // Create charts
+            createSubmissionTimelineChart(allFilesData);
+            createValidationStatusChart(metrics);
+            createSkinConcernsChart(allFilesData);
+            createDeviceDistributionChart(allFilesData);
+            
+            // Generate insights
+            generateInsights(metrics, allFilesData);
+            
+            // Populate detailed table
+            populateAnalyticsTable(metrics);
+        }
+        
+        function calculateMetrics(data) {
+            const metrics = {
+                total: data.length,
+                withPhotos: data.filter(f => f.loaded).length,
+                validSelfies: data.filter(f => f.validSelfie === true).length,
+                invalidSelfies: data.filter(f => f.validSelfie === false).length,
+                unknownValidation: data.filter(f => f.validSelfie === null).length,
+                withDevice: data.filter(f => f.hasDevice).length,
+                totalScores: data.reduce((sum, f) => sum + (f.scoresCount || 0), 0),
+                totalAcne: data.reduce((sum, f) => sum + (f.acneTotal || 0), 0)
+            };
+            
+            metrics.photoPercentage = metrics.total > 0 ? (metrics.withPhotos / metrics.total * 100).toFixed(1) : 0;
+            metrics.validPercentage = metrics.withPhotos > 0 ? (metrics.validSelfies / metrics.withPhotos * 100).toFixed(1) : 0;
+            metrics.invalidPercentage = metrics.withPhotos > 0 ? (metrics.invalidSelfies / metrics.withPhotos * 100).toFixed(1) : 0;
+            metrics.devicePercentage = metrics.total > 0 ? (metrics.withDevice / metrics.total * 100).toFixed(1) : 0;
+            
+            return metrics;
+        }
+        
+        function updateStatCards(metrics) {
+            document.getElementById('totalSubmissions').textContent = metrics.total;
+            document.getElementById('withPhotos').textContent = metrics.withPhotos;
+            document.getElementById('validSelfies').textContent = metrics.validSelfies;
+            document.getElementById('invalidSelfies').textContent = metrics.invalidSelfies;
+            
+            document.getElementById('photosPercentage').textContent = `${metrics.photoPercentage}% of total`;
+            document.getElementById('validPercentage').textContent = `${metrics.validPercentage}% valid rate`;
+            document.getElementById('invalidPercentage').textContent = `${metrics.invalidPercentage}% invalid`;
+        }
+        
+        function createSubmissionTimelineChart(data) {
+            const canvas = document.getElementById('submissionTimelineChart');
+            if (!canvas) return;
+            
+            // Destroy existing chart
+            if (analyticsCharts.timeline) {
+                analyticsCharts.timeline.destroy();
+            }
+            
+            // Group by date
+            const dateGroups = {};
+            data.forEach(file => {
+                if (file.timeCreated) {
+                    const date = new Date(file.timeCreated).toLocaleDateString();
+                    dateGroups[date] = (dateGroups[date] || 0) + 1;
+                }
+            });
+            
+            // Sort dates and get last 30 days
+            const sortedDates = Object.keys(dateGroups).sort((a, b) => new Date(a) - new Date(b));
+            const last30 = sortedDates.slice(-30);
+            
+            const ctx = canvas.getContext('2d');
+            analyticsCharts.timeline = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last30,
+                    datasets: [{
+                        label: 'Submissions',
+                        data: last30.map(date => dateGroups[date]),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createValidationStatusChart(metrics) {
+            const canvas = document.getElementById('validationStatusChart');
+            if (!canvas) return;
+            
+            if (analyticsCharts.validation) {
+                analyticsCharts.validation.destroy();
+            }
+            
+            const ctx = canvas.getContext('2d');
+            analyticsCharts.validation = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Valid', 'Invalid', 'Unknown'],
+                    datasets: [{
+                        data: [metrics.validSelfies, metrics.invalidSelfies, metrics.unknownValidation],
+                        backgroundColor: ['#10b981', '#ef4444', '#9ca3af'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+            
+            // Update legend
+            const legend = document.getElementById('validationLegend');
+            legend.innerHTML = `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #10b981;"></div>
+                    <span class="legend-label">Valid:</span>
+                    <span class="legend-value">${metrics.validSelfies}</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ef4444;"></div>
+                    <span class="legend-label">Invalid:</span>
+                    <span class="legend-value">${metrics.invalidSelfies}</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #9ca3af;"></div>
+                    <span class="legend-label">Unknown:</span>
+                    <span class="legend-value">${metrics.unknownValidation}</span>
+                </div>
+            `;
+        }
+        
+        function createSkinConcernsChart(data) {
+            const canvas = document.getElementById('skinConcernsChart');
+            if (!canvas) return;
+            
+            if (analyticsCharts.concerns) {
+                analyticsCharts.concerns.destroy();
+            }
+            
+            // Aggregate skin concerns (placeholder logic)
+            const concerns = {
+                'Acne': data.reduce((sum, f) => sum + (f.acneTotal || 0), 0),
+                'Wrinkles': Math.floor(data.length * 0.4),
+                'Dark Spots': Math.floor(data.length * 0.3),
+                'Dryness': Math.floor(data.length * 0.5),
+                'Oiliness': Math.floor(data.length * 0.35)
+            };
+            
+            const ctx = canvas.getContext('2d');
+            analyticsCharts.concerns = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(concerns),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(concerns),
+                        backgroundColor: ['#ef4444', '#f59e0b', '#8b5cf6', '#3b82f6', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createDeviceDistributionChart(data) {
+            const canvas = document.getElementById('deviceDistributionChart');
+            if (!canvas) return;
+            
+            if (analyticsCharts.device) {
+                analyticsCharts.device.destroy();
+            }
+            
+            const withDevice = data.filter(f => f.hasDevice).length;
+            const withoutDevice = data.length - withDevice;
+            
+            const ctx = canvas.getContext('2d');
+            analyticsCharts.device = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['With Device Info', 'Without Device Info'],
+                    datasets: [{
+                        data: [withDevice, withoutDevice],
+                        backgroundColor: ['#3b82f6', '#e5e7eb'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+            
+            const legend = document.getElementById('deviceLegend');
+            legend.innerHTML = `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3b82f6;"></div>
+                    <span class="legend-label">With Device:</span>
+                    <span class="legend-value">${withDevice}</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e5e7eb;"></div>
+                    <span class="legend-label">Without:</span>
+                    <span class="legend-value">${withoutDevice}</span>
+                </div>
+            `;
+        }
+        
+        function generateInsights(metrics, data) {
+            const insights = [];
+            
+            // Insight 1: Valid selfie rate
+            if (metrics.validPercentage >= 80) {
+                insights.push({
+                    type: 'success',
+                    icon: '✅',
+                    title: 'High Quality Submissions',
+                    description: `${metrics.validPercentage}% of submissions have valid selfies. Great quality control!`
+                });
+            } else if (metrics.validPercentage < 50) {
+                insights.push({
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: 'Low Valid Selfie Rate',
+                    description: `Only ${metrics.validPercentage}% of submissions have valid selfies. Consider improving user guidance.`
+                });
+            }
+            
+            // Insight 2: Completion rate
+            if (metrics.photoPercentage >= 90) {
+                insights.push({
+                    type: 'success',
+                    icon: '🎯',
+                    title: 'Excellent Completion Rate',
+                    description: `${metrics.photoPercentage}% of participants submitted photos. Outstanding engagement!`
+                });
+            }
+            
+            // Insight 3: Device info
+            if (metrics.devicePercentage > 0) {
+                insights.push({
+                    type: 'info',
+                    icon: '📱',
+                    title: 'Device Data Available',
+                    description: `${metrics.withDevice} submissions (${metrics.devicePercentage}%) include device information for analysis.`
+                });
+            }
+            
+            // Insight 4: Data volume
+            if (metrics.total >= 100) {
+                insights.push({
+                    type: 'success',
+                    icon: '📊',
+                    title: 'Strong Data Set',
+                    description: `With ${metrics.total} submissions, you have a statistically significant sample size.`
+                });
+            }
+            
+            // Render insights
+            const insightsGrid = document.getElementById('insightsGrid');
+            const insightsBadge = document.getElementById('insightsBadge');
+            
+            insightsBadge.textContent = `${insights.length} insight${insights.length !== 1 ? 's' : ''}`;
+            
+            insightsGrid.innerHTML = insights.map(insight => `
+                <div class="insight-card ${insight.type}">
+                    <div class="insight-icon">${insight.icon}</div>
+                    <div class="insight-content">
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-description">${insight.description}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function populateAnalyticsTable(metrics) {
+            const tbody = document.getElementById('analyticsTableBody');
+            
+            const rows = [
+                { metric: 'Total Submissions', count: metrics.total, percentage: '100%', trend: 'stable' },
+                { metric: 'Submissions with Photos', count: metrics.withPhotos, percentage: `${metrics.photoPercentage}%`, trend: 'up' },
+                { metric: 'Valid Selfies', count: metrics.validSelfies, percentage: `${metrics.validPercentage}%`, trend: 'up' },
+                { metric: 'Invalid Selfies', count: metrics.invalidSelfies, percentage: `${metrics.invalidPercentage}%`, trend: 'down' },
+                { metric: 'With Device Info', count: metrics.withDevice, percentage: `${metrics.devicePercentage}%`, trend: 'stable' },
+                { metric: 'Total Skin Scores', count: metrics.totalScores, percentage: '-', trend: 'up' },
+                { metric: 'Total Acne Detections', count: metrics.totalAcne, percentage: '-', trend: 'stable' }
+            ];
+            
+            tbody.innerHTML = rows.map(row => `
+                <tr>
+                    <td><strong>${row.metric}</strong></td>
+                    <td>${row.count}</td>
+                    <td>${row.percentage}</td>
+                    <td>
+                        <span class="trend-badge ${row.trend}">
+                            ${row.trend === 'up' ? '↗' : row.trend === 'down' ? '↘' : '→'}
+                            ${row.trend === 'up' ? 'Growing' : row.trend === 'down' ? 'Declining' : 'Stable'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Export analytics data
+        document.addEventListener('DOMContentLoaded', function() {
+            const exportBtn = document.getElementById('exportAnalyticsBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function() {
+                    if (!window.allFilesData || allFilesData.length === 0) {
+                        alert('No data available to export');
+                        return;
+                    }
+                    
+                    const metrics = calculateMetrics(allFilesData);
+                    const exportData = {
+                        generatedAt: new Date().toISOString(),
+                        metrics: metrics,
+                        files: allFilesData
+                    };
+                    
+                    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `analytics-export-${Date.now()}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+        });
         
         // Navigation
         document.getElementById('studyManagementNavItem')?.addEventListener('click', () => {
             window.location.href = '/studymanagement';
-        });
-        document.getElementById('algorithmManagementNavItem')?.addEventListener('click', () => {
-            window.location.href = '/algorithmmanagement';
         });
         document.getElementById('urlGeneratorNavItem')?.addEventListener('click', () => {
             window.location.href = '/urlgenerator';
@@ -399,5 +2687,103 @@
             window.location.href = '/formview';
         });
     </script>
+    
+    <!-- Loading Toast Popup -->
+    <div class="loading-toast" id="loadingToast" style="display: none;">
+        <div class="loading-toast-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-toast-text">
+                <div class="loading-toast-message">Loading file metadata...</div>
+                <div class="loading-toast-progress" id="loadingProgress">0 / 0 files</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Progress Modal -->
+    <div class="loading-progress-modal" id="loadingProgressModal" style="display: none;">
+        <div class="loading-progress-content">
+            <div class="loading-progress-header">
+                <h3>📥 Loading Files</h3>
+                <p>Please wait while we load file metadata from the bucket</p>
+            </div>
+            <div class="loading-progress-body">
+                <div class="progress-spinner"></div>
+                <div class="progress-info">
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <span class="progress-label">Loaded:</span>
+                            <span class="progress-value" id="progressLoaded">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-label">Total:</span>
+                            <span class="progress-value" id="progressTotal">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-label">Speed:</span>
+                            <span class="progress-value" id="progressSpeed">0 files/s</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBarFill"></div>
+                        <div class="progress-bar-text" id="progressBarText">0%</div>
+                    </div>
+                    <div class="progress-current-file" id="progressCurrentFile">Initializing...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pdfContent"></div>
+    
+    <!-- Comparison Modal -->
+    <div class="comparison-modal" id="comparisonModal" style="display: none;">
+        <div class="comparison-modal-content">
+            <div class="comparison-header">
+                <h2>📊 Submission Comparison</h2>
+                <button class="btn-close-modal" id="closeComparisonBtn">✕</button>
+            </div>
+            <div class="comparison-tabs">
+                <button class="comparison-tab active" data-tab="trends">
+                    <i class="fas fa-chart-line"></i> Trend Analysis & Insights
+                </button>
+                <button class="comparison-tab" data-tab="details">
+                    <i class="fas fa-table"></i> Detailed Comparison
+                </button>
+                <button class="comparison-tab" data-tab="charts">
+                    <i class="fas fa-chart-bar"></i> Skin Concerns Chart
+                </button>
+            </div>
+            <div class="comparison-body" id="comparisonBody">
+                <div class="tab-content active" id="trendsTab">
+                    <!-- Trend analysis content will be inserted here -->
+                </div>
+                <div class="tab-content" id="detailsTab">
+                    <!-- Detailed comparison table will be inserted here -->
+                </div>
+                <div class="tab-content" id="chartsTab">
+                    <!-- Charts will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bucket Modal (for app.js compatibility) -->
+    <div class="modal" id="bucketModal">
+        <div class="modal-content">
+            <h2>🗂️ VCA Bucket Viewer</h2>
+            <p>Enter the name of the GCP Storage bucket you want to browse.</p>
+            <div class="input-group">
+                <label for="bucketNameInput">Bucket Name</label>
+                <input type="text" id="bucketNameInput" placeholder="vca-gcs-edc-loreal-internal-results-eu-dv" autocomplete="off">
+                <div class="example-text">Example: vca-gcs-edc-loreal-internal-results-eu-dv</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" id="connectBtn">Connect</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/table-view.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>

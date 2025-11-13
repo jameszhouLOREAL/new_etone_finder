@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Management - Visual Capture Assistant</title>
+    <title>Study Management - E-Tone Finder 2.0</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
@@ -58,7 +58,7 @@
             width: 95%;
         }
         .table-toolbar {
-            background: var(--bg-secondary);
+            background: white;
             padding: var(--spacing-4);
             border-bottom: 1px solid var(--border-light);
             display: flex;
@@ -71,7 +71,7 @@
             margin: 0;
         }
         .study-table th {
-            background: var(--bg-secondary);
+            background: white;
             color: var(--text-primary);
             font-weight: 600;
             font-size: 12px;
@@ -84,8 +84,11 @@
             border-bottom: 1px solid var(--border-light);
             font-size: 13px;
         }
+        .study-table tbody tr {
+            background: white;
+        }
         .study-table tbody tr:hover {
-            background: var(--bg-secondary);
+            background: #f9fafb;
         }
         .status-badge {
             display: inline-block;
@@ -135,7 +138,7 @@
             justify-content: space-between;
             align-items: center;
             padding: var(--spacing-4);
-            background: var(--bg-secondary);
+            background: white;
             border-top: 1px solid var(--border-light);
         }
         .pagination-info {
@@ -226,12 +229,12 @@
             display: inline-block;
         }
         .action-menu-btn {
-            background: white;
-            border: 1px solid #d1d5db;
+            background: F9F8F6;
+            border: 0px solid #d1d5db;
             padding: 6px 10px;
             border-radius: 6px;
             cursor: pointer;
-            color: #6b7280;
+            color: black;
             transition: all 0.2s;
         }
         .action-menu-btn:hover {
@@ -278,73 +281,12 @@
     </style>
 </head>
 <body>
+    <!-- Watermark -->
+    <div class="watermark">PROOF OF CONCEPT</div>
+
     <div class="dashboard">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <span>�</span>
-                    <span>Visual Capture Assistant</span>
-                </div>
-                <div class="sidebar-subtitle">Photo Analysis Platform</div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-section-title">Selfie Admin</div>
-                    <div class="nav-item active">
-                        <span class="nav-item-icon">📋</span>
-                        <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="algorithmManagementNavItem">
-                        <span class="nav-item-icon">🧠</span>
-                        <span>Algorithm Management</span>
-                    </div>
-                    <div class="nav-item" id="urlGeneratorNavItem">
-                        <span class="nav-item-icon">🔗</span>
-                        <span>Selfie URL Generator</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Analysis Tools</div>
-                    <div class="nav-item" id="submissionsNavItem">
-                        <span class="nav-item-icon">📸</span>
-                        <span>Photo Submissions</span>
-                    </div>
-                    <div class="nav-item" id="analyticsNavItem">
-                        <span class="nav-item-icon">📊</span>
-                        <span>Analytics</span>
-                    </div>
-                    <div class="nav-item" id="formViewNavItem">
-                        <span class="nav-item-icon">�</span>
-                        <span>Form View</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Data Management</div>
-                    <div class="nav-item" id="bucketsNavItem">
-                        <span class="nav-item-icon">🗂️</span>
-                        <span>Buckets</span>
-                    </div>
-                    <div class="nav-item">
-                        <span class="nav-item-icon">🔧</span>
-                        <span>Settings</span>
-                    </div>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
-                    <div style="margin-left: 8px;">
-                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
-                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Sidebar Navigation Component -->
+        <div id="sidebar-container"></div>
         
         <!-- Main Content -->
         <div class="main-content">
@@ -352,7 +294,7 @@
             <div class="page-header">
                 <div class="page-title-section">
                     <div>
-                        <h1 class="page-title">📚 Study Management</h1>
+                        <h1 class="page-title">All Studies</h1>
                         <div class="page-subtitle">Create and manage Visual Capture studies</div>
                     </div>
                 </div>
@@ -395,10 +337,9 @@
                             <th style="width: 50px;">
                                 <input type="checkbox" id="selectAll">
                             </th>
-                            <th style="width: 140px;">Study ID</th>
-                            <th>Study Title</th>
+                            <th style="width: 300px;">Study Title</th>
                             <th style="width: 100px;">Questions</th>
-                            <th style="width: 100px; text-align: center;">Selfie</th>
+                            <th style="width: 200px; text-align: center;">Selfie Needed?</th>
                             <th style="width: 120px;">Submissions</th>
                             <th style="width: 120px;">Status</th>
                             <th style="width: 160px;">Created</th>
@@ -574,6 +515,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
     <script src="/js/study-management.js"></script>
     <script>
         // Navigation functions
@@ -603,7 +545,6 @@
             document.getElementById('bucketsNavItem')?.addEventListener('click', navigateToBuckets);
             document.getElementById('urlGeneratorNavItem')?.addEventListener('click', navigateToURLGenerator);
             document.getElementById('studyManagementNavItem')?.addEventListener('click', navigateToStudyManagement);
-            document.getElementById('algorithmManagementNavItem')?.addEventListener('click', navigateToAlgorithmManagement);
             document.getElementById('analyticsNavItem')?.addEventListener('click', () => {
                 window.location.href = '/analytics';
             });

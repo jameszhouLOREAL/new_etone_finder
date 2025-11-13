@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
             --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
+            --bg-secondary: #F9F8F6;
             --bg-tertiary: #f1f5f9;
             --border-light: #e2e8f0;
             --border-medium: #cbd5e1;

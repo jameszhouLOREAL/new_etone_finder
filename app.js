@@ -316,6 +316,11 @@ app.get('/urlgenerator', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/urlgenerator.html'));
 });
 
+// Serve component files
+app.get('/components/:component', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/components', req.params.component));
+});
+
 // Serve the Study Management page
 app.get('/studymanagement', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/studymanagement.html'));
@@ -324,11 +329,6 @@ app.get('/studymanagement', (req, res) => {
 // Serve the Study Design page
 app.get('/studydesign', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/studydesign.html'));
-});
-
-// Serve the Algorithm Management page
-app.get('/algorithmmanagement', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views/algorithmmanagement.html'));
 });
 
 // Serve the Analytics page

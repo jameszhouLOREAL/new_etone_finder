@@ -366,72 +366,8 @@
 </head>
 <body>
     <div class="dashboard">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <span>�</span>
-                    <span>Visual Capture Assistant</span>
-                </div>
-                <div class="sidebar-subtitle">Photo Analysis Platform</div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-section-title">Selfie Admin</div>
-                    <div class="nav-item" id="studyManagementNavItem">
-                        <span class="nav-item-icon">📋</span>
-                        <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="algorithmManagementNavItem">
-                        <span class="nav-item-icon">🧠</span>
-                        <span>Algorithm Management</span>
-                    </div>
-                    <div class="nav-item active" id="urlGeneratorNavItem">
-                        <span class="nav-item-icon">🔗</span>
-                        <span>Selfie URL Generator</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Analysis Tools</div>
-                    <div class="nav-item" id="submissionsNavItem">
-                        <span class="nav-item-icon">📸</span>
-                        <span>Photo Submissions</span>
-                    </div>
-                    <div class="nav-item">
-                        <span class="nav-item-icon">📊</span>
-                        <span>Analytics</span>
-                    </div>
-                    <div class="nav-item">
-                        <span class="nav-item-icon">📈</span>
-                        <span>Reports</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Data Management</div>
-                    <div class="nav-item" id="bucketsNavItem">
-                        <span class="nav-item-icon">🗂️</span>
-                        <span>Buckets</span>
-                    </div>
-                    <div class="nav-item">
-                        <span class="nav-item-icon">🔧</span>
-                        <span>Settings</span>
-                    </div>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
-                    <div style="margin-left: 8px;">
-                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
-                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Sidebar Navigation Component -->
+        <div id="sidebar-container"></div>
         
         <!-- Main Content -->
         <div class="main-content">
@@ -787,7 +723,6 @@
             document.getElementById('bucketsNavItem')?.addEventListener('click', navigateToBuckets);
             document.getElementById('urlGeneratorNavItem')?.addEventListener('click', navigateToURLGenerator);
             document.getElementById('studyManagementNavItem')?.addEventListener('click', navigateToStudyManagement);
-            document.getElementById('algorithmManagementNavItem')?.addEventListener('click', navigateToAlgorithmManagement);
         });
     </script>
     
@@ -822,5 +757,9 @@
             </div>
         </div>
     </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="/js/urlgen.js"></script>
 </body>
 </html>

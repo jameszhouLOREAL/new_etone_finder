@@ -4,10 +4,45 @@
 let questions = [];
 let questionIdCounter = 1;
 let currentStudyId = null; // Store the current study ID if editing
+let hasUnsavedChanges = false; // Track if there are unsaved changes
+let initialFormState = null; // Store initial form state for comparison
 
 // Generate unique study ID using timestamp
 function generateStudyId() {
     return Date.now().toString();
+}
+
+// Mark form as changed
+function markFormAsChanged() {
+    if (!hasUnsavedChanges) {
+        hasUnsavedChanges = true;
+        updateSaveDraftButton();
+    }
+}
+
+// Update save draft button state
+function updateSaveDraftButton() {
+    const saveDraftBtn = document.getElementById('saveDraftBtn');
+    if (saveDraftBtn) {
+        if (hasUnsavedChanges) {
+            saveDraftBtn.disabled = false;
+            saveDraftBtn.style.background = 'var(--primary-green)';
+            saveDraftBtn.style.color = 'white';
+            saveDraftBtn.style.borderColor = 'var(--primary-green)';
+        } else {
+            saveDraftBtn.disabled = true;
+            saveDraftBtn.style.background = '#e5e7eb';
+            saveDraftBtn.style.color = '#9ca3af';
+            saveDraftBtn.style.borderColor = '#e5e7eb';
+            saveDraftBtn.style.cursor = 'not-allowed';
+        }
+    }
+}
+
+// Reset unsaved changes flag
+function resetUnsavedChanges() {
+    hasUnsavedChanges = false;
+    updateSaveDraftButton();
 }
 
 // Initialize the form builder
@@ -97,6 +132,9 @@ function loadStudyData(study) {
     }
     
     updatePreview();
+    
+    // Reset unsaved changes flag after loading data
+    resetUnsavedChanges();
 }
 
 // Event Listeners
@@ -176,9 +214,14 @@ function initializeEventListeners() {
     
     // Click outside to exit edit mode
     document.addEventListener('click', function(e) {
+        // Check if click is on add question button or its container
+        const isAddQuestionBtn = e.target.closest('#addQuestionBtn') || e.target.closest('.add-question-container');
+        
         // Check if click is outside any question card
         const clickedCard = e.target.closest('.question-card');
-        if (!clickedCard) {
+        
+        // Don't exit edit mode if clicking on add question button
+        if (!clickedCard && !isAddQuestionBtn) {
             // Exit all edit modes
             const hasEditMode = questions.some(q => q.editMode);
             if (hasEditMode) {
@@ -206,6 +249,41 @@ function initializeEventListeners() {
     document.getElementById('saveDraftBtn').addEventListener('click', saveDraft);
     document.getElementById('publishBtn').addEventListener('click', publishStudy);
     // Preview button now handled by togglePreview() in HTML
+    
+    // Track changes on form inputs
+    const formInputs = [
+        'formTitle',
+        'formDescription',
+        'instructionTitle',
+        'instructionText',
+        'selfieNeeded',
+        'selfieLanguage',
+        'selfieCamera',
+        'askedZone',
+        'autoTake',
+        'showTutorial',
+        'enableValidations',
+        'lightValidation',
+        'distanceValidation',
+        'tiltValidation',
+        'expressionValidation',
+        'eyesValidation'
+    ];
+    
+    formInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', markFormAsChanged);
+            element.addEventListener('change', markFormAsChanged);
+        }
+    });
+    
+    // Also track changes on threshold inputs
+    const thresholdInputs = document.querySelectorAll('#selfieConfigContent input[type="number"]');
+    thresholdInputs.forEach(input => {
+        input.addEventListener('input', markFormAsChanged);
+        input.addEventListener('change', markFormAsChanged);
+    });
 }
 
 // Quick add question from inline input (React prototype style)
@@ -297,6 +375,9 @@ function addQuestion(type) {
     
     questions.push(question);
     
+    // Mark form as changed
+    markFormAsChanged();
+    
     // Re-render all questions to update their modes
     reRenderAllQuestions();
     updatePreview();
@@ -320,7 +401,7 @@ function renderQuestion(question) {
     const questionCard = document.createElement('div');
     questionCard.className = question.editMode ? 'question-card edit-mode' : 'question-card preview-mode';
     questionCard.setAttribute('data-question-id', question.id);
-    questionCard.setAttribute('draggable', 'true');
+    questionCard.setAttribute('draggable', 'false');
     
     const questionNumber = questions.findIndex(q => q.id === question.id) + 1;
     
@@ -339,9 +420,6 @@ function renderQuestion(question) {
                     </select>
                 </div>
                 <div class="question-actions">
-                    <button class="question-action-btn" title="Drag to reorder">
-                        <i class="fas fa-grip-vertical"></i>
-                    </button>
                     <button class="question-action-btn" onclick="duplicateQuestion(${question.id})" title="Duplicate">
                         <i class="far fa-copy"></i>
                     </button>
@@ -589,6 +667,7 @@ function updateQuestionText(questionId, text) {
     const question = questions.find(q => q.id === questionId);
     if (question) {
         question.text = text;
+        markFormAsChanged();
         updatePreview();
     }
 }
@@ -608,6 +687,7 @@ function changeQuestionType(questionId, newType) {
             question.options = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
         }
         
+        markFormAsChanged();
         reRenderQuestion(questionId);
         updatePreview();
     }
@@ -619,6 +699,7 @@ function addOption(questionId) {
     if (question) {
         const optionNumber = question.options.length + 1;
         question.options.push(`Option ${optionNumber}`);
+        markFormAsChanged();
         reRenderQuestion(questionId);
         updatePreview();
     }
@@ -629,6 +710,7 @@ function removeOption(questionId, optionIndex) {
     const question = questions.find(q => q.id === questionId);
     if (question && question.options.length > 2) {
         question.options.splice(optionIndex, 1);
+        markFormAsChanged();
         reRenderQuestion(questionId);
         updatePreview();
     }
@@ -639,6 +721,7 @@ function updateOption(questionId, optionIndex, text) {
     const question = questions.find(q => q.id === questionId);
     if (question) {
         question.options[optionIndex] = text;
+        markFormAsChanged();
         updatePreview();
     }
 }
@@ -648,6 +731,7 @@ function updateMaxRating(questionId, value) {
     const question = questions.find(q => q.id === questionId);
     if (question) {
         question.maxRating = parseInt(value);
+        markFormAsChanged();
         updatePreview();
     }
 }
@@ -666,6 +750,7 @@ function toggleRequired(questionId, checked) {
     const question = questions.find(q => q.id === questionId);
     if (question) {
         question.required = checked;
+        markFormAsChanged();
         updatePreview();
     }
 }
@@ -675,6 +760,7 @@ function toggleLogic(questionId, checked) {
     const question = questions.find(q => q.id === questionId);
     if (question) {
         question.logic = checked ? {} : null;
+        markFormAsChanged();
         reRenderQuestion(questionId);
     }
 }
@@ -683,6 +769,7 @@ function toggleLogic(questionId, checked) {
 function deleteQuestion(questionId) {
     if (confirm('Are you sure you want to delete this question?')) {
         questions = questions.filter(q => q.id !== questionId);
+        markFormAsChanged();
         reRenderAllQuestions();
         updatePreview();
     }
@@ -697,6 +784,7 @@ function duplicateQuestion(questionId) {
             id: questionIdCounter++
         };
         questions.push(newQuestion);
+        markFormAsChanged();
         renderQuestion(newQuestion);
         updatePreview();
     }
@@ -1051,7 +1139,8 @@ async function saveDraft() {
                 currentStudyId = formData.studyId;
             }
             
-            alert('✓ Draft saved successfully!\n\nThe study has been saved as a draft.');
+            // Reset unsaved changes flag
+            resetUnsavedChanges();
         } else {
             const error = await response.json();
             alert('Failed to save draft: ' + (error.error || 'Unknown error'));

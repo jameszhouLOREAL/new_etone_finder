@@ -198,7 +198,7 @@
             <div class="sidebar-header">
                 <div class="sidebar-logo">
                     <span>📷</span>
-                    <span>Visual Capture Assistant</span>
+                    <span>E-Tone Finder 2.0</span>
                 </div>
                 <div class="sidebar-subtitle">Photo Analysis Platform</div>
             </div>
@@ -209,10 +209,6 @@
                     <div class="nav-item" id="studyManagementNavItem">
                         <span class="nav-item-icon">📋</span>
                         <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="algorithmManagementNavItem">
-                        <span class="nav-item-icon">🧠</span>
-                        <span>Algorithm Management</span>
                     </div>
                     <div class="nav-item" id="urlGeneratorNavItem">
                         <span class="nav-item-icon">🔗</span>
@@ -471,7 +467,6 @@
             const bucketsNav = document.getElementById('bucketsNavItem');
             const urlGeneratorNav = document.getElementById('urlGeneratorNavItem');
             const studyManagementNav = document.getElementById('studyManagementNavItem');
-            const algorithmManagementNav = document.getElementById('algorithmManagementNavItem');
             const analyticsNav = document.getElementById('analyticsNavItem');
             const formViewNav = document.getElementById('formViewNavItem');
             
@@ -479,7 +474,6 @@
             if (bucketsNav) bucketsNav.addEventListener('click', navigateToBuckets);
             if (urlGeneratorNav) urlGeneratorNav.addEventListener('click', navigateToURLGenerator);
             if (studyManagementNav) studyManagementNav.addEventListener('click', navigateToStudyManagement);
-            if (algorithmManagementNav) algorithmManagementNav.addEventListener('click', navigateToAlgorithmManagement);
             if (analyticsNav) analyticsNav.addEventListener('click', navigateToAnalytics);
             if (formViewNav) formViewNav.addEventListener('click', navigateToFormView);
         });

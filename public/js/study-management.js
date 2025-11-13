@@ -272,13 +272,16 @@ class StudyManager {
                 });
             }
             
+            // Truncate title if longer than 35 characters
+            const displayTitle = study.title || study.label || '<em>No title</em>';
+            const truncatedTitle = displayTitle.length > 35 ? displayTitle.substring(0, 35) + '...' : displayTitle;
+            
             return `
             <tr>
                 <td>
                     <input type="checkbox" class="study-checkbox" data-id="${study.studyId}">
                 </td>
-                <td>${study.id}</td>
-                <td><strong>${study.title || study.label || '<em>No title</em>'}</strong></td>
+                <td title="${displayTitle}"><strong>${truncatedTitle}</strong></td>
                 <td style="text-align: center;">${questionCount}</td>
                 <td style="text-align: center;">
                     ${selfieNeeded ? '<i class="fas fa-camera" style="color: #10b981; font-size: 18px;" title="Selfie Required"></i>' : '<i class="fas fa-minus-circle" style="color: #d1d5db; font-size: 18px;" title="No Selfie"></i>'}
@@ -300,6 +303,9 @@ class StudyManager {
                         <div class="action-menu" id="action-menu-${study.id}" style="display: none;">
                             <div class="action-menu-item" onclick="studyManager.editStudy('${study.id}')">
                                 <i class="fas fa-pencil-alt"></i> Edit
+                            </div>
+                            <div class="action-menu-item" onclick="studyManager.viewSubmissions('${study.studyId}')">
+                                <i class="fas fa-file-alt"></i> View Submissions
                             </div>
                             <div class="action-menu-item" onclick="studyManager.openMobilePreview('${study.studyId}')">
                                 <i class="fas fa-mobile-alt"></i> Mobile Preview
@@ -360,6 +366,11 @@ class StudyManager {
 
         // Navigate to study design page with the study ID
         window.location.href = `/studydesign?studyId=${encodeURIComponent(study.studyId)}`;
+    }
+
+    viewSubmissions(studyId) {
+        // Navigate to submission results page with the study ID
+        window.location.href = `/submissionresults?studyId=${encodeURIComponent(studyId)}`;
     }
 
     async deleteStudy(id) {

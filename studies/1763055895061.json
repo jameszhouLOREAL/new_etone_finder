@@ -1,0 +1,67 @@
+{
+  "title": "Dark Circle screening",
+  "description": "Internal R&I study to assess novel formulations targeting under-eye dark circles. We're seeking participants to evaluate efficacy on discoloration, puffiness, and fine lines, driving development of advanced eye care solutions.\n",
+  "instructionTitle": "Welcome to the study",
+  "instructionText": "Welcome! Please apply the product twice daily to clean, dry under-eye skin. Use our dedicated mobile app to answer daily questions and record your experiences. Consistent use is crucial; avoid other eye treatments. At the study's conclusion, please take a final selfie via the app.\n\nIf irritation occurs, stop use and contact us immediately. Thank you for your valuable contribution!",
+  "questions": [
+    {
+      "id": 1,
+      "type": "choice",
+      "text": "How often do you apply the product?",
+      "required": true,
+      "options": [
+        "1/day",
+        "2/day",
+        "1/week"
+      ],
+      "logic": null,
+      "editMode": false
+    },
+    {
+      "id": 2,
+      "type": "rating",
+      "text": "How do you feel after applying the product?",
+      "required": true,
+      "options": [],
+      "logic": null,
+      "editMode": false
+    },
+    {
+      "id": 3,
+      "type": "text",
+      "text": "Any comments?",
+      "required": false,
+      "options": [],
+      "logic": null,
+      "editMode": false
+    }
+  ],
+  "selfieConfig": {
+    "enabled": true,
+    "language": "en",
+    "camera": "FRONT",
+    "askedZone": "FRONT_FACE",
+    "autoTake": true,
+    "showTutorial": false,
+    "validations": {
+      "light": {
+        "brightnessMin": 90,
+        "brightnessMax": 200,
+        "lightingValue": 70,
+        "lightColorValue": 20
+      },
+      "distance": {
+        "far": 10,
+        "close": 30
+      }
+    }
+  },
+  "version": "1.0",
+  "createdAt": "2025-11-13T17:44:55.065Z",
+  "status": "Published",
+  "studyId": "1763055895061",
+  "label": "Dark Circle screening",
+  "edc": "VCA-STUDY",
+  "updatedAt": "2025-11-13T17:44:57.520Z",
+  "publishedAt": "2025-11-13T17:44:57.514Z"
+}

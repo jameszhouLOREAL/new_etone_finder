@@ -1,0 +1,51 @@
+<!-- Sidebar Navigation Component -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <span>📱</span>
+            <span>E-Tone Finder 2.0</span>
+        </div>
+        <div class="sidebar-subtitle">Visual Data Collection Platform</div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title">Study</div>
+            <a href="/studymanagement" class="nav-item" data-page="studymanagement">
+                <span class="nav-item-icon">📋</span>
+                <span>All Studies
+                </span>
+            </a>
+            <a href="/analytics" class="nav-item" data-page="analytics">
+                <span class="nav-item-icon">�</span>
+                <span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">Admin</div>
+            <a href="/urlgenerator" class="nav-item" data-page="urlgenerator">
+                <span class="nav-item-icon">🔗</span>
+                <span>URL Generator</span>
+            </a>
+            <a href="/accesscontrol" class="nav-item" data-page="accesscontrol">
+                <span class="nav-item-icon">🔒</span>
+                <span>Access Control</span>
+            </a>
+        </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="user-info" id="userInfo">
+            <img src="" alt="User Avatar" class="user-avatar" id="userAvatar">
+            <div class="user-details">
+                <div class="user-name" id="userName">Loading...</div>
+                <div class="user-email">Admin</div>
+            </div>
+        </div>
+        <button class="btn-logout" onclick="signOut()">
+            <i class="fas fa-sign-out-alt"></i>
+            Sign Out
+        </button>
+    </div>
+</div>

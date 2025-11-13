@@ -1,4 +1,29 @@
-const { jsPDF } = window.jspdf;
+// jsPDF will be loaded conditionally when needed
+let jsPDF = null;
+if (window.jspdf) {
+    jsPDF = window.jspdf.jsPDF;
+}
+
+// Load sidebar component
+async function loadSidebar() {
+    const sidebarContainer = document.getElementById('sidebar-container');
+    if (sidebarContainer) {
+        try {
+            const response = await fetch('/components/sidebar.html');
+            const html = await response.text();
+            sidebarContainer.innerHTML = html;
+            
+            // Set active state based on current page
+            const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'studymanagement';
+            const activeItem = document.querySelector(`.nav-item[data-page="${currentPage}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+        } catch (error) {
+            console.error('Error loading sidebar:', error);
+        }
+    }
+}
 
 // Authentication variables
 let isAuthenticated = false;
@@ -45,7 +70,10 @@ function decodeJwtResponse(token) {
 
 // Hide authentication overlay
 function hideAuthOverlay() {
-    document.getElementById('authOverlay').style.display = 'none';
+    const authOverlay = document.getElementById('authOverlay');
+    if (authOverlay) {
+        authOverlay.style.display = 'none';
+    }
     // Auto-load the default bucket after authentication
     if (currentBucket) {
         updateBucketDisplay();
@@ -59,14 +87,22 @@ function showUserInfo() {
     const userAvatar = document.getElementById('userAvatar');
     const userName = document.getElementById('userName');
     
-    userAvatar.src = currentUser.picture;
-    userName.textContent = currentUser.name;
-    userInfo.style.display = 'flex';
+    if (userAvatar && currentUser.picture) {
+        userAvatar.src = currentUser.picture;
+    }
+    if (userName && currentUser.name) {
+        userName.textContent = currentUser.name;
+    }
+    if (userInfo) {
+        userInfo.style.display = 'flex';
+    }
 }
 
 // Sign out function
 function signOut() {
-    google.accounts.id.disableAutoSelect();
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+    }
     isAuthenticated = false;
     currentUser = null;
     
@@ -74,8 +110,15 @@ function signOut() {
     localStorage.removeItem('vca_user');
     localStorage.removeItem('vca_authenticated');
     
-    document.getElementById('userInfo').style.display = 'none';
-    document.getElementById('authOverlay').style.display = 'flex';
+    const userInfo = document.getElementById('userInfo');
+    const authOverlay = document.getElementById('authOverlay');
+    
+    if (userInfo) {
+        userInfo.style.display = 'none';
+    }
+    if (authOverlay) {
+        authOverlay.style.display = 'flex';
+    }
     showToast('Signed out successfully');
 }
 
@@ -119,9 +162,15 @@ function checkAuthentication() {
     
     // No valid saved session, show auth overlay
     if (!isAuthenticated) {
-        document.getElementById('authOverlay').style.display = 'flex';
-        // Also hide the bucket modal
-        document.getElementById('bucketModal').classList.remove('active');
+        const authOverlay = document.getElementById('authOverlay');
+        const bucketModal = document.getElementById('bucketModal');
+        
+        if (authOverlay) {
+            authOverlay.style.display = 'flex';
+        }
+        if (bucketModal) {
+            bucketModal.classList.remove('active');
+        }
         return false;
     }
     return true;
@@ -217,7 +266,11 @@ function showSubmissionsPage() {
     // Show submissions content, hide buckets content
     document.querySelector('.master-detail-container')?.style.setProperty('display', 'flex');
     document.querySelector('.filters-toolbar')?.style.setProperty('display', 'flex');
-    document.getElementById('bucketsContent').style.display = 'none';
+    
+    const bucketsContent = document.getElementById('bucketsContent');
+    if (bucketsContent) {
+        bucketsContent.style.display = 'none';
+    }
     
     // Show refresh button on submissions page
     const refreshBtn = document.getElementById('refreshBtn');
@@ -243,7 +296,11 @@ function showBucketsPage() {
     // Hide submissions content, show buckets content
     document.querySelector('.master-detail-container')?.style.setProperty('display', 'none');
     document.querySelector('.filters-toolbar')?.style.setProperty('display', 'none');
-    document.getElementById('bucketsContent').style.display = 'block';
+    
+    const bucketsContent = document.getElementById('bucketsContent');
+    if (bucketsContent) {
+        bucketsContent.style.display = 'block';
+    }
     
     // Keep refresh button visible on buckets page too (useful for refreshing bucket info)
     const refreshBtn = document.getElementById('refreshBtn');
@@ -263,11 +320,6 @@ function showURLGenerator() {
 function showStudyManagement() {
     // Navigate to the study management page
     window.location.href = '/studymanagement';
-}
-
-function showAlgorithmManagement() {
-    // Navigate to the algorithm management page
-    window.location.href = '/algorithmmanagement';
 }
 
 // View switching functions
@@ -471,22 +523,40 @@ function resetRefreshButton(refreshBtn) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // Load sidebar component first
+    await loadSidebar();
+    
     // Check authentication first (this will auto-authenticate for localhost)
     checkAuthentication();
     
     // Initialize Google Sign-In only for non-localhost
     initializeGoogleSignIn();
     
-    // Event listeners
-    document.getElementById('connectBtn').addEventListener('click', connectToBucket);
-    document.getElementById('changeBucketBtn')?.addEventListener('click', showBucketModal);
-    document.getElementById('closePanelBtn').addEventListener('click', closeDetailPanel);
-    document.getElementById('pdfBtn').addEventListener('click', exportToPDF);
-    document.getElementById('downloadBtn').addEventListener('click', downloadFile);
-    document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
-    document.getElementById('toggleViewBtn').addEventListener('click', toggleView);
-    document.getElementById('refreshBtn')?.addEventListener('click', refreshFiles);
+    // Event listeners - only attach if elements exist
+    const connectBtn = document.getElementById('connectBtn');
+    if (connectBtn) connectBtn.addEventListener('click', connectToBucket);
+    
+    const changeBucketBtn = document.getElementById('changeBucketBtn');
+    if (changeBucketBtn) changeBucketBtn.addEventListener('click', showBucketModal);
+    
+    const closePanelBtn = document.getElementById('closePanelBtn');
+    if (closePanelBtn) closePanelBtn.addEventListener('click', closeDetailPanel);
+    
+    const pdfBtn = document.getElementById('pdfBtn');
+    if (pdfBtn) pdfBtn.addEventListener('click', exportToPDF);
+    
+    const downloadBtn = document.getElementById('downloadBtn');
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadFile);
+    
+    const copyBtn = document.getElementById('copyBtn');
+    if (copyBtn) copyBtn.addEventListener('click', copyToClipboard);
+    
+    const toggleViewBtn = document.getElementById('toggleViewBtn');
+    if (toggleViewBtn) toggleViewBtn.addEventListener('click', toggleView);
+    
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) refreshBtn.addEventListener('click', refreshFiles);
     
     // View toggle buttons
     document.getElementById('tableViewBtn')?.addEventListener('click', function() {
@@ -512,50 +582,72 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
     
     // Initialize resizable panel
-    initializeResizablePanel();
+    if (typeof initializeResizablePanel === 'function') {
+        initializeResizablePanel();
+    }
     
     // Setup click-outside handler for detail panel
-    setupDetailPanelClickOutside();
+    if (typeof setupDetailPanelClickOutside === 'function') {
+        setupDetailPanelClickOutside();
+    }
     
-    document.getElementById('bucketNameInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            connectToBucket();
-        }
-    });
+    const bucketNameInput = document.getElementById('bucketNameInput');
+    if (bucketNameInput) {
+        bucketNameInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                connectToBucket();
+            }
+        });
+    }
     
     // Search functionality
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        if (currentView === 'table' && typeof renderFiles === 'function') {
-            renderFiles();
-        } else {
-            filterAndDisplayFiles();
-        }
-    });
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            if (currentView === 'table' && typeof renderFiles === 'function') {
+                renderFiles();
+            } else {
+                filterAndDisplayFiles();
+            }
+        });
+    }
     
-    // Navigation handling
-    document.getElementById('submissionsNavItem').addEventListener('click', function() {
-        showSubmissionsPage();
-    });
+    // Navigation handling - these are now handled by sidebar component with <a> tags
+    // Keep these for backward compatibility with old pages
+    const submissionsNavItem = document.getElementById('submissionsNavItem');
+    if (submissionsNavItem) {
+        submissionsNavItem.addEventListener('click', function() {
+            showSubmissionsPage();
+        });
+    }
     
-    document.getElementById('bucketsNavItem').addEventListener('click', function() {
-        showBucketsPage();
-    });
+    const bucketsNavItem = document.getElementById('bucketsNavItem');
+    if (bucketsNavItem) {
+        bucketsNavItem.addEventListener('click', function() {
+            showBucketsPage();
+        });
+    }
     
-    document.getElementById('urlGeneratorNavItem').addEventListener('click', function() {
-        showURLGenerator();
-    });
+    const urlGeneratorNavItem = document.getElementById('urlGeneratorNavItem');
+    if (urlGeneratorNavItem) {
+        urlGeneratorNavItem.addEventListener('click', function() {
+            showURLGenerator();
+        });
+    }
     
-    document.getElementById('studyManagementNavItem')?.addEventListener('click', function() {
-        showStudyManagement();
-    });
+    const studyManagementNavItem = document.getElementById('studyManagementNavItem');
+    if (studyManagementNavItem) {
+        studyManagementNavItem.addEventListener('click', function() {
+            showStudyManagement();
+        });
+    }
     
-    document.getElementById('algorithmManagementNavItem')?.addEventListener('click', function() {
-        showAlgorithmManagement();
-    });
-    
-    document.getElementById('analyticsNavItem')?.addEventListener('click', function() {
-        window.location.href = '/analytics';
-    });
+    const analyticsNavItem = document.getElementById('analyticsNavItem');
+    if (analyticsNavItem) {
+        analyticsNavItem.addEventListener('click', function() {
+            window.location.href = '/analytics';
+        });
+    }
     
     // Buckets page functionality
     const quickSwitchBtn = document.getElementById('quickSwitchBtn');
@@ -589,13 +681,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showBucketModal() {
-    document.getElementById('bucketModal').classList.add('active');
-    document.getElementById('bucketNameInput').value = currentBucket || '';
-    document.getElementById('bucketNameInput').focus();
+    const bucketModal = document.getElementById('bucketModal');
+    const bucketNameInput = document.getElementById('bucketNameInput');
+    
+    if (bucketModal) {
+        bucketModal.classList.add('active');
+    }
+    if (bucketNameInput) {
+        bucketNameInput.value = currentBucket || '';
+        bucketNameInput.focus();
+    }
 }
 
 function hideBucketModal() {
-    document.getElementById('bucketModal').classList.remove('active');
+    const bucketModal = document.getElementById('bucketModal');
+    if (bucketModal) {
+        bucketModal.classList.remove('active');
+    }
 }
 
 function connectToBucket() {
@@ -662,7 +764,10 @@ function loadFiles() {
             }
             
             // Show summary bar and toolbar
-            document.getElementById('filtersToolbar').style.display = 'flex';
+            var filtersToolbar = document.getElementById('filtersToolbar');
+            if (filtersToolbar) {
+                filtersToolbar.style.display = 'flex';
+            }
             
             // Load basic file data and display cards
             loadFileAnalytics();
@@ -1417,6 +1522,16 @@ function displayJSON(data) {
 function exportToPDF() {
     if (!currentData || !currentFile) {
         showToast('No data to export');
+        return;
+    }
+    
+    // Check if jsPDF is available
+    if (!jsPDF && window.jspdf) {
+        jsPDF = window.jspdf.jsPDF;
+    }
+    
+    if (!jsPDF) {
+        showToast('PDF library not loaded. Please refresh the page.');
         return;
     }
     

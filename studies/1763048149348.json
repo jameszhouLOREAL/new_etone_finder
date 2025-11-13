@@ -1,18 +1,9 @@
 {
   "title": "Curion_Etone Finder week 9-29-25 pt2",
-  "description": "dsfsdfsdsdfsdfs",
+  "description": "",
   "instructionTitle": "",
   "instructionText": "",
-  "questions": [
-    {
-      "id": 1,
-      "type": "text",
-      "text": "",
-      "required": false,
-      "options": [],
-      "logic": null
-    }
-  ],
+  "questions": [],
   "selfieConfig": {
     "enabled": true,
     "language": "en",
@@ -22,12 +13,11 @@
     "showTutorial": false,
     "validations": {}
   },
-  "createdAt": "2025-11-13T02:26:58.267Z",
   "version": "1.0",
-  "status": "Published",
-  "studyId": "1763000238013",
+  "createdAt": "2025-11-13T15:35:49.352Z",
+  "status": "Draft",
+  "studyId": "1763048149348",
   "label": "Curion_Etone Finder week 9-29-25 pt2",
   "edc": "VCA-STUDY",
-  "updatedAt": "2025-11-13T17:24:40.952Z",
-  "publishedAt": "2025-11-13T17:24:40.945Z"
+  "updatedAt": "2025-11-13T17:24:33.218Z"
 }

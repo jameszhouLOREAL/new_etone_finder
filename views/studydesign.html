@@ -47,7 +47,7 @@
         
         /* Mobile Frame */
         .mobile-frame {
-            width: 360px;
+            width: 350px;
             height: 780px;
             background: #000;
             border-radius: 50px;
@@ -285,7 +285,7 @@
         }
         
         .form-card-description {
-            font-size: 14px;
+            font-size: 12px;
             color: #6b7280;
             margin: 0;
             line-height: 1.5;
@@ -497,7 +497,7 @@
         
         /* Questions Container */
         .questions-container {
-            min-height: 200px;
+            min-height: 0;
         }
         
         /* Question Card - Clean Card Design */
@@ -530,7 +530,7 @@
         
         /* Preview Mode Styles */
         .question-card.preview-mode {
-            padding: 18px 20px;
+            
             cursor: pointer;
         }
         
@@ -548,7 +548,7 @@
         }
         
         .question-preview {
-            padding: var(--spacing-3);
+            padding: 0
         }
         
         .question-preview-header {
@@ -677,8 +677,9 @@
         
         /* Edit Mode Styles */
         .question-card.edit-mode {
-            border: 1px solid #e5e7eb;
-            background: white;
+            border: 3px solid #e5e7eb;
+           
+            background: rgb(243, 243, 243);
         }
         
         .question-header {
@@ -880,7 +881,7 @@
         /* Add Question - Inline Action Bar (React prototype style) */
         .add-question-container {
             background: white;
-            border: 1px solid #e5e7eb;
+            border: 0px solid #e5e7eb;
             border-radius: 12px;
             padding: 12px;
             margin: 12px 0;
@@ -891,25 +892,26 @@
         
         .add-question-btn {
             flex-shrink: 0;
-            padding: 10px 18px;
-            background: white;
-            border: 1.5px solid #d1d5db;
+            padding: 8px 16px;
+            background: var(--primary-green);
+            border: 2px solid var(--primary-green);
             border-radius: 8px;
-            color: #374151;
+            color: white;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 400;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
         }
         
         .add-question-btn:hover {
-            background: #f9fafb;
-            border-color: #9ca3af;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: #059669;
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
         
         .add-question-input {
@@ -960,7 +962,7 @@
         
         .preview-header h2 {
             color: var(--primary-green);
-            font-size: 18px;
+            font-size: 16px;
             margin: 0;
             display: flex;
             align-items: center;
@@ -991,7 +993,8 @@
             font-size: 18px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 12px;
+            margin-bottom: 30px;
+            margin-top: 10px;
             text-align: center;
         }
         
@@ -1220,73 +1223,12 @@
     </style>
 </head>
 <body>
+    <!-- Watermark -->
+    <div class="watermark">PROOF OF CONCEPT</div>
+
     <div class="dashboard">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <span>📷</span>
-                    <span>Visual Capture Assistant</span>
-                </div>
-                <div class="sidebar-subtitle">Photo Analysis Platform</div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-section-title">Selfie Admin</div>
-                    <div class="nav-item" id="studyManagementNavItem">
-                        <span class="nav-item-icon">📋</span>
-                        <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="algorithmManagementNavItem">
-                        <span class="nav-item-icon">🧠</span>
-                        <span>Algorithm Management</span>
-                    </div>
-                    <div class="nav-item" id="urlGeneratorNavItem">
-                        <span class="nav-item-icon">🔗</span>
-                        <span>Selfie URL Generator</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Analysis Tools</div>
-                    <div class="nav-item" id="submissionsNavItem">
-                        <span class="nav-item-icon">📸</span>
-                        <span>Photo Submissions</span>
-                    </div>
-                    <div class="nav-item" id="analyticsNavItem">
-                        <span class="nav-item-icon">📊</span>
-                        <span>Analytics</span>
-                    </div>
-                    <div class="nav-item" id="formViewNavItem">
-                        <span class="nav-item-icon">📝</span>
-                        <span>Form View</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Data Management</div>
-                    <div class="nav-item" id="bucketsNavItem">
-                        <span class="nav-item-icon">🗂️</span>
-                        <span>Buckets</span>
-                    </div>
-                    <div class="nav-item">
-                        <span class="nav-item-icon">🔧</span>
-                        <span>Settings</span>
-                    </div>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
-                    <div style="margin-left: 8px;">
-                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
-                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Sidebar Navigation Component -->
+        <div id="sidebar-container"></div>
         
         <!-- Main Content -->
         <div class="main-content" style="padding: 0;">
@@ -1311,10 +1253,6 @@
                             <button class="btn-action btn-secondary" id="previewBtn" onclick="togglePreview(); return false;">
                                 <i class="fas fa-eye"></i>
                                 Show Preview
-                            </button>
-                            <button class="btn-action btn-secondary" id="mobilePreviewBtn" onclick="openMobilePreview(); return false;">
-                                <i class="fas fa-mobile-alt"></i>
-                                Mobile Preview
                             </button>
                             <button class="btn-action btn-primary" id="publishBtn">
                                 <i class="fas fa-paper-plane"></i>
@@ -1835,37 +1773,7 @@
                 previewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
             }
         });
-        
-        // Navigation Functions
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('studyManagementNavItem')?.addEventListener('click', () => {
-                window.location.href = '/studymanagement';
-            });
-            
-            document.getElementById('algorithmManagementNavItem')?.addEventListener('click', () => {
-                window.location.href = '/algorithmmanagement';
-            });
-            
-            document.getElementById('urlGeneratorNavItem')?.addEventListener('click', () => {
-                window.location.href = '/urlgenerator';
-            });
-            
-            document.getElementById('submissionsNavItem')?.addEventListener('click', () => {
-                window.location.href = '/photosubmission';
-            });
-            
-            document.getElementById('analyticsNavItem')?.addEventListener('click', () => {
-                window.location.href = '/analytics';
-            });
-            
-            document.getElementById('formViewNavItem')?.addEventListener('click', () => {
-                window.location.href = '/formview';
-            });
-            
-            document.getElementById('bucketsNavItem')?.addEventListener('click', () => {
-                window.location.href = '/photosubmission?page=buckets';
-            });
-        });
     </script>
+    <script src="/js/app.js"></script>
 </body>
 </html>
