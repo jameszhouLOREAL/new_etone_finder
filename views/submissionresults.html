@@ -1856,56 +1856,16 @@
             }
         }
         
-        // Analytics functionality
-        let analyticsCharts = {};
-        
-        function initializeAnalytics() {
-            if (!window.allFilesData || allFilesData.length === 0) {
-                console.log('No data available for analytics');
+        function populateAnswersTab() {
+            console.log('Populating answers tab with', dummyAnswers.length, 'answers');
+            const tbody = document.getElementById('answersTableBody');
+            
+            if (!tbody) {
+                console.error('answersTableBody element not found');
                 return;
             }
             
-            console.log('Initializing analytics with', allFilesData.length, 'files');
-            
-            // Calculate metrics
-            const metrics = calculateMetrics(allFilesData);
-            
-            // Update stat cards
-            updateStatCards(metrics);
-            
-            // Create charts
-            createSubmissionTimelineChart(allFilesData);
-            createValidationStatusChart(metrics);
-            createSkinConcernsChart(allFilesData);
-            createDeviceDistributionChart(allFilesData);
-            
-            // Generate insights
-            generateInsights(metrics, allFilesData);
-            
-            // Populate detailed table
-            populateAnalyticsTable(metrics);
-        }
-        
-        function calculateMetrics(data) {
-            const metrics = {
-                total: data.length,
-                withPhotos: data.filter(f => f.loaded).length,
-                validSelfies: data.filter(f => f.validSelfie === true).length,
-                responses: 12,
-                status: 'complete'
-            },
-            {
-                id: 'SUB-2024-003',
-                participant: { name: 'Emma Wilson', email: 'emma.w@email.com', initials: 'EW' },
-                date: '2024-11-12',
-                time: '04:32 PM',
-                completion: 75,
-                responses: 9,
-                status: 'partial'
-            },
-            {
-                id: 'SUB-2024-004',
-                participant: { name: 'James Rodriguez', email: 'jrodriguez@email.com', initials: 'JR' },
+            tbody.innerHTML = dummyAnswers.map(answer => `
                 date: '2024-11-12',
                 time: '02:18 PM',
                 completion: 100,

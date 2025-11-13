@@ -62,11 +62,11 @@ class StudyManager {
             });
         }
 
-        // Select all checkbox
-        const selectAll = document.getElementById('selectAll');
-        if (selectAll) {
-            selectAll.addEventListener('change', (e) => {
-                this.toggleSelectAll(e.target.checked);
+        // Select all button
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => {
+                this.toggleSelectAll(true);
             });
         }
 
@@ -233,11 +233,11 @@ class StudyManager {
     }
 
     renderTable() {
-        console.log('Rendering table. Page:', this.currentPage, 'ItemsPerPage:', this.itemsPerPage, 'FilteredStudies:', this.filteredStudies.length);
+        console.log('Rendering cards. Page:', this.currentPage, 'ItemsPerPage:', this.itemsPerPage, 'FilteredStudies:', this.filteredStudies.length);
         
-        const tbody = document.getElementById('studyTableBody');
-        if (!tbody) {
-            console.error('studyTableBody element not found!');
+        const gridContainer = document.getElementById('studiesGrid');
+        if (!gridContainer) {
+            console.error('studiesGrid element not found!');
             return;
         }
         
@@ -247,78 +247,109 @@ class StudyManager {
 
         console.log('Rendering', pageStudies.length, 'studies for this page');
 
-        tbody.innerHTML = pageStudies.map(study => {
-            // Determine status badge class
-            let statusClass = 'status-inactive';
-            if (study.status === 'Active') {
-                statusClass = 'status-active';
-            } else if (study.status === 'Draft') {
-                statusClass = 'status-draft';
-            } else if (study.status === 'Published') {
-                statusClass = 'status-published';
-            }
-            
-            const questionCount = study.questions ? study.questions.length : 0;
-            const selfieNeeded = study.selfieConfig && study.selfieConfig.enabled;
-            
-            // Format created date
-            let createdDate = 'N/A';
-            if (study.createdAt) {
-                const date = new Date(study.createdAt);
-                createdDate = date.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric'
-                });
-            }
-            
-            // Truncate title if longer than 35 characters
-            const displayTitle = study.title || study.label || '<em>No title</em>';
-            const truncatedTitle = displayTitle.length > 35 ? displayTitle.substring(0, 35) + '...' : displayTitle;
-            
-            return `
-            <tr>
-                <td>
-                    <input type="checkbox" class="study-checkbox" data-id="${study.studyId}">
-                </td>
-                <td title="${displayTitle}"><strong>${truncatedTitle}</strong></td>
-                <td style="text-align: center;">${questionCount}</td>
-                <td style="text-align: center;">
-                    ${selfieNeeded ? '<i class="fas fa-camera" style="color: #10b981; font-size: 18px;" title="Selfie Required"></i>' : '<i class="fas fa-minus-circle" style="color: #d1d5db; font-size: 18px;" title="No Selfie"></i>'}
-                </td>
-                <td style="text-align: center;">
-                    <a href="/submissionresults?studyId=${study.id}" style="color: #3b82f6; text-decoration: none; font-weight: 500;">24</a>
-                </td>
-                <td>
-                    <span class="status-badge ${statusClass}">
-                        ${study.status}
-                    </span>
-                </td>
-                <td style="font-size: 13px; color: #6b7280;">${createdDate}</td>
-                <td style="text-align: center; position: relative;">
-                    <div class="action-menu-container">
-                        <button class="action-menu-btn" onclick="studyManager.toggleActionMenu(event, '${study.id}')" title="Actions">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="action-menu" id="action-menu-${study.id}" style="display: none;">
-                            <div class="action-menu-item" onclick="studyManager.editStudy('${study.id}')">
-                                <i class="fas fa-pencil-alt"></i> Edit
-                            </div>
-                            <div class="action-menu-item" onclick="studyManager.viewSubmissions('${study.studyId}')">
-                                <i class="fas fa-file-alt"></i> View Submissions
-                            </div>
-                            <div class="action-menu-item" onclick="studyManager.openMobilePreview('${study.studyId}')">
-                                <i class="fas fa-mobile-alt"></i> Mobile Preview
-                            </div>
-                            <div class="action-menu-item delete" onclick="studyManager.deleteStudy('${study.id}')">
-                                <i class="fas fa-trash"></i> Delete
+        // Show empty state if no studies
+        if (pageStudies.length === 0) {
+            gridContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>No studies found</h3>
+                    <p>Create your first study to get started</p>
+                </div>
+            `;
+        } else {
+            gridContainer.innerHTML = pageStudies.map(study => {
+                // Determine status badge class
+                let statusClass = 'status-inactive';
+                if (study.status === 'Active') {
+                    statusClass = 'status-active';
+                } else if (study.status === 'Draft') {
+                    statusClass = 'status-draft';
+                } else if (study.status === 'Published') {
+                    statusClass = 'status-published';
+                }
+                
+                const questionCount = study.questions ? study.questions.length : 0;
+                const selfieNeeded = study.selfieConfig && study.selfieConfig.enabled;
+                
+                // Format created date
+                let createdDate = 'N/A';
+                if (study.createdAt) {
+                    const date = new Date(study.createdAt);
+                    createdDate = date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric'
+                    });
+                }
+                
+                // Display title - truncate to 30 characters
+                const fullTitle = study.title || study.label || 'Untitled Study';
+                const displayTitle = fullTitle.length > 25 ? fullTitle.substring(0, 25) + '...' : fullTitle;
+                
+                // Display description - truncate to 100 characters
+                const fullDescription = study.description || study.studyDescription || '';
+                const displayDescription = fullDescription.length > 100 ? fullDescription.substring(0, 100) + '...' : fullDescription;
+                
+                return `
+                <div class="study-card">
+                    <div class="study-card-header">
+                        <div class="study-card-title">
+                            <h3 title="${fullTitle}">${displayTitle}</h3>
+                            <div class="study-card-id" title="${fullDescription}">${displayDescription || 'No description'}</div>
+                        </div>
+                        <div class="study-card-actions">
+                            <div class="study-card-menu action-menu-container">
+                                <button class="study-card-menu-btn action-menu-btn" onclick="studyManager.toggleActionMenu(event, '${study.id}')" title="Actions">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="action-menu" id="action-menu-${study.id}" style="display: none;">
+                                    <div class="action-menu-item" onclick="studyManager.editStudy('${study.id}')">
+                                        <i class="fas fa-pencil-alt"></i> Edit
+                                    </div>
+                                    <div class="action-menu-item" onclick="studyManager.viewSubmissions('${study.studyId}')">
+                                        <i class="fas fa-file-alt"></i> View Submissions
+                                    </div>
+                                    <div class="action-menu-item" onclick="studyManager.openMobilePreview('${study.studyId}')">
+                                        <i class="fas fa-mobile-alt"></i> Mobile Preview
+                                    </div>
+                                    <div class="action-menu-item delete" onclick="studyManager.deleteStudy('${study.id}')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </td>
-            </tr>
-        `;
-        }).join('');
+                    
+                    <div class="study-card-metadata">
+                        <div class="study-card-meta-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>${questionCount} Question${questionCount !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="study-card-meta-item">
+                            <i class="fas fa-camera"></i>
+                            <span>${selfieNeeded ? 'Selfie Required' : 'No Selfie'}</span>
+                        </div>
+                        <div class="study-card-meta-item">
+                            <i class="fas fa-file-alt"></i>
+                            <a href="/submissionresults?studyId=${study.id}" style="color: inherit; text-decoration: none;">
+                                <span>24 Submissions</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="study-card-footer">
+                        <div class="study-card-date">
+                            <i class="far fa-calendar"></i>
+                            <span>${createdDate}</span>
+                        </div>
+                        <span class="status-badge ${statusClass}">
+                            ${study.status}
+                        </span>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
 
         // Update pagination info
         const totalStudies = this.filteredStudies.length;
@@ -352,11 +383,6 @@ class StudyManager {
             cb.addEventListener('change', () => this.updateBulkActions());
         });
 
-        // Reset select all
-        const selectAllCheckbox = document.getElementById('selectAll');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = false;
-        }
         this.updateBulkActions();
     }
 

@@ -8,6 +8,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <style>
+        /* Modern Typography - SF Pro / Inter style */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            letter-spacing: -0.01em;
+        }
+        
         .dashboard {
             min-height: 100vh;
         }
@@ -49,22 +57,21 @@
             border-bottom: 2px solid var(--primary-green-light);
         }
         .study-table {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
+            background: transparent;
             margin-bottom: var(--spacing-4);
-            width: 95%;
+            width: 100%;
         }
         .table-toolbar {
-            background: white;
-            padding: var(--spacing-4);
-            border-bottom: 1px solid var(--border-light);
+     
+            padding: 20px 10px 10px 0px;
+            border-radius: 12px;
+      
+            border: 0px solid var(--border-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: var(--spacing-3);
+            margin-bottom: 24px;
         }
         .study-table table {
             width: 100%;
@@ -92,9 +99,9 @@
         }
         .status-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
         }
         .status-active {
@@ -110,9 +117,193 @@
             color: #92400e;
         }
         .status-published {
-            background: #dbeafe;
-            color: #1e40af;
+            background: #d1fae5;
+            color: #065f46;
         }
+        
+        /* Modern Card Grid Layout */
+        .studies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .study-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 180px;
+        }
+        
+        .study-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+        }
+        
+        .study-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .study-card-title {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .study-card-title h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 18px 0;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .study-card-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            line-height: 1.4;
+            height: 40.6px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .study-card-actions {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        
+        .study-card-checkbox {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        
+        .study-card-menu {
+            position: relative;
+        }
+        
+        .study-card-menu-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        
+        .study-card-menu-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .study-card-metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .study-card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        
+        .study-card-meta-item i {
+            font-size: 14px;
+            color: var(--text-secondary);
+            width: 14px;
+            text-align: center;
+        }
+        
+        .study-card-meta-item.highlight {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .study-card-meta-item.highlight i {
+            color: #3b82f6;
+        }
+        
+        .study-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-light);
+            margin-top: auto;
+        }
+        
+        .study-card-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .study-card-date i {
+            font-size: 11px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            grid-column: 1 / -1;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: var(--border-light);
+            margin-bottom: 16px;
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .studies-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
         .action-btn {
             border: none;
             background: none;
@@ -137,9 +328,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: var(--spacing-4);
-            background: white;
-            border-top: 1px solid var(--border-light);
+            padding: 20px 24px;
+
+            border-radius: 12px;
+       
+            border: 0px solid var(--border-light);
+            margin-top: 24px;
         }
         .pagination-info {
             font-size: 13px;
@@ -208,9 +402,11 @@
             transform: translateX(26px);
         }
         .bulk-actions {
-            padding: var(--spacing-3) var(--spacing-4);
+            padding: 16px 24px;
             background: #fef3c7;
-            border-bottom: 1px solid #fde68a;
+            border-radius: 12px;
+            border: 1px solid #fde68a;
+            margin-bottom: 24px;
             display: none;
         }
         .bulk-actions.show {
@@ -314,7 +510,7 @@
                         <span style="font-size: 13px; white-space: nowrap;">Display only published studies</span>
                     </div>
                     <div style="display: flex; gap: var(--spacing-3);">
-                        <button class="btn btn-primary" id="createStudyBtn">
+                        <button class="btn btn-success" id="createStudyBtn">
                             <i class="fas fa-plus"></i> Create New Study
                         </button>
                         <button class="btn btn-secondary" id="refreshBtn">
@@ -327,29 +523,19 @@
                     <div>
                         <span id="selectedCount">0</span> studies selected
                     </div>
-                    <button class="btn btn-danger btn-sm" id="deleteSelectedBtn">
-                        <i class="fas fa-trash"></i> Delete Selected Studies
-                    </button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" id="selectAllBtn">
+                            <i class="fas fa-check-square"></i> Select All
+                        </button>
+                        <button class="btn btn-danger btn-sm" id="deleteSelectedBtn">
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
+                    </div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;">
-                                <input type="checkbox" id="selectAll">
-                            </th>
-                            <th style="width: 300px;">Study Title</th>
-                            <th style="width: 100px;">Questions</th>
-                            <th style="width: 200px; text-align: center;">Selfie Needed?</th>
-                            <th style="width: 120px;">Submissions</th>
-                            <th style="width: 120px;">Status</th>
-                            <th style="width: 160px;">Created</th>
-                            <th style="width: 150px; text-align: center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studyTableBody">
-                        <!-- Dynamic content -->
-                    </tbody>
-                </table>
+                <!-- Card Grid Container -->
+                <div class="studies-grid" id="studiesGrid">
+                    <!-- Dynamic card content will be inserted here -->
+                </div>
                 <div class="pagination-controls">
                     <div class="pagination-info">
                         <span id="paginationInfo">0–0 of 0</span>

@@ -3,270 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCA Analytics - Data Insights</title>
-    <link rel                <div class="nav-section">
-                    <div class="nav-section-title">Selfie Admin</div>
-                    <div class="nav-item" id="studyManagementNavItem">
-                        <span class="nav-item-icon">📋</span>
-                        <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="algorithmManagementNavItem">
-                        <span class="nav-item-icon">🧠</span>
-                        <span>Algorithm Management</span>
-                    </div>
-                    <div class="nav-item" id="urlGeneratorNavItem">
-                        <span class="nav-item-icon">🔗</span>
-                        <span>Selfie URL Generator</span>
-                    </div>
-                </div>ref="/css/main.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <title>Analytics - E-Tone Finder 2.0</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
     <style>
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: var(--spacing-5);
-            padding: var(--spacing-5) var(--spacing-8);
+        .dashboard {
+            min-height: 100vh;
         }
-        
-        .analytics-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-light);
-            padding: var(--spacing-5);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .analytics-card h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: var(--spacing-4);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-2);
-        }
-        
-        .analytics-card.large {
-            grid-column: span 2;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 250px;
-            margin-top: var(--spacing-3);
-        }
-        
-        .metric-list {
+        .main-content {
+            max-width: 100%;
+            overflow-x: hidden;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-3);
         }
-        
-        .metric-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: var(--spacing-2);
+        .content-area {
+            padding: var(--spacing-6) var(--spacing-4);
+            flex: 1;
             background: var(--bg-secondary);
-            border-radius: var(--radius-md);
         }
-        
-        .metric-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-        
-        .metric-value {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--primary-green);
-        }
-        
-        .metric-bar {
-            height: 6px;
-            background: var(--bg-secondary);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: var(--spacing-2);
-        }
-        
-        .metric-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light));
-            transition: width 0.3s ease;
-        }
-        
-        .concern-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--spacing-2);
-            margin-top: var(--spacing-3);
-        }
-        
-        .concern-item {
-            padding: var(--spacing-2);
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            font-size: 12px;
-        }
-        
-        .concern-name {
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .concern-score {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .device-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-right: var(--spacing-2);
-            margin-top: var(--spacing-1);
-        }
-        
-        .stats-row {
-            display: flex;
-            justify-content: space-around;
-            margin-top: var(--spacing-3);
-        }
-        
-        .stat-box {
+        .placeholder-content {
             text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
         }
-        
-        .stat-box-value {
+        .placeholder-content i {
+            font-size: 64px;
+            color: var(--border-light);
+            margin-bottom: 24px;
+        }
+        .placeholder-content h2 {
             font-size: 24px;
-            font-weight: 700;
-            color: var(--primary-green);
+            color: var(--text-primary);
+            margin-bottom: 12px;
         }
-        
-        .stat-box-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        
-        .heatmap {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            margin-top: var(--spacing-3);
-        }
-        
-        .heatmap-cell {
-            aspect-ratio: 1;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            color: white;
-        }
-        
-        .filter-tabs {
-            display: flex;
-            gap: var(--spacing-2);
-            margin-bottom: var(--spacing-4);
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: var(--spacing-2);
-        }
-        
-        .filter-tab {
-            padding: var(--spacing-2) var(--spacing-4);
-            background: transparent;
-            border: none;
-            cursor: pointer;
+        .placeholder-content p {
+            font-size: 16px;
             color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-        }
-        
-        .filter-tab.active {
-            color: var(--primary-green);
-            border-bottom-color: var(--primary-green);
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: var(--spacing-8);
-            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
+    <!-- Watermark -->
+    <div class="watermark">PROOF OF CONCEPT</div>
+
     <div class="dashboard">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <span>📊</span>
-                    <span>VCA Dashboard</span>
-                </div>
-                <div class="sidebar-subtitle">Photo Analysis Platform</div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-section-title">Selfie Frontend Admin</div>
-                    <div class="nav-item" id="studyManagementNavItem">
-                        <span class="nav-item-icon">📋</span>
-                        <span>Study Management</span>
-                    </div>
-                    <div class="nav-item" id="urlGeneratorNavItem">
-                        <span class="nav-item-icon">🔗</span>
-                        <span>Selfie URL Generator</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Analysis Tools</div>
-                    <div class="nav-item" id="submissionsNavItem">
-                        <span class="nav-item-icon">📸</span>
-                        <span>Photo Submissions</span>
-                    </div>
-                    <div class="nav-item active" id="analyticsNavItem">
-                        <span class="nav-item-icon">📊</span>
-                        <span>Analytics</span>
-                    </div>
-                    <div class="nav-item">
-                        <span class="nav-item-icon">📈</span>
-                        <span>Reports</span>
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Data Management</div>
-                    <div class="nav-item" id="bucketsNavItem">
-                        <span class="nav-item-icon">🗂️</span>
-                        <span>Buckets</span>
-                    </div>
-                    <div class="nav-item">
-                        <span class="nav-item-icon">🔧</span>
-                        <span>Settings</span>
-                    </div>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
-                    <div style="margin-left: 8px;">
-                        <div class="user-name" id="userName" style="font-size: 13px; font-weight: 500;"></div>
-                        <button class="sign-out-btn" onclick="signOut()" style="font-size: 11px; margin-top: 4px;">Sign Out</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Sidebar Navigation Component -->
+        <div id="sidebar-container"></div>
         
         <!-- Main Content -->
         <div class="main-content">
@@ -274,58 +58,23 @@
             <div class="page-header">
                 <div class="page-title-section">
                     <div>
-                        <h1 class="page-title">📈 Analytics Dashboard</h1>
-                        <div class="page-subtitle">Insights and trends from photo submissions</div>
+                        <h1 class="page-title">Analytics</h1>
+                        <div class="page-subtitle">Study analytics and insights</div>
                     </div>
                 </div>
-                <div class="page-actions">
-                    <button class="btn btn-secondary" id="refreshAnalyticsBtn">
-                        <span>🔄</span>
-                        Refresh Data
-                    </button>
-                </div>
             </div>
-            
-            <div id="analyticsContent" class="analytics-grid">
-                <!-- Analytics cards will be dynamically generated here -->
-                <div class="no-data">
-                    <h3>No Data Available</h3>
-                    <p>Please load files from the Photo Submissions page first</p>
+
+            <div class="content-area">
+                <div class="placeholder-content">
+                    <i class="fas fa-chart-bar"></i>
+                    <h2>Analytics Dashboard</h2>
+                    <p>Coming soon...</p>
                 </div>
             </div>
         </div>
     </div>
-    
-    <script src="/js/analytics.js"></script>
-    <script>
-        // Navigation functions
-        function navigateToSubmissions() {
-            window.location.href = '/photosubmission';
-        }
-        
-        function navigateToBuckets() {
-            window.location.href = '/photosubmission?page=buckets';
-        }
-        
-        function navigateToURLGenerator() {
-            window.location.href = '/urlgenerator';
-        }
-        
-        function navigateToStudyManagement() {
-            window.location.href = '/studymanagement';
-        }
-        
-        function navigateToAlgorithmManagement() {
-            window.location.href = '/algorithmmanagement';
-        }
-        
-        // Add event listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('submissionsNavItem')?.addEventListener('click', navigateToSubmissions);
-            document.getElementById('bucketsNavItem')?.addEventListener('click', navigateToBuckets);
-            document.getElementById('urlGeneratorNavItem')?.addEventListener('click', navigateToURLGenerator);
-            document.getElementById('studyManagementNavItem')?.addEventListener('click', navigateToStudyManagement);
-        });
-    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>
