@@ -1,0 +1,13 @@
+{
+  "consents": [
+    {
+      "id": "CONSENT-1763151479465-wlod8asda",
+      "title": "US-NonCRO Consent",
+      "content": "Test",
+      "checkboxText": "I have read and agree",
+      "status": "active",
+      "createdAt": "2025-11-14T20:17:59.465Z",
+      "updatedAt": "2025-11-14T20:17:59.465Z"
+    }
+  ]
+}

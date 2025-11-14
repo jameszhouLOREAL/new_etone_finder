@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consent Management - E-Tone Finder 2.0</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23009C95' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M11.412 15.655 9.75 21.75l3.745-4.012M9.257 13.5H3.75l2.659-2.849m2.048-2.194L14.25 2.25 12 10.5h8.25l-4.707 5.043M8.457 8.457 3 3m5.457 5.457 7.086 7.086m0 0L21 21'/></svg>">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .consent-container {
+            padding: 20px;
+        }
+
+        .page-header {
+            margin-bottom: 16px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .btn-add {
+            background: #009C95;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #008580;
+            transform: translateY(-1px);
+        }
+
+        .consents-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .consents-table thead {
+            background: #f9fafb;
+        }
+
+        .consents-table th {
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .consents-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .consent-title {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .consent-preview {
+            color: #6b7280;
+            font-size: 12px;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 8px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            color: #111827;
+        }
+
+        .btn-icon.delete:hover {
+            color: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 36px;
+            color: #d1d5db;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .modal-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .form-hint {
+            display: block;
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 6px;
+            font-style: italic;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #111827;
+            transition: all 0.2s;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #111827;
+            transition: all 0.2s;
+            resize: vertical;
+            min-height: 200px;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #009C95;
+            box-shadow: 0 0 0 3px rgba(0, 156, 149, 0.1);
+        }
+
+        .form-input.error,
+        .form-textarea.error {
+            border-color: #dc2626;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .btn-primary {
+            padding: 8px 16px;
+            border: none;
+            background: #009C95;
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #008580;
+        }
+
+        .btn-primary:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation Component -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="consent-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Consent Management</h1>
+                <p class="page-subtitle">Manage consent forms for study participants</p>
+            </div>
+
+            <!-- Consent Forms Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Consent Forms</h2>
+                    <button class="btn-add" onclick="openAddConsentModal()">
+                        <i class="fas fa-plus"></i>
+                        Add New Consent
+                    </button>
+                </div>
+
+                <div id="consentsTableContainer">
+                    <!-- Table will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Consent Modal -->
+    <div class="modal-overlay" id="consentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add New Consent Form</h3>
+            </div>
+            <div class="modal-body">
+                <form id="consentForm">
+                    <div class="form-group">
+                        <label class="form-label">Consent Form Title *</label>
+                        <span class="form-hint">e.g., Research Participation Consent - Title that will appear at the top of the consent form</span>
+                        <input type="text" class="form-input" id="consentTitle" required placeholder="Research Participation Consent">
+                        <div class="error-message" id="titleError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Consent Form Content *</label>
+                        <span class="form-hint">Complete consent form content that participants must agree to before participating</span>
+                        <textarea class="form-textarea" id="consentContent" required placeholder="Enter the full consent form text here. Include information about: 
+• Purpose of the study
+• What data will be collected
+• How data will be used
+• Participant rights
+• Contact information for questions..."></textarea>
+                        <div class="error-message" id="contentError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Agreement Checkbox Text *</label>
+                        <span class="form-hint">Text that appears next to the checkbox participants must check</span>
+                        <input type="text" class="form-input" id="checkboxText" required placeholder="I have read and agree to the terms above">
+                        <div class="error-message" id="checkboxError"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeConsentModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveConsent()">Save Consent</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        let consents = [];
+        let editingConsentId = null;
+
+        // Load consents on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadConsents();
+        });
+
+        // Load consents from server
+        async function loadConsents() {
+            try {
+                const response = await fetch('/api/consents');
+                if (response.ok) {
+                    consents = await response.json();
+                    renderConsentsTable();
+                } else {
+                    console.error('Failed to load consents');
+                    renderEmptyState();
+                }
+            } catch (error) {
+                console.error('Error loading consents:', error);
+                renderEmptyState();
+            }
+        }
+
+        // Render consents table
+        function renderConsentsTable() {
+            const container = document.getElementById('consentsTableContainer');
+            
+            if (consents.length === 0) {
+                renderEmptyState();
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="consents-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Content Preview</th>
+                            <th>Checkbox Text</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${consents.map(consent => `
+                            <tr>
+                                <td>
+                                    <div class="consent-title">${consent.title}</div>
+                                </td>
+                                <td>
+                                    <div class="consent-preview">${consent.content.substring(0, 100)}...</div>
+                                </td>
+                                <td>${consent.checkboxText}</td>
+                                <td>${formatDate(consent.createdAt)}</td>
+                                <td>
+                                    <span class="status-badge active">Active</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="editConsent('${consent.id}')" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon delete" onclick="deleteConsent('${consent.id}')" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Render empty state
+        function renderEmptyState() {
+            const container = document.getElementById('consentsTableContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-file-contract"></i>
+                    <h3>No Consent Forms Yet</h3>
+                    <p>Create your first consent form to get started.</p>
+                </div>
+            `;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Open add consent modal
+        function openAddConsentModal() {
+            editingConsentId = null;
+            document.getElementById('modalTitle').textContent = 'Add New Consent Form';
+            document.getElementById('consentForm').reset();
+            clearErrors();
+            document.getElementById('consentModal').classList.add('active');
+        }
+
+        // Close consent modal
+        function closeConsentModal() {
+            document.getElementById('consentModal').classList.remove('active');
+            document.getElementById('consentForm').reset();
+            clearErrors();
+        }
+
+        // Edit consent
+        function editConsent(consentId) {
+            const consent = consents.find(c => c.id === consentId);
+            if (!consent) return;
+
+            editingConsentId = consentId;
+            document.getElementById('modalTitle').textContent = 'Edit Consent Form';
+            document.getElementById('consentTitle').value = consent.title;
+            document.getElementById('consentContent').value = consent.content;
+            document.getElementById('checkboxText').value = consent.checkboxText;
+            
+            clearErrors();
+            document.getElementById('consentModal').classList.add('active');
+        }
+
+        // Save consent
+        async function saveConsent() {
+            clearErrors();
+
+            const title = document.getElementById('consentTitle').value.trim();
+            const content = document.getElementById('consentContent').value.trim();
+            const checkboxText = document.getElementById('checkboxText').value.trim();
+
+            // Validation
+            let hasError = false;
+
+            if (!title) {
+                showError('titleError', 'Consent title is required');
+                hasError = true;
+            }
+
+            if (!content) {
+                showError('contentError', 'Consent content is required');
+                hasError = true;
+            }
+
+            if (!checkboxText) {
+                showError('checkboxError', 'Checkbox text is required');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Save consent
+            const consentData = {
+                title,
+                content,
+                checkboxText
+            };
+
+            try {
+                const url = editingConsentId ? `/api/consents/${editingConsentId}` : '/api/consents';
+                const method = editingConsentId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(consentData)
+                });
+
+                if (response.ok) {
+                    closeConsentModal();
+                    await loadConsents();
+                    alert(editingConsentId ? 'Consent updated successfully!' : 'Consent created successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.error || 'Failed to save consent'));
+                }
+            } catch (error) {
+                console.error('Error saving consent:', error);
+                alert('Failed to save consent. Please try again.');
+            }
+        }
+
+        // Delete consent
+        async function deleteConsent(consentId) {
+            const consent = consents.find(c => c.id === consentId);
+            if (!consent) return;
+
+            if (!confirm(`Are you sure you want to delete consent "${consent.title}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/consents/${consentId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    await loadConsents();
+                    alert('Consent deleted successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.error || 'Failed to delete consent'));
+                }
+            } catch (error) {
+                console.error('Error deleting consent:', error);
+                alert('Failed to delete consent. Please try again.');
+            }
+        }
+
+        // Helper functions
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            const inputId = elementId.replace('Error', '');
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.classList.add('error');
+            }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('.form-input, .form-textarea').forEach(el => el.classList.remove('error'));
+        }
+
+        // Close modal on overlay click
+        document.getElementById('consentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'consentModal') {
+                closeConsentModal();
+            }
+        });
+    </script>
+</body>
+</html>

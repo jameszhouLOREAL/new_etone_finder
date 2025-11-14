@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCA Dashboard - Study Design</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23009C95' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M11.412 15.655 9.75 21.75l3.745-4.012M9.257 13.5H3.75l2.659-2.849m2.048-2.194L14.25 2.25 12 10.5h8.25l-4.707 5.043M8.457 8.457 3 3m5.457 5.457 7.086 7.086m0 0L21 21'/></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        /* Study Design Specific Styles */
+        .study-design-container {
+            display: flex;
+            height: calc(100vh - 60px);
+            gap: 0;
+        }
+        
+        /* Left Panel - Form Builder */
+        .form-builder-panel {
+            flex: 1;
+            background: var(--bg-secondary);
+            overflow-y: auto;
+            padding: var(--spacing-5);
+        }
+        
+        /* Right Panel - Live Preview */
+        .preview-panel {
+            width: 420px;
+            background: #f5f5f7;
+            border-left: 1px solid var(--border-light);
+            overflow-y: auto;
+            padding: var(--spacing-5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 60px);
+            transition: width 0.3s ease, padding 0.3s ease;
+        }
+        
+        .preview-panel.hidden {
+            width: 0;
+            padding: 0;
+            border: none;
+            overflow: hidden;
+        }
+        
+        /* Mobile Frame */
+        .mobile-frame {
+            width: 350px;
+            height: 780px;
+            background: #000;
+            border-radius: 50px;
+            padding: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 
+                        0 0 0 1px rgba(0, 0, 0, 0.1),
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .mobile-notch {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 32px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+        
+        .mobile-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 42px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .mobile-screen::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .mobile-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            font-size: 12px;
+            color: #000;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .status-time {
+            font-weight: 600;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .status-icons i {
+            font-size: 11px;
+        }
+        
+        /* Form Header Section */
+        .form-header-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
+            margin-bottom: var(--spacing-4);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .form-header-section input,
+        .form-header-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .form-title-input {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .form-description-input {
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Step Wizard - Simplified */
+        /* Study Title Header */
+        .study-title-header {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: var(--spacing-3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .study-title-display {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .preview-toggle-btn {
+            background: white;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: #374151;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .preview-toggle-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .preview-toggle-btn.active {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        
+        .preview-toggle-btn.active:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: var(--spacing-4);
+            padding: 0 var(--spacing-4);
+        }
+        
+        .tab-btn {
+            padding: 14px 24px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            position: relative;
+        }
+        
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: #f9fafb;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-green);
+            border-bottom-color: var(--primary-green);
+            font-weight: 600;
+        }
+        
+        .tab-btn.active:hover {
+            color: #059669;
+            border-bottom-color: #059669;
+        }
+        
+        .tab-contents {
+            background: transparent;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Form Cards */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .form-card-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .form-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-card-title i {
+            color: var(--primary-green);
+            font-size: 20px;
+        }
+        
+        .form-card-description {
+            font-size: 12px;
+            color: #6b7280;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        /* Form Fields */
+        .form-field {
+            margin-bottom: 24px;
+        }
+        
+        .form-field:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        
+        .form-label-required::after {
+            content: ' *';
+            color: #ef4444;
+        }
+        
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #111827;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: #9ca3af;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-help-text {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 6px;
+            display: flex;
+            align-items: start;
+            gap: 6px;
+        }
+        
+        .form-help-text i {
+            color: #10b981;
+            margin-top: 2px;
+        }
+        
+        .form-error {
+            font-size: 13px;
+            color: #ef4444;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .form-error.visible {
+            display: block;
+        }
+        
+        /* Settings Section */
+        .settings-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-4);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .settings-section h3 {
+            font-size: 16px;
+            color: var(--primary-green);
+            margin-bottom: var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-3);
+        }
+        
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .setting-item label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .setting-item input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+        }
+        
+        /* Question Types Toolbar */
+        .question-toolbar {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-top: var(--spacing-4);
+            margin-bottom: var(--spacing-4);
+            box-shadow: var(--shadow-sm);
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .question-toolbar.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-toolbar h3 {
+            font-size: 16px;
+            color: var(--primary-green);
+            margin-bottom: var(--spacing-3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .close-toolbar-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+        
+        .close-toolbar-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-green);
+        }
+        
+        .question-types-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-2);
+        }
+        
+        .question-type-btn {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+        
+        .question-type-btn i {
+            font-size: 20px;
+            color: var(--primary-green);
+        }
+        
+        .question-type-btn:hover {
+            background: var(--primary-green-light);
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+        
+        /* Questions Container */
+        .questions-container {
+            min-height: 0;
+        }
+        
+        /* Question Card - Clean Card Design */
+        .question-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+        
+        .question-card.dragging {
+            opacity: 0.5;
+            border-color: var(--primary-green);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        
+        .question-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+        
+        .question-card:hover .question-actions {
+            visibility: visible;
+        }
+        
+        /* Preview Mode Styles */
+        .question-card.preview-mode {
+            
+            cursor: pointer;
+        }
+        
+        .question-card.preview-mode:hover {
+            border-color: #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+        }
+        
+        .question-card.compact {
+            padding: 12px 16px;
+        }
+        
+        .question-card.compact .question-preview-options {
+            display: none;
+        }
+        
+        .question-preview {
+            padding: 0
+        }
+        
+        .question-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .question-preview-title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.4;
+        }
+        
+        .question-number-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            flex-shrink: 0;
+            letter-spacing: -0.01em;
+        }
+        
+        .question-preview-text {
+            font-size: 16px;
+            color: #111827;
+            font-weight: 500;
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .question-preview-options {
+            margin-left: 0;
+            padding-top: var(--spacing-3);
+        }
+        
+        .preview-option-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+        }
+        
+        .preview-option-label:hover {
+            background-color: #f9fafb;
+        }
+        
+        .preview-option-label input[type="radio"],
+        .preview-option-label input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: not-allowed;
+        }
+        
+        .preview-text-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #6b7280;
+            background-color: #f9fafb;
+        }
+        
+        .preview-date-input {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #6b7280;
+            background-color: #f9fafb;
+        }
+        
+        .preview-rating {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .preview-star {
+            font-size: 28px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .preview-star:hover {
+            color: #fbbf24;
+        }
+        
+        .preview-ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #374151;
+        }
+        
+        .preview-drag-icon {
+            margin-right: 12px;
+            color: #9ca3af;
+            font-size: 18px;
+            cursor: move;
+        }
+        
+        .required-badge {
+            background: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        /* Edit Mode Styles */
+        .question-card.edit-mode {
+            border: 3px solid #e5e7eb;
+           
+            background: rgb(243, 243, 243);
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .question-number {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            flex-shrink: 0;
+        }
+        
+        .question-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-height: 28px;
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            align-items: center;
+        }
+        
+        .question-card:hover .question-actions {
+            opacity: 1;
+        }
+        
+        .question-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+        
+        .question-action-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-green);
+        }
+        
+        .question-content {
+            margin-left: 28px;
+        }
+        
+        .question-input-row {
+            display: flex;
+            gap: var(--spacing-3);
+            align-items: center;
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .question-content input[type="text"],
+        .question-content textarea {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+        }
+        
+        .question-type-selector {
+            padding: 8px 12px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            min-width: 140px;
+            flex-shrink: 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s ease;
+        }
+        
+        .question-type-selector:hover {
+            border-color: #9ca3af;
+        }
+        
+        .question-type-selector:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        /* Question Options */
+        .question-options {
+            margin-top: var(--spacing-3);
+        }
+        
+        .option-item {
+            display: flex;
+            gap: var(--spacing-2);
+            align-items: center;
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .option-item input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+        }
+        
+        .option-item .remove-option-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 6px;
+        }
+        
+        .option-item .remove-option-btn:hover {
+            color: #ef4444;
+        }
+        
+        .add-option-btn {
+            background: var(--bg-secondary);
+            border: 1px dashed var(--border-medium);
+            color: var(--primary-green);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        
+        .add-option-btn:hover {
+            background: var(--primary-green-light);
+            border-color: var(--primary-green);
+        }
+        
+        /* Question Settings - Collapsed into light bar */
+        .question-settings {
+            margin-top: 12px;
+            margin-left: 0;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .question-setting-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+        
+        .question-setting-toggle input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+        
+        .question-settings-divider {
+            color: #d1d5db;
+        }
+        
+        /* Logic Branching */
+        .logic-section {
+            margin-top: var(--spacing-3);
+            padding: var(--spacing-3);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+        
+        .logic-rule {
+            display: flex;
+            gap: var(--spacing-2);
+            align-items: center;
+            margin-bottom: var(--spacing-2);
+            font-size: 13px;
+        }
+        
+        .logic-rule select {
+            padding: 6px 10px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+        }
+        
+        /* Add Question - Inline Action Bar (React prototype style) */
+        .add-question-container {
+            background: white;
+            border: 0px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .add-question-btn {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            background: var(--primary-green);
+            border: 2px solid var(--primary-green);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        
+        .add-question-btn:hover {
+            background: #059669;
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .add-question-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .add-question-input:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .add-question-type {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .add-question-hint {
+            font-size: 12px;
+            color: #6b7280;
+            display: none;
+        }
+        
+        @media (min-width: 640px) {
+            .add-question-hint {
+                display: block;
+            }
+        }
+        
+        /* Preview Panel */
+        .preview-header {
+            text-align: center;
+            margin-bottom: var(--spacing-4);
+            width: 100%;
+            background: white;
+            padding: var(--spacing-3);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .preview-header h2 {
+            color: var(--primary-green);
+            font-size: 16px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .preview-form {
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 45px);
+        }
+        
+        .preview-form-header {
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .preview-instruction-section {
+            padding: 24px 16px;
+            background: #f9fafb;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .preview-instruction-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .preview-instruction-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            text-align: left;
+            white-space: pre-line;
+        }
+        
+        .preview-form-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .preview-form-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .preview-progress {
+            margin-top: 12px;
+        }
+        
+        .preview-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .preview-progress-fill {
+            height: 100%;
+            background: var(--primary-green);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .preview-progress-text {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 6px;
+            text-align: center;
+        }
+        
+        .preview-question-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px;
+        }
+        
+        .preview-navigation {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+            position: sticky;
+            bottom: 0;
+            margin-top: auto;
+        }
+        
+        .preview-nav-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #374151;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .preview-nav-btn:hover:not(:disabled) {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        
+        .preview-nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .preview-nav-btn-next {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        
+        .preview-nav-btn-next:hover:not(:disabled) {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        .preview-question {
+            margin-bottom: 20px;
+        }
+        
+        .preview-question-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .required-indicator {
+            color: #ef4444;
+        }
+        
+        .preview-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .preview-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            margin-bottom: 6px;
+        }
+        
+        /* Action Buttons - Modern Style */
+        .action-buttons {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-top: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .action-buttons-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-buttons-left {
+            display: flex;
+            gap: 12px;
+            margin-right: auto;
+        }
+        
+        .action-buttons-right {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-action {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1.5px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+            border: 1.5px solid var(--primary-green);
+            box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+            border-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .preview-panel {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .question-types-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Watermark -->
+    <div class="watermark">PROOF OF CONCEPT</div>
+
+    <div class="dashboard">
+        <!-- Sidebar Navigation Component -->
+        <div id="sidebar-container"></div>
+        
+        <!-- Main Content -->
+        <div class="main-content" style="padding: 0;">
+            <div class="study-design-container">
+                <!-- Left Panel: Form Builder -->
+                <div class="form-builder-panel">
+                    <!-- Study Title Header -->
+                    <div class="study-title-header" id="studyTitleHeader">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button onclick="window.location.href='/studymanagement'" class="btn-action btn-secondary" style="padding: 8px 12px;" title="Back to Study Management">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <h2 class="study-title-display" id="studyTitleDisplay" style="margin: 0;">New Study</h2>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons-row" style="gap: 12px;">
+                            <button class="btn-action btn-secondary" id="saveDraftBtn">
+                                <i class="fas fa-save"></i>
+                                Save Draft
+                            </button>
+                            <button class="btn-action btn-secondary" id="previewBtn" onclick="togglePreview(); return false;">
+                                <i class="fas fa-eye"></i>
+                                Show Preview
+                            </button>
+                            <button class="btn-action btn-primary" id="publishBtn">
+                                <i class="fas fa-paper-plane"></i>
+                                Publish
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Navigation -->
+                    <div class="tab-navigation">
+                        <button class="tab-btn active" onclick="switchTab('studyInfo')" id="studyInfoTab">
+                            <i class="fas fa-info-circle"></i> Study Info
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('questionnaire')" id="questionnaireTab">
+                            <i class="fas fa-list-ul"></i> Questionnaire
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('selfieConfig')" id="selfieConfigTab">
+                            <i class="fas fa-camera"></i> Selfie Configuration
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('participants')" id="participantsTab">
+                            <i class="fas fa-users"></i> Participants
+                        </button>
+                    </div>
+                    
+                    <!-- Tab Contents -->
+                    <div class="tab-contents">
+                        <!-- Study Info Tab -->
+                        <div class="tab-content active" id="studyInfoContent">
+                            <!-- Basic Information Card -->
+                            <div class="form-card">
+                                <div class="form-card-header">
+                                    <h3 class="form-card-title">
+                                        <i class="fas fa-info-circle"></i>
+                                        Study Information
+                                    </h3>
+                                    <p class="form-card-description">
+                                        Provide essential details about your study to help participants understand its purpose and scope.
+                                    </p>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label class="form-label form-label-required" for="formTitle">
+                                        Title
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="formTitle" 
+                                        class="form-input" 
+                                        placeholder="e.g., Customer Satisfaction Survey 2025" 
+                                        value=""
+                                    >
+                                    
+                                    <div class="form-error" id="titleError">Title is required</div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label class="form-label" for="formDescription">
+                                        Description
+                                    </label>
+                                    <textarea 
+                                        id="formDescription" 
+                                        class="form-textarea" 
+                                        placeholder="Describe the purpose, goals, and what participants can expect from this study..."
+                                    ></textarea>
+                                   
+                                </div>
+                            </div>
+                            
+                            <!-- Customer Instruction Card -->
+                            <div class="form-card">
+                                <div class="form-card-header">
+                                    <h3 class="form-card-title">
+                                        <i class="fas fa-mobile-alt"></i>
+                                        Customer Instruction
+                                    </h3>
+                                    <p class="form-card-description">
+                                        This information will be displayed to participants on their mobile device before they start the questionnaire.
+                                    </p>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label class="form-label" for="instructionTitle">
+                                        Instruction Title
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="instructionTitle" 
+                                        class="form-input" 
+                                        placeholder="e.g., Welcome! Let's Get Started" 
+                                        value=""
+                                    >
+                                    <div class="form-help-text">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <span>A welcoming title that will appear on the mobile screen before the questionnaire</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label class="form-label" for="instructionText">
+                                        Instruction
+                                    </label>
+                                    <textarea 
+                                        id="instructionText" 
+                                        class="form-textarea" 
+                                        placeholder="e.g., Thank you for participating! Please answer all questions honestly. This will take approximately 5 minutes..."
+                                    ></textarea>
+                                    <div class="form-help-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Clear instructions to guide participants through the study process</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Questionnaire Tab -->
+                        <div class="tab-content" id="questionnaireContent">
+                            <!-- Main Questionnaire Card -->
+                            <div class="form-card">
+                                <!-- Card Header -->
+                                <div class="form-card-header">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h3 class="form-card-title" style="margin-bottom: 4px;">
+                                                <i class="fas fa-list-ul"></i>
+                                                Design Your Questionnaire
+                                            </h3>
+                                            <p class="form-card-description" style="margin: 0;">
+                                                Create and organize questions to gather insights from participants
+                                            </p>
+                                        </div>
+                                        <button onclick="showJSONHelp()" class="btn-action btn-secondary" style="padding: 8px 16px; font-size: 13px;">
+                                            <i class="fas fa-question-circle"></i> Help
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Questions Container -->
+                                <div class="questions-container" id="questionsContainer" style="margin-top: 0;">
+                                    <!-- Questions will be added here dynamically -->
+                                </div>
+                                
+                                <!-- Add Question Button -->
+                                <div class="add-question-container" style="margin: 12px 0 0 0;">
+                                    <button class="add-question-btn" id="addQuestionBtn" onclick="addQuestion('text')">
+                                        <i class="fas fa-plus-circle"></i>
+                                        Add Question
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Participants Tab -->
+                        <div class="tab-content" id="participantsContent">
+                            <!-- Participant Codes Card -->
+                            <div class="form-card">
+                                <div class="form-card-header">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h3 class="form-card-title" style="margin-bottom: 4px;">
+                                                <i class="fas fa-users"></i>
+                                                Participant List
+                                            </h3>
+                                            <p class="form-card-description" style="margin: 0;">
+                                                Manage unique access codes for your study participants
+                                            </p>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button 
+                                                class="btn-action btn-primary" 
+                                                onclick="showGenerateCodesDialog()"
+                                                style="padding: 8px 16px; font-size: 14px;"
+                                            >
+                                                <i class="fas fa-plus-circle"></i>
+                                                Generate Codes
+                                            </button>
+                                            <button 
+                                                class="btn-action btn-secondary" 
+                                                onclick="downloadAllCodes()"
+                                                id="downloadAllBtn"
+                                                style="padding: 8px 16px; font-size: 14px; display: none;"
+                                            >
+                                                <i class="fas fa-download"></i>
+                                                Export CSV
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Codes Table -->
+                                <div id="codesTableContainer">
+                                    <!-- Empty State -->
+                                    <div id="emptyState" style="text-align: center; padding: 60px 20px;">
+                                        <i class="fas fa-ticket-alt" style="font-size: 48px; color: #d1d5db; margin-bottom: 16px;"></i>
+                                        <h3 style="color: #6b7280; font-size: 18px; font-weight: 500; margin-bottom: 8px;">No Participants Yet</h3>
+                                        <p style="color: #9ca3af; font-size: 14px; margin-bottom: 0;">Generate unique access codes for your participants to join the study</p>
+                                    </div>
+                                    
+                                    <!-- Table (hidden by default) -->
+                                    <div id="codesTable" style="display: none;">
+                                        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                                            <div style="font-size: 14px; color: #6b7280;">
+                                                Total: <span id="totalCodes" style="font-weight: 600; color: var(--text-primary);">0</span> codes
+                                                <span style="margin: 0 8px;">|</span>
+                                                <span style="color: var(--primary-green);">●</span> Used: <span id="usedCodes" style="font-weight: 600;">0</span>
+                                                <span style="margin: 0 8px;">|</span>
+                                                <span style="color: #3b82f6;">●</span> Unused: <span id="unusedCodes" style="font-weight: 600;">0</span>
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                id="searchCodes" 
+                                                placeholder="Search codes..." 
+                                                style="padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; width: 200px;"
+                                                oninput="filterCodesTable()"
+                                            >
+                                        </div>
+                                        
+                                        <div style="overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                                <thead style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                                                    <tr>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">#</th>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">Participant Code</th>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">Email</th>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">Link</th>
+                                                        <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: #374151;">Status</th>
+                                                        <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: #374151;">Used Date</th>
+                                                        <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: #374151;">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="codesTableBody" style="background: white;">
+                                                    <!-- Rows will be inserted here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Generate Codes Dialog -->
+                        <div id="generateCodesDialog" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center;">
+                            <div style="background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+                                <h3 style="margin: 0 0 8px 0; font-size: 18px; color: var(--text-primary);">
+                                    <i class="fas fa-magic"></i>
+                                    Generate Participant Codes
+                                </h3>
+                                <p style="margin: 0 0 20px 0; font-size: 13px; color: #6b7280;">
+                                    How many new participant codes would you like to generate?
+                                </p>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">
+                                        Number of Codes
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        id="dialogParticipantCount" 
+                                        class="form-input" 
+                                        placeholder="e.g., 50" 
+                                        min="1"
+                                        max="10000"
+                                        value="10"
+                                        style="width: 100%;"
+                                    >
+                                    <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Maximum 10,000 codes per generation
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <button 
+                                        class="btn-action btn-secondary" 
+                                        onclick="hideGenerateCodesDialog()"
+                                        style="padding: 8px 16px;"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        class="btn-action btn-primary" 
+                                        onclick="generateNewCodes()"
+                                        style="padding: 8px 16px;"
+                                    >
+                                        <i class="fas fa-magic"></i>
+                                        Generate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Selfie Configuration Tab -->
+                        <div class="tab-content" id="selfieConfigContent">
+                            <!-- Selfie Needed Checkbox -->
+                            <div class="form-card" style="margin-bottom: 16px;">
+                                <div class="form-field" style="margin-bottom: 0;">
+                                    <label class="form-label" style="font-size: 16px; font-weight: 600;">
+                                        <input type="checkbox" id="selfieNeeded" style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;">
+                                        Selfie Needed?
+                                    </label>
+                                    <div class="form-help-text" style="margin-left: 26px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Check this box to enable selfie capture for this study</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Configuration Options (hidden by default) -->
+                            <div id="selfieConfigOptions" style="display: none;">
+                                <!-- Basic Configuration Card -->
+                                <div class="form-card" style="padding: 16px;">
+                                    <div class="form-card-header" style="padding-bottom: 12px; margin-bottom: 12px;">
+                                        <h3 class="form-card-title" style="font-size: 15px; margin-bottom: 4px;">
+                                            <i class="fas fa-cog"></i>
+                                            Basic Configuration
+                                        </h3>
+                                        <p class="form-card-description" style="font-size: 12px; margin: 0;">
+                                            Configure basic selfie capture settings
+                                        </p>
+                                    </div>
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 4px;">Language</label>
+                                            <select class="form-input" id="selfieLanguage" style="padding: 6px 10px; font-size: 13px;">
+                                                <option value="en">English (en)</option>
+                                                <option value="fr">French (fr)</option>
+                                                <option value="ja">Japanese (ja)</option>
+                                                <option value="pt">Portuguese (pt)</option>
+                                                <option value="zh">Chinese (zh)</option>
+                                                <option value="es">Spanish (es)</option>
+                                                <option value="hi">Hindi (hi)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 4px;">Camera</label>
+                                            <select class="form-input" id="selfieCamera" style="padding: 6px 10px; font-size: 13px;">
+                                                <option value="FRONT">Front Camera</option>
+                                                <option value="BACK">Back Camera</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 4px;">Asked Zone</label>
+                                            <select class="form-input" id="askedZone" style="padding: 6px 10px; font-size: 13px;">
+                                                <option value="FRONT_FACE">Front Face</option>
+                                                <option value="RIGHT_FACE">Right Profile</option>
+                                                <option value="LEFT_FACE">Left Profile</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div style="display: flex; flex-direction: column; gap: 6px; justify-content: center;">
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 0;">
+                                                <input type="checkbox" id="autoTake" checked style="margin-right: 6px; width: 16px; height: 16px;">
+                                                Auto Take Picture
+                                            </label>
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 0;">
+                                                <input type="checkbox" id="showTutorial" style="margin-right: 6px; width: 16px; height: 16px;">
+                                                Show Tutorial
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Validation Settings Card -->
+                                <div class="form-card" style="padding: 16px;">
+                                    <div class="form-card-header" style="padding-bottom: 12px; margin-bottom: 12px;">
+                                        <h3 class="form-card-title" style="font-size: 15px; margin-bottom: 4px;">
+                                            <i class="fas fa-check-circle"></i>
+                                            Validation Settings
+                                        </h3>
+                                        <p class="form-card-description" style="font-size: 12px; margin: 0;">
+                                            Configure validation rules for selfie quality
+                                        </p>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 12px;">
+                                        <label class="form-label" style="font-size: 13px; font-weight: 600;">
+                                            <input type="checkbox" id="enableValidations" style="margin-right: 6px; width: 16px; height: 16px;">
+                                            Enable Custom Validations
+                                        </label>
+                                    </div>
+                                    
+                                    <div id="validationOptions" style="display: none; padding-left: 16px; margin-top: 12px; border-left: 2px solid var(--primary-green);">
+                                        <!-- Light Validation -->
+                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
+                                                <input type="checkbox" id="lightValidation" style="margin-right: 6px; width: 14px; height: 14px;">
+                                                <strong>Light Validation</strong>
+                                            </label>
+                                            <div id="lightThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Brightness Min</label>
+                                                        <input type="number" class="form-input" id="brightMin" value="90" min="0" max="255" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Brightness Max</label>
+                                                        <input type="number" class="form-input" id="brightMax" value="200" min="0" max="255" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Lighting Value</label>
+                                                        <input type="number" class="form-input" id="lightingValue" value="70" min="-255" max="255" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Light Color</label>
+                                                        <input type="number" class="form-input" id="lightColorValue" value="20" min="-255" max="255" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                    
+                                        <!-- Distance Validation -->
+                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
+                                                <input type="checkbox" id="distanceValidation" style="margin-right: 6px; width: 14px; height: 14px;">
+                                                <strong>Distance Validation</strong>
+                                            </label>
+                                            <div id="distanceThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Distance Far</label>
+                                                        <input type="number" class="form-input" id="distanceFar" value="10" min="0" max="100" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Distance Close</label>
+                                                        <input type="number" class="form-input" id="distanceClose" value="30" min="0" max="100" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                        <!-- Tilt Validation -->
+                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
+                                                <input type="checkbox" id="tiltValidation" style="margin-right: 6px; width: 14px; height: 14px;">
+                                                <strong>Tilt Validation</strong>
+                                            </label>
+                                            <div id="tiltThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Pitch Min</label>
+                                                        <input type="number" class="form-input" id="pitchMin" value="-25" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Pitch Max</label>
+                                                        <input type="number" class="form-input" id="pitchMax" value="25" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Roll Min</label>
+                                                        <input type="number" class="form-input" id="rollMin" value="-20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Roll Max</label>
+                                                        <input type="number" class="form-input" id="rollMax" value="20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Yaw Min</label>
+                                                        <input type="number" class="form-input" id="yawMin" value="-20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Yaw Max</label>
+                                                        <input type="number" class="form-input" id="yawMax" value="20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Right Profile</label>
+                                                        <input type="number" class="form-input" id="rightProfile" value="-35" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Left Profile</label>
+                                                        <input type="number" class="form-input" id="leftProfile" value="35" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Expression Validation -->
+                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
+                                                <input type="checkbox" id="expressionValidation" style="margin-right: 6px; width: 14px; height: 14px;">
+                                                <strong>Expression Validation</strong>
+                                            </label>
+                                            <div id="expressionThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Smile Ratio</label>
+                                                        <input type="number" class="form-input" id="smileRatio" value="0.47" min="0" max="1" step="0.01" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Eyebrow Height</label>
+                                                        <input type="number" class="form-input" id="eyebrowHeight" value="0.9" min="0" max="1" step="0.01" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Eyes Validation -->
+                                        <div style="padding-bottom: 0;">
+                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
+                                                <input type="checkbox" id="eyesValidation" style="margin-right: 6px; width: 14px; height: 14px;">
+                                                <strong>Eyes Validation</strong>
+                                            </label>
+                                            <div id="eyesThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                                    <div>
+                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Eye Close Threshold</label>
+                                                        <input type="number" class="form-input" id="eyeClose" value="0.15" min="0" max="1" step="0.01" style="padding: 4px 8px; font-size: 12px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+                            </div>
+                            <!-- End of selfieConfigOptions wrapper -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Panel: Live Preview -->
+                <div class="preview-panel hidden">
+                    <div class="preview-header">
+                        <h2><i class="fas fa-eye"></i> Live Preview</h2>
+                    </div>
+                    <div class="mobile-frame">
+                        <div class="mobile-notch"></div>
+                        <div class="mobile-screen">
+                            <iframe id="previewIframe" style="width: 100%; height: 100%; border: none; background: white;"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/study-design.js"></script>
+    <script>
+        // Store participant codes with status (shared with study-design.js)
+        let participantCodes = [];
+        
+        // Step Wizard Navigation
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            if (tabName === 'studyInfo') {
+                document.getElementById('studyInfoContent').classList.add('active');
+                document.getElementById('studyInfoTab').classList.add('active');
+            } else if (tabName === 'questionnaire') {
+                document.getElementById('questionnaireContent').classList.add('active');
+                document.getElementById('questionnaireTab').classList.add('active');
+            } else if (tabName === 'participants') {
+                document.getElementById('participantsContent').classList.add('active');
+                document.getElementById('participantsTab').classList.add('active');
+            } else if (tabName === 'selfieConfig') {
+                document.getElementById('selfieConfigContent').classList.add('active');
+                document.getElementById('selfieConfigTab').classList.add('active');
+            }
+            
+            // Scroll to top of the form builder panel
+            document.querySelector('.form-builder-panel').scrollTop = 0;
+            
+            // Update preview
+            if (typeof updatePreview === 'function') {
+                updatePreview();
+            }
+        }
+        
+        // Toggle Preview Panel
+        function togglePreview() {
+            const previewPanel = document.querySelector('.preview-panel');
+            const previewBtn = document.getElementById('previewBtn');
+            
+            if (previewPanel && previewBtn) {
+                previewPanel.classList.toggle('hidden');
+                
+                // Update button text and icon
+                const icon = previewBtn.querySelector('i');
+                const isHidden = previewPanel.classList.contains('hidden');
+                
+                if (isHidden) {
+                    if (icon) icon.className = 'fas fa-eye';
+                    previewBtn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
+                } else {
+                    if (icon) icon.className = 'fas fa-eye-slash';
+                    previewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
+                }
+                
+                // Save preference to localStorage
+                localStorage.setItem('previewPanelHidden', isHidden);
+            }
+        }
+        
+        // Open Mobile Preview
+        function openMobilePreview() {
+            // Get current study ID from URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const studyId = urlParams.get('studyId');
+            
+            if (!studyId) {
+                alert('Please save your study first before opening mobile preview.');
+                return;
+            }
+            
+            // Open mobile preview in new tab
+            const previewUrl = `/mobilepreview?studyId=${studyId}`;
+            window.open(previewUrl, '_blank');
+        }
+        
+        // Load Preview Panel Preference
+        document.addEventListener('DOMContentLoaded', () => {
+            const previewPanel = document.querySelector('.preview-panel');
+            const previewBtn = document.getElementById('previewBtn');
+            const isHidden = localStorage.getItem('previewPanelHidden') === 'true';
+            
+            if (isHidden && previewPanel && previewBtn) {
+                previewPanel.classList.add('hidden');
+                previewBtn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
+            } else if (previewBtn) {
+                previewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
+            }
+            
+        });
+        
+        // Show generate codes dialog
+        function showGenerateCodesDialog() {
+            const dialog = document.getElementById('generateCodesDialog');
+            dialog.style.display = 'flex';
+            document.getElementById('dialogParticipantCount').focus();
+        }
+        
+        // Hide generate codes dialog
+        function hideGenerateCodesDialog() {
+            const dialog = document.getElementById('generateCodesDialog');
+            dialog.style.display = 'none';
+        }
+        
+        // Generate new codes and add to existing
+        function generateNewCodes() {
+            const countInput = document.getElementById('dialogParticipantCount');
+            const count = parseInt(countInput.value);
+            
+            // Validation
+            if (!count || count < 1) {
+                alert('Please enter a valid number of participants (minimum 1).');
+                return;
+            }
+            
+            if (count > 10000) {
+                alert('Maximum 10,000 codes can be generated at once.');
+                return;
+            }
+            
+            // Generate unique codes
+            const codesSet = new Set(participantCodes.map(c => c.code));
+            const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let newCodesGenerated = 0;
+            
+            while (newCodesGenerated < count) {
+                let code = '';
+                for (let i = 0; i < 8; i++) {
+                    code += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                
+                if (!codesSet.has(code)) {
+                    participantCodes.push({
+                        code: code,
+                        status: 'unused',
+                        usedDate: null,
+                        generatedDate: new Date().toISOString()
+                    });
+                    codesSet.add(code);
+                    newCodesGenerated++;
+                }
+            }
+            
+            // Mark form as changed
+            if (typeof markFormAsChanged === 'function') {
+                markFormAsChanged();
+            }
+            
+            // Hide dialog and refresh table
+            hideGenerateCodesDialog();
+            refreshCodesTable();
+            
+            // Show success message
+            alert(`Successfully generated ${count} new participant code(s)!`);
+        }
+        
+        // Refresh the codes table
+        function refreshCodesTable() {
+            const emptyState = document.getElementById('emptyState');
+            const codesTable = document.getElementById('codesTable');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            
+            if (participantCodes.length === 0) {
+                emptyState.style.display = 'block';
+                codesTable.style.display = 'none';
+                downloadAllBtn.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            codesTable.style.display = 'block';
+            downloadAllBtn.style.display = 'flex';
+            
+            // Update statistics
+            const usedCount = participantCodes.filter(c => c.status === 'used').length;
+            const unusedCount = participantCodes.filter(c => c.status === 'unused').length;
+            
+            document.getElementById('totalCodes').textContent = participantCodes.length;
+            document.getElementById('usedCodes').textContent = usedCount;
+            document.getElementById('unusedCodes').textContent = unusedCount;
+            
+            // Populate table
+            const tbody = document.getElementById('codesTableBody');
+            tbody.innerHTML = participantCodes.map((item, index) => {
+                const statusBadge = item.status === 'used' 
+                    ? '<span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">USED</span>'
+                    : '<span style="background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">UNUSED</span>';
+                
+                const usedDateDisplay = item.usedDate 
+                    ? new Date(item.usedDate).toLocaleDateString() 
+                    : '<span style="color: #9ca3af;">—</span>';
+                
+                const emailDisplay = item.email 
+                    ? `<span style="color: #374151;">${item.email}</span>`
+                    : '<span style="color: #9ca3af; font-style: italic; cursor: pointer;" onclick="addEmail(\'${item.code}\')">Add email</span>';
+                
+                // Get current study ID from URL or window scope
+                const urlParams = new URLSearchParams(window.location.search);
+                const studyIdFromUrl = urlParams.get('studyId');
+                const studyIdFromWindow = window.currentStudyId || (typeof currentStudyId !== 'undefined' ? currentStudyId : null);
+                const actualStudyId = studyIdFromUrl || studyIdFromWindow;
+                
+                let linkDisplay;
+                if (actualStudyId) {
+                    const participantLink = `/mobilepreview?studyId=${actualStudyId}&participantcode=${item.code}`;
+                    linkDisplay = `<a href="${participantLink}" target="_blank" style="color: var(--primary-green); text-decoration: none; display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open
+                    </a>`;
+                } else {
+                    linkDisplay = '<span style="color: #9ca3af; font-style: italic; font-size: 11px;">Save study first</span>';
+                }
+                
+                return `
+                    <tr style="border-bottom: 1px solid #e5e7eb;" data-code="${item.code}">
+                        <td style="padding: 12px 16px; color: #6b7280;">${index + 1}</td>
+                        <td style="padding: 12px 16px; font-family: 'Courier New', monospace; font-weight: 600; color: var(--primary-green);">${item.code}</td>
+                        <td style="padding: 12px 16px;">${emailDisplay}</td>
+                        <td style="padding: 12px 16px;">
+                            ${linkDisplay}
+                        </td>
+                        <td style="padding: 12px 16px; text-align: center;">${statusBadge}</td>
+                        <td style="padding: 12px 16px; text-align: center; color: #6b7280; font-size: 12px;">${usedDateDisplay}</td>
+                        <td style="padding: 12px 16px; text-align: center;">
+                            <button 
+                                onclick="copyCode('${item.code}')" 
+                                class="btn-action btn-secondary" 
+                                style="padding: 4px 8px; font-size: 11px;"
+                                title="Copy code"
+                            >
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button 
+                                onclick="deleteCode('${item.code}')" 
+                                class="btn-action btn-secondary" 
+                                style="padding: 4px 8px; font-size: 11px; color: #ef4444; border-color: #ef4444;"
+                                title="Delete code"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Filter codes table
+        function filterCodesTable() {
+            const searchValue = document.getElementById('searchCodes').value.toLowerCase();
+            const rows = document.querySelectorAll('#codesTableBody tr');
+            
+            rows.forEach(row => {
+                const code = row.getAttribute('data-code').toLowerCase();
+                if (code.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Copy single code
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.style.background = 'var(--primary-green)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--primary-green)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 1500);
+            }).catch(err => {
+                alert('Failed to copy code.');
+                console.error('Copy failed:', err);
+            });
+        }
+        
+        // Delete code
+        function deleteCode(code) {
+            if (!confirm(`Are you sure you want to delete the code "${code}"?`)) {
+                return;
+            }
+            
+            participantCodes = participantCodes.filter(c => c.code !== code);
+            
+            // Mark form as changed
+            if (typeof markFormAsChanged === 'function') {
+                markFormAsChanged();
+            }
+            
+            refreshCodesTable();
+        }
+        
+        // Add email to participant
+        function addEmail(code) {
+            const email = prompt('Enter participant email address:');
+            
+            if (email === null) {
+                return; // User cancelled
+            }
+            
+            if (email.trim() === '') {
+                alert('Email cannot be empty.');
+                return;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.trim())) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            
+            // Find and update the participant code
+            const participant = participantCodes.find(c => c.code === code);
+            if (participant) {
+                participant.email = email.trim();
+                
+                // Mark form as changed
+                if (typeof markFormAsChanged === 'function') {
+                    markFormAsChanged();
+                }
+                
+                refreshCodesTable();
+            }
+        }
+        
+        // Download all codes as CSV
+        function downloadAllCodes() {
+            if (participantCodes.length === 0) {
+                alert('No codes to download.');
+                return;
+            }
+            
+            const studyTitle = document.getElementById('formTitle').value || 'study';
+            const timestamp = new Date().toISOString().slice(0, 10);
+            const filename = `${studyTitle.replace(/[^a-z0-9]/gi, '_')}_participant_codes_${timestamp}.csv`;
+            
+            // Create CSV content
+            let csvContent = 'Participant Code,Email,Status,Used Date,Generated Date\n';
+            csvContent += participantCodes.map(item => {
+                const email = item.email || '';
+                const usedDate = item.usedDate ? new Date(item.usedDate).toISOString() : '';
+                const generatedDate = new Date(item.generatedDate).toISOString();
+                return `${item.code},${email},${item.status},${usedDate},${generatedDate}`;
+            }).join('\n');
+            
+            // Create blob and download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Close dialog when clicking outside
+        document.addEventListener('click', function(event) {
+            const dialog = document.getElementById('generateCodesDialog');
+            if (dialog && event.target === dialog) {
+                hideGenerateCodesDialog();
+            }
+        });
+    </script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

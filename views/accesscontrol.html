@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Control - E-Tone Finder 2.0</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23009C95' stroke-width='2'><path stroke-linecap='round' stroke-linejoin='round' d='M11.412 15.655 9.75 21.75l3.745-4.012M9.257 13.5H3.75l2.659-2.849m2.048-2.194L14.25 2.25 12 10.5h8.25l-4.707 5.043M8.457 8.457 3 3m5.457 5.457 7.086 7.086m0 0L21 21'/></svg>">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .access-control-container {
+            padding: 20px;
+        }
+
+        .page-header {
+            margin-bottom: 16px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+         
+        }
+
+        .btn-add {
+            background: #009C95;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #008580;
+            transform: translateY(-1px);
+        }
+
+        .agents-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .agents-table thead {
+            background: #f9fafb;
+        }
+
+        .agents-table th {
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .agents-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .agent-username {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .agent-email {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .password-masked {
+            font-family: monospace;
+            color: #6b7280;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 8px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            color: #111827;
+        }
+
+        .btn-icon.delete:hover {
+            color: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 36px;
+            color: #d1d5db;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .modal-body {
+            padding: 16px 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #111827;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #009C95;
+            box-shadow: 0 0 0 3px rgba(0, 156, 149, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #dc2626;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .btn-primary {
+            padding: 8px 16px;
+            border: none;
+            background: #009C95;
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #008580;
+        }
+
+        .btn-primary:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation Component -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="access-control-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Access Control</h1>
+                <p class="page-subtitle">Manage CRO Agent accounts and permissions</p>
+            </div>
+
+            <!-- CRO Agents Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">CRO Agents</h2>
+                    <button class="btn-add" onclick="openAddAgentModal()">
+                        <i class="fas fa-plus"></i>
+                        Add New Agent
+                    </button>
+                </div>
+
+                <div id="agentsTableContainer">
+                    <!-- Table will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Agent Modal -->
+    <div class="modal-overlay" id="agentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add New CRO Agent</h3>
+            </div>
+            <div class="modal-body">
+                <form id="agentForm">
+                    <div class="form-group">
+                        <label class="form-label">Username *</label>
+                        <input type="text" class="form-input" id="username" required>
+                        <div class="error-message" id="usernameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="email">
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password *</label>
+                        <input type="password" class="form-input" id="password" required>
+                        <div class="error-message" id="passwordError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password *</label>
+                        <input type="password" class="form-input" id="confirmPassword" required>
+                        <div class="error-message" id="confirmPasswordError"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAgentModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveAgent()">Save Agent</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        let agents = [];
+        let editingAgentId = null;
+
+        // Load agents on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAgents();
+        });
+
+        // Load agents from server
+        async function loadAgents() {
+            try {
+                const response = await fetch('/api/agents');
+                if (response.ok) {
+                    agents = await response.json();
+                    renderAgentsTable();
+                } else {
+                    console.error('Failed to load agents');
+                    renderEmptyState();
+                }
+            } catch (error) {
+                console.error('Error loading agents:', error);
+                renderEmptyState();
+            }
+        }
+
+        // Render agents table
+        function renderAgentsTable() {
+            const container = document.getElementById('agentsTableContainer');
+            
+            if (agents.length === 0) {
+                renderEmptyState();
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="agents-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${agents.map(agent => `
+                            <tr>
+                                <td>
+                                    <div class="agent-username">${agent.username}</div>
+                                </td>
+                                <td>
+                                    <div class="agent-email">${agent.email || '-'}</div>
+                                </td>
+                                <td>
+                                    <div class="password-masked">••••••••</div>
+                                </td>
+                                <td>${formatDate(agent.createdAt)}</td>
+                                <td>
+                                    <span class="status-badge active">Active</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="editAgent('${agent.id}')" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon delete" onclick="deleteAgent('${agent.id}')" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Render empty state
+        function renderEmptyState() {
+            const container = document.getElementById('agentsTableContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>No CRO Agents Yet</h3>
+                    <p>Create your first CRO Agent account to get started.</p>
+                </div>
+            `;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Open add agent modal
+        function openAddAgentModal() {
+            editingAgentId = null;
+            document.getElementById('modalTitle').textContent = 'Add New CRO Agent';
+            document.getElementById('agentForm').reset();
+            clearErrors();
+            document.getElementById('agentModal').classList.add('active');
+        }
+
+        // Close agent modal
+        function closeAgentModal() {
+            document.getElementById('agentModal').classList.remove('active');
+            document.getElementById('agentForm').reset();
+            clearErrors();
+        }
+
+        // Edit agent
+        function editAgent(agentId) {
+            const agent = agents.find(a => a.id === agentId);
+            if (!agent) return;
+
+            editingAgentId = agentId;
+            document.getElementById('modalTitle').textContent = 'Edit CRO Agent';
+            document.getElementById('username').value = agent.username;
+            document.getElementById('email').value = agent.email || '';
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('password').placeholder = 'Leave blank to keep current password';
+            document.getElementById('confirmPassword').placeholder = 'Leave blank to keep current password';
+            
+            clearErrors();
+            document.getElementById('agentModal').classList.add('active');
+        }
+
+        // Save agent
+        async function saveAgent() {
+            clearErrors();
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validation
+            let hasError = false;
+
+            if (!username) {
+                showError('usernameError', 'Username is required');
+                hasError = true;
+            }
+
+            if (email && !isValidEmail(email)) {
+                showError('emailError', 'Please enter a valid email');
+                hasError = true;
+            }
+
+            if (!editingAgentId) {
+                // New agent - password required
+                if (!password) {
+                    showError('passwordError', 'Password is required');
+                    hasError = true;
+                } else if (password.length < 6) {
+                    showError('passwordError', 'Password must be at least 6 characters');
+                    hasError = true;
+                }
+            } else {
+                // Editing - password optional, but if provided must be valid
+                if (password && password.length < 6) {
+                    showError('passwordError', 'Password must be at least 6 characters');
+                    hasError = true;
+                }
+            }
+
+            if (password !== confirmPassword) {
+                showError('confirmPasswordError', 'Passwords do not match');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Save agent
+            const agentData = {
+                username,
+                email,
+                ...(password && { password })
+            };
+
+            try {
+                const url = editingAgentId ? `/api/agents/${editingAgentId}` : '/api/agents';
+                const method = editingAgentId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(agentData)
+                });
+
+                if (response.ok) {
+                    closeAgentModal();
+                    await loadAgents();
+                    alert(editingAgentId ? 'Agent updated successfully!' : 'Agent created successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.error || 'Failed to save agent'));
+                }
+            } catch (error) {
+                console.error('Error saving agent:', error);
+                alert('Failed to save agent. Please try again.');
+            }
+        }
+
+        // Delete agent
+        async function deleteAgent(agentId) {
+            const agent = agents.find(a => a.id === agentId);
+            if (!agent) return;
+
+            if (!confirm(`Are you sure you want to delete agent "${agent.username}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/agents/${agentId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    await loadAgents();
+                    alert('Agent deleted successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.error || 'Failed to delete agent'));
+                }
+            } catch (error) {
+                console.error('Error deleting agent:', error);
+                alert('Failed to delete agent. Please try again.');
+            }
+        }
+
+        // Helper functions
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            const inputId = elementId.replace('Error', '');
+            document.getElementById(inputId).classList.add('error');
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('.form-input').forEach(el => el.classList.remove('error'));
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Close modal on overlay click
+        document.getElementById('agentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'agentModal') {
+                closeAgentModal();
+            }
+        });
+    </script>
+</body>
+</html>

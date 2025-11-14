@@ -1,0 +1,28 @@
+{
+  "agents": [
+    {
+      "id": "CRO-1763150151480-96yjggoss",
+      "username": "testcro",
+      "email": "testcro@gmail.com",
+      "password": "123456",
+      "createdAt": "2025-11-14T19:55:51.480Z",
+      "updatedAt": "2025-11-14T19:55:51.480Z"
+    },
+    {
+      "id": "CRO-1763150151480-453434434",
+      "username": "yhgeuiii",
+      "email": "testcro@gmail.com",
+      "password": "123456",
+      "createdAt": "2025-11-14T19:55:51.480Z",
+      "updatedAt": "2025-11-14T19:55:51.480Z"
+    },
+    {
+      "id": "CRO-1763150151480-4534534534",
+      "username": "helow8uj",
+      "email": "testcro@gmail.com",
+      "password": "123456",
+      "createdAt": "2025-11-14T19:55:51.480Z",
+      "updatedAt": "2025-11-14T19:55:51.480Z"
+    }
+  ]
+}

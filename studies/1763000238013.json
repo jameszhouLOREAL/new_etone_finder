@@ -1,5 +1,5 @@
 {
-  "title": "Curion_Etone Finder week 9-29-25 pt2",
+  "title": "Curion_Etone Finder week 9-29-25 pt2d",
   "description": "The primary objective is to empower consumers with precise, data-driven recommendations for cosmetic products, ensuring perfect shade matching for foundations, concealers, and hair colorants. This not only enhances the customer experience by minimizing trial-and-error but also optimizes product development and inventory management for beauty brands. The e-tone finder study is poised to revolutionize how we approach personalized beauty, offering a seamless and scientifically backed solution for everyone.",
   "instructionTitle": "Welcome to the skin study!",
   "instructionText": "Welcome! Please apply the product twice daily to clean, dry under-eye skin. Use our dedicated mobile app to answer daily questions and record your experiences. Consistent use is crucial; avoid other eye treatments. At the study's conclusion, please take a final selfie via the app.\n\nIf irritation occurs, stop use and contact us immediately. Thank you for your valuable contribution!",
@@ -13,22 +13,14 @@
       "logic": null
     }
   ],
-  "selfieConfig": {
-    "enabled": true,
-    "language": "en",
-    "camera": "FRONT",
-    "askedZone": "FRONT_FACE",
-    "autoTake": false,
-    "showTutorial": false,
-    "validations": {}
-  },
+  "selfieConfig": null,
   "createdAt": "2025-11-13T02:26:58.267Z",
   "version": "1.0",
   "status": "Draft",
   "studyId": "1763000238013",
-  "label": "Curion_Etone Finder week 9-29-25 pt2",
+  "label": "Curion_Etone Finder week 9-29-25 pt2d",
   "edc": "VCA-STUDY",
-  "updatedAt": "2025-11-14T16:15:32.192Z",
+  "updatedAt": "2025-11-14T19:40:06.098Z",
   "publishedAt": "2025-11-13T17:24:40.945Z",
   "participantCodes": []
 }

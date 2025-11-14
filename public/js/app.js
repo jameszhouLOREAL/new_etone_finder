@@ -92,12 +92,12 @@ function loadSidebarState() {
 window.toggleSidebar = toggleSidebar;
 window.expandSidebarFromLogo = expandSidebarFromLogo;
 
-// Function to open study list with expanded sidebar
-function openStudyListWithExpandedSidebar(event) {
+// Generic function to navigate with expanded sidebar
+function navigateWithExpandedSidebar(event, url) {
     // Prevent the default link behavior
     event.preventDefault();
     
-    console.log('Study list navigation clicked - expanding sidebar and navigating...');
+    console.log(`Navigation clicked to ${url} - expanding sidebar and navigating...`);
     
     // Force expand the sidebar if it's collapsed
     const sidebar = document.getElementById('sidebar');
@@ -117,14 +117,20 @@ function openStudyListWithExpandedSidebar(event) {
         console.log('Sidebar was already expanded');
     }
     
-    // Navigate to study list after a short delay to allow sidebar animation
+    // Navigate to the URL after a short delay to allow sidebar animation
     setTimeout(() => {
-        console.log('Navigating to study list...');
-        window.location.href = '/studylist';
+        console.log(`Navigating to ${url}...`);
+        window.location.href = url;
     }, 150);
 }
 
-// Make function globally available
+// Function to open study list with expanded sidebar (legacy support)
+function openStudyListWithExpandedSidebar(event) {
+    navigateWithExpandedSidebar(event, '/studylist');
+}
+
+// Make functions globally available
+window.navigateWithExpandedSidebar = navigateWithExpandedSidebar;
 window.openStudyListWithExpandedSidebar = openStudyListWithExpandedSidebar;
 
 // Authentication variables

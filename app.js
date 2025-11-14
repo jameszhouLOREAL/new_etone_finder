@@ -346,6 +346,16 @@ app.get('/analytics', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/analytics.html'));
 });
 
+// Serve the Access Control page
+app.get('/accesscontrol', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/accesscontrol.html'));
+});
+
+// Serve the Consent Management page
+app.get('/consentmanagement', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/consentmanagement.html'));
+});
+
 // Serve the Mobile Preview page
 app.get('/mobilepreview', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/mobilepreview.html'));
@@ -703,6 +713,331 @@ app.get('/api/file', async (req, res) => {
       error: 'Failed to read file',
       details: error.message 
     });
+  }
+});
+
+// ==================== CRO Agent Management API ====================
+
+// Helper function to ensure accounts directory exists
+function ensureAccountsDirectory() {
+  const accountsDir = path.join(__dirname, 'accounts');
+  if (!fs.existsSync(accountsDir)) {
+    fs.mkdirSync(accountsDir, { recursive: true });
+  }
+  return accountsDir;
+}
+
+// Helper function to load CRO agents
+function loadCROAgents() {
+  try {
+    const accountsDir = ensureAccountsDirectory();
+    const filePath = path.join(accountsDir, 'cro.json');
+    
+    if (!fs.existsSync(filePath)) {
+      // Create empty agents file if it doesn't exist
+      fs.writeFileSync(filePath, JSON.stringify({ agents: [] }, null, 2));
+      return { agents: [] };
+    }
+    
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading CRO agents:', error);
+    return { agents: [] };
+  }
+}
+
+// Helper function to save CRO agents
+function saveCROAgents(agentsData) {
+  try {
+    const accountsDir = ensureAccountsDirectory();
+    const filePath = path.join(accountsDir, 'cro.json');
+    fs.writeFileSync(filePath, JSON.stringify(agentsData, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving CRO agents:', error);
+    return false;
+  }
+}
+
+// GET /api/agents - Get all CRO agents
+app.get('/api/agents', (req, res) => {
+  try {
+    const data = loadCROAgents();
+    // Don't send passwords to frontend
+    const safeAgents = data.agents.map(agent => ({
+      id: agent.id,
+      username: agent.username,
+      email: agent.email,
+      createdAt: agent.createdAt,
+      updatedAt: agent.updatedAt
+    }));
+    res.json(safeAgents);
+  } catch (error) {
+    console.error('Error fetching agents:', error);
+    res.status(500).json({ error: 'Failed to fetch agents' });
+  }
+});
+
+// POST /api/agents - Create new CRO agent
+app.post('/api/agents', (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+    
+    const data = loadCROAgents();
+    
+    // Check if username already exists
+    if (data.agents.some(agent => agent.username === username)) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+    
+    // Create new agent
+    const newAgent = {
+      id: `CRO-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      username,
+      email: email || '',
+      password, // In production, this should be hashed
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    data.agents.push(newAgent);
+    
+    if (saveCROAgents(data)) {
+      // Return agent without password
+      const { password: _, ...safeAgent } = newAgent;
+      res.json(safeAgent);
+    } else {
+      res.status(500).json({ error: 'Failed to save agent' });
+    }
+  } catch (error) {
+    console.error('Error creating agent:', error);
+    res.status(500).json({ error: 'Failed to create agent' });
+  }
+});
+
+// PUT /api/agents/:agentId - Update CRO agent
+app.put('/api/agents/:agentId', (req, res) => {
+  try {
+    const { agentId } = req.params;
+    const { username, email, password } = req.body;
+    
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+    
+    const data = loadCROAgents();
+    const agentIndex = data.agents.findIndex(agent => agent.id === agentId);
+    
+    if (agentIndex === -1) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+    
+    // Check if username is taken by another agent
+    if (data.agents.some((agent, index) => 
+      agent.username === username && index !== agentIndex
+    )) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+    
+    // Update agent
+    data.agents[agentIndex].username = username;
+    data.agents[agentIndex].email = email || '';
+    if (password) {
+      data.agents[agentIndex].password = password; // In production, hash this
+    }
+    data.agents[agentIndex].updatedAt = new Date().toISOString();
+    
+    if (saveCROAgents(data)) {
+      // Return agent without password
+      const { password: _, ...safeAgent } = data.agents[agentIndex];
+      res.json(safeAgent);
+    } else {
+      res.status(500).json({ error: 'Failed to update agent' });
+    }
+  } catch (error) {
+    console.error('Error updating agent:', error);
+    res.status(500).json({ error: 'Failed to update agent' });
+  }
+});
+
+// DELETE /api/agents/:agentId - Delete CRO agent
+app.delete('/api/agents/:agentId', (req, res) => {
+  try {
+    const { agentId } = req.params;
+    const data = loadCROAgents();
+    
+    const agentIndex = data.agents.findIndex(agent => agent.id === agentId);
+    
+    if (agentIndex === -1) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+    
+    data.agents.splice(agentIndex, 1);
+    
+    if (saveCROAgents(data)) {
+      res.json({ success: true });
+    } else {
+      res.status(500).json({ error: 'Failed to delete agent' });
+    }
+  } catch (error) {
+    console.error('Error deleting agent:', error);
+    res.status(500).json({ error: 'Failed to delete agent' });
+  }
+});
+
+// ==================== Consent Management API ====================
+
+// Helper function to ensure consents directory exists
+function ensureConsentsDirectory() {
+  const consentsDir = path.join(__dirname, 'consents');
+  if (!fs.existsSync(consentsDir)) {
+    fs.mkdirSync(consentsDir, { recursive: true });
+  }
+  return consentsDir;
+}
+
+// Helper function to load consents
+function loadConsents() {
+  try {
+    const consentsDir = ensureConsentsDirectory();
+    const filePath = path.join(consentsDir, 'consents.json');
+    
+    if (!fs.existsSync(filePath)) {
+      // Create empty consents file if it doesn't exist
+      fs.writeFileSync(filePath, JSON.stringify({ consents: [] }, null, 2));
+      return { consents: [] };
+    }
+    
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading consents:', error);
+    return { consents: [] };
+  }
+}
+
+// Helper function to save consents
+function saveConsents(consentsData) {
+  try {
+    const consentsDir = ensureConsentsDirectory();
+    const filePath = path.join(consentsDir, 'consents.json');
+    fs.writeFileSync(filePath, JSON.stringify(consentsData, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving consents:', error);
+    return false;
+  }
+}
+
+// GET /api/consents - Get all consents
+app.get('/api/consents', (req, res) => {
+  try {
+    const data = loadConsents();
+    res.json(data.consents);
+  } catch (error) {
+    console.error('Error getting consents:', error);
+    res.status(500).json({ error: 'Failed to load consents' });
+  }
+});
+
+// POST /api/consents - Create new consent
+app.post('/api/consents', (req, res) => {
+  try {
+    const { title, content, checkboxText } = req.body;
+    
+    // Validate required fields
+    if (!title || !content || !checkboxText) {
+      return res.status(400).json({ error: 'Title, content, and checkbox text are required' });
+    }
+    
+    const data = loadConsents();
+    
+    // Create new consent
+    const newConsent = {
+      id: `CONSENT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title,
+      content,
+      checkboxText,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    data.consents.push(newConsent);
+    
+    if (saveConsents(data)) {
+      res.status(201).json(newConsent);
+    } else {
+      res.status(500).json({ error: 'Failed to create consent' });
+    }
+  } catch (error) {
+    console.error('Error creating consent:', error);
+    res.status(500).json({ error: 'Failed to create consent' });
+  }
+});
+
+// PUT /api/consents/:consentId - Update consent
+app.put('/api/consents/:consentId', (req, res) => {
+  try {
+    const { consentId } = req.params;
+    const { title, content, checkboxText } = req.body;
+    
+    // Validate required fields
+    if (!title || !content || !checkboxText) {
+      return res.status(400).json({ error: 'Title, content, and checkbox text are required' });
+    }
+    
+    const data = loadConsents();
+    const consentIndex = data.consents.findIndex(c => c.id === consentId);
+    
+    if (consentIndex === -1) {
+      return res.status(404).json({ error: 'Consent not found' });
+    }
+    
+    // Update consent
+    data.consents[consentIndex].title = title;
+    data.consents[consentIndex].content = content;
+    data.consents[consentIndex].checkboxText = checkboxText;
+    data.consents[consentIndex].updatedAt = new Date().toISOString();
+    
+    if (saveConsents(data)) {
+      res.json(data.consents[consentIndex]);
+    } else {
+      res.status(500).json({ error: 'Failed to update consent' });
+    }
+  } catch (error) {
+    console.error('Error updating consent:', error);
+    res.status(500).json({ error: 'Failed to update consent' });
+  }
+});
+
+// DELETE /api/consents/:consentId - Delete consent
+app.delete('/api/consents/:consentId', (req, res) => {
+  try {
+    const { consentId } = req.params;
+    const data = loadConsents();
+    
+    const consentIndex = data.consents.findIndex(c => c.id === consentId);
+    
+    if (consentIndex === -1) {
+      return res.status(404).json({ error: 'Consent not found' });
+    }
+    
+    data.consents.splice(consentIndex, 1);
+    
+    if (saveConsents(data)) {
+      res.json({ success: true });
+    } else {
+      res.status(500).json({ error: 'Failed to delete consent' });
+    }
+  } catch (error) {
+    console.error('Error deleting consent:', error);
+    res.status(500).json({ error: 'Failed to delete consent' });
   }
 });
 
