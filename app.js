@@ -504,6 +504,48 @@ app.delete('/api/studies/:studyId', (req, res) => {
   }
 });
 
+// POST /api/studies/:studyId/participant/:code/use - Mark participant code as used
+app.post('/api/studies/:studyId/participant/:code/use', (req, res) => {
+  try {
+    const { studyId, code } = req.params;
+    
+    const studiesDir = path.join(__dirname, 'studies');
+    const fileName = `${studyId}.json`;
+    const filePath = path.join(studiesDir, fileName);
+    
+    // Check if study exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Study not found' });
+    }
+    
+    // Read study data
+    const studyData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    
+    // Find and update the participant code
+    if (!studyData.participantCodes || !Array.isArray(studyData.participantCodes)) {
+      return res.status(404).json({ error: 'No participant codes found' });
+    }
+    
+    const participantIndex = studyData.participantCodes.findIndex(p => p.code === code);
+    if (participantIndex === -1) {
+      return res.status(404).json({ error: 'Participant code not found' });
+    }
+    
+    // Update the code status
+    studyData.participantCodes[participantIndex].status = 'used';
+    studyData.participantCodes[participantIndex].usedDate = new Date().toISOString();
+    
+    // Save the updated study
+    fs.writeFileSync(filePath, JSON.stringify(studyData, null, 2));
+    
+    console.log(`Participant code ${code} marked as used for study ${studyId}`);
+    res.json({ success: true, code: code, status: 'used' });
+  } catch (error) {
+    console.error('Error updating participant code:', error);
+    res.status(500).json({ error: 'Failed to update participant code' });
+  }
+});
+
 // POST /api/submissions - Save study submission
 app.post('/api/submissions', (req, res) => {
   try {

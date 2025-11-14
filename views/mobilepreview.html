@@ -488,6 +488,7 @@
         async function loadStudy() {
             const urlParams = new URLSearchParams(window.location.search);
             const studyId = urlParams.get('studyId');
+            const participantCode = urlParams.get('participantcode');
             const mode = urlParams.get('mode');
             
             // Check if we're in preview mode (embedded in iframe)
@@ -530,10 +531,39 @@
                 
                 studyData = await response.json();
                 
-                // Check if study is published (allow Draft for testing)
-                if (studyData.status !== 'Published' && studyData.status !== 'Active' && studyData.status !== 'Draft') {
-                    showError('This study is not currently available.');
-                    return;
+                // If participant code is provided, study MUST be published
+                if (participantCode) {
+                    if (studyData.status !== 'Published') {
+                        showError('This study is not published yet. Participants can only access published studies.');
+                        return;
+                    }
+                } else {
+                    // Preview mode without participant code - allow Draft for testing
+                    if (studyData.status !== 'Published' && studyData.status !== 'Active' && studyData.status !== 'Draft') {
+                        showError('This study is not currently available.');
+                        return;
+                    }
+                }
+                
+                // Validate participant code if provided
+                if (participantCode) {
+                    const participantCodes = studyData.participantCodes || [];
+                    const codeExists = participantCodes.some(p => p.code === participantCode);
+                    
+                    if (!codeExists) {
+                        showError('Invalid participant code. Please check your link and try again.');
+                        return;
+                    }
+                    
+                    // Check if code has already been used
+                    const participantData = participantCodes.find(p => p.code === participantCode);
+                    if (participantData && participantData.status === 'used') {
+                        showError('This participant code has already been used.');
+                        return;
+                    }
+                    
+                    // Store participant code for later use (when submitting)
+                    sessionStorage.setItem('participantCode', participantCode);
                 }
                 
                 initializeStudy();
@@ -1154,6 +1184,26 @@
                 }
                 
                 console.log('Submission successful:', result);
+                
+                // Mark participant code as used if provided
+                const participantCode = sessionStorage.getItem('participantCode');
+                if (participantCode && studyId) {
+                    try {
+                        const updateResponse = await fetch(`/api/studies/${studyId}/participant/${participantCode}/use`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        
+                        if (updateResponse.ok) {
+                            console.log('Participant code marked as used');
+                        } else {
+                            console.warn('Failed to update participant code status');
+                        }
+                    } catch (error) {
+                        console.warn('Error updating participant code:', error);
+                        // Don't show error to user - submission was successful
+                    }
+                }
                 
                 // Show success screen
                 document.getElementById('mainContent').style.display = 'none';

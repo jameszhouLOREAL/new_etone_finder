@@ -1990,10 +1990,15 @@
                     ? `<span style="color: #374151;">${item.email}</span>`
                     : '<span style="color: #9ca3af; font-style: italic; cursor: pointer;" onclick="addEmail(\'${item.code}\')">Add email</span>';
                 
-                // Get current study ID - must be saved first
+                // Get current study ID from URL or window scope
+                const urlParams = new URLSearchParams(window.location.search);
+                const studyIdFromUrl = urlParams.get('studyId');
+                const studyIdFromWindow = window.currentStudyId || (typeof currentStudyId !== 'undefined' ? currentStudyId : null);
+                const actualStudyId = studyIdFromUrl || studyIdFromWindow;
+                
                 let linkDisplay;
-                if (currentStudyId) {
-                    const participantLink = `/mobilepreview?studyId=${currentStudyId}&participantcode=${item.code}`;
+                if (actualStudyId) {
+                    const participantLink = `/mobilepreview?studyId=${actualStudyId}&participantcode=${item.code}`;
                     linkDisplay = `<a href="${participantLink}" target="_blank" style="color: var(--primary-green); text-decoration: none; display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <i class="fas fa-external-link-alt"></i>
                         Open

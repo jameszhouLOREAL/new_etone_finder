@@ -55,17 +55,17 @@
   },
   "version": "1.0",
   "createdAt": "2025-11-13T17:44:55.065Z",
-  "status": "Draft",
+  "status": "Published",
   "studyId": "1763055895061",
   "label": "Dark Circle screening",
   "edc": "VCA-STUDY",
-  "updatedAt": "2025-11-14T03:06:03.558Z",
-  "publishedAt": "2025-11-13T17:44:57.514Z",
+  "updatedAt": "2025-11-14T03:17:53.647Z",
+  "publishedAt": "2025-11-14T03:17:53.639Z",
   "participantCodes": [
     {
       "code": "JHEPBRYF",
-      "status": "unused",
-      "usedDate": null,
+      "status": "used",
+      "usedDate": "2025-11-14T03:15:54.125Z",
       "generatedDate": "2025-11-14T02:53:47.844Z"
     },
     {
