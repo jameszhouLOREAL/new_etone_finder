@@ -23,7 +23,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views/studymanagement.html'));
+  res.sendFile(path.join(__dirname, 'views/studylist.html'));
 });
 
 // Serve the Help Documentation
@@ -321,14 +321,24 @@ app.get('/components/:component', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/components', req.params.component));
 });
 
-// Serve the Study Management page
+// Redirect old studymanagement route to studylist
 app.get('/studymanagement', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views/studymanagement.html'));
+  res.redirect(301, '/studylist');
 });
 
-// Serve the Study Design page
+// Serve the Study List page
+app.get('/studylist', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/studylist.html'));
+});
+
+// Serve the Study Details page
+app.get('/studydetails', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/studydetails.html'));
+});
+
+// Legacy route redirect for backward compatibility
 app.get('/studydesign', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views/studydesign.html'));
+  res.redirect(301, '/studydetails');
 });
 
 // Serve the Analytics page

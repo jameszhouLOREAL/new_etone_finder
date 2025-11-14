@@ -14,7 +14,7 @@ async function loadSidebar() {
             sidebarContainer.innerHTML = html;
             
             // Set active state based on current page
-            const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'studymanagement';
+            const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'studylist';
             const activeItem = document.querySelector(`.nav-item[data-page="${currentPage}"]`);
             if (activeItem) {
                 activeItem.classList.add('active');
@@ -24,6 +24,108 @@ async function loadSidebar() {
         }
     }
 }
+
+// Sidebar toggle functionality
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const body = document.body;
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (sidebar && toggleIcon) {
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            // Expand sidebar
+            sidebar.classList.remove('collapsed');
+            body.classList.remove('sidebar-collapsed');
+            // Change to left arrow (close icon)
+            toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />';
+            localStorage.setItem('sidebarCollapsed', 'false');
+        } else {
+            // Collapse sidebar
+            sidebar.classList.add('collapsed');
+            body.classList.add('sidebar-collapsed');
+            // Change to right arrow (open icon)
+            toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />';
+            localStorage.setItem('sidebarCollapsed', 'true');
+        }
+    }
+}
+
+// Expand sidebar when clicking on logo (only when collapsed)
+function expandSidebarFromLogo() {
+    const sidebar = document.getElementById('sidebar');
+    const body = document.body;
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (sidebar && sidebar.classList.contains('collapsed')) {
+        // Only expand if currently collapsed
+        sidebar.classList.remove('collapsed');
+        body.classList.remove('sidebar-collapsed');
+        // Change to left arrow (close icon)
+        if (toggleIcon) {
+            toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />';
+        }
+        localStorage.setItem('sidebarCollapsed', 'false');
+    }
+}
+
+// Load saved sidebar state
+function loadSidebarState() {
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    
+    if (isCollapsed) {
+        const sidebar = document.getElementById('sidebar');
+        const body = document.body;
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (sidebar && toggleIcon) {
+            sidebar.classList.add('collapsed');
+            body.classList.add('sidebar-collapsed');
+            // Change to right arrow (open icon)
+            toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />';
+        }
+    }
+}
+
+// Make function globally available
+window.toggleSidebar = toggleSidebar;
+window.expandSidebarFromLogo = expandSidebarFromLogo;
+
+// Function to open study list with expanded sidebar
+function openStudyListWithExpandedSidebar(event) {
+    // Prevent the default link behavior
+    event.preventDefault();
+    
+    console.log('Study list navigation clicked - expanding sidebar and navigating...');
+    
+    // Force expand the sidebar if it's collapsed
+    const sidebar = document.getElementById('sidebar');
+    const body = document.body;
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (sidebar && sidebar.classList.contains('collapsed')) {
+        console.log('Sidebar was collapsed, expanding it...');
+        sidebar.classList.remove('collapsed');
+        body.classList.remove('sidebar-collapsed');
+        if (toggleIcon) {
+            // Change to left arrow (close icon)
+            toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />';
+        }
+        localStorage.setItem('sidebarCollapsed', 'false');
+    } else {
+        console.log('Sidebar was already expanded');
+    }
+    
+    // Navigate to study list after a short delay to allow sidebar animation
+    setTimeout(() => {
+        console.log('Navigating to study list...');
+        window.location.href = '/studylist';
+    }, 150);
+}
+
+// Make function globally available
+window.openStudyListWithExpandedSidebar = openStudyListWithExpandedSidebar;
 
 // Authentication variables
 let isAuthenticated = false;
@@ -317,9 +419,9 @@ function showURLGenerator() {
     window.location.href = '/urlgenerator';
 }
 
-function showStudyManagement() {
-    // Navigate to the study management page
-    window.location.href = '/studymanagement';
+function showStudyList() {
+    // Navigate to the study list page
+    window.location.href = '/studylist';
 }
 
 // View switching functions
@@ -527,6 +629,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load sidebar component first
     await loadSidebar();
     
+    // Load saved sidebar state
+    setTimeout(loadSidebarState, 100); // Small delay to ensure DOM is ready
+    
     // Check authentication first (this will auto-authenticate for localhost)
     checkAuthentication();
     
@@ -635,10 +740,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    const studyManagementNavItem = document.getElementById('studyManagementNavItem');
-    if (studyManagementNavItem) {
-        studyManagementNavItem.addEventListener('click', function() {
-            showStudyManagement();
+    const studyListNavItem = document.getElementById('studylistNavItem');
+    if (studyListNavItem) {
+        studyListNavItem.addEventListener('click', function() {
+            showStudyList();
         });
     }
     

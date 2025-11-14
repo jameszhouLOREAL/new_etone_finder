@@ -93,7 +93,7 @@ function loadStudyData(study) {
     if (study.title) {
         document.getElementById('formTitle').value = study.title;
         // Update page title to include study name
-        document.title = `Edit: ${study.title} - Study Design`;
+        document.title = `Edit: ${study.title} - Study Details`;
         // Update the study title header
         const titleDisplay = document.getElementById('studyTitleDisplay');
         if (titleDisplay) {
@@ -102,6 +102,55 @@ function loadStudyData(study) {
     }
     if (study.description) {
         document.getElementById('formDescription').value = study.description;
+    }
+    
+    // Load instruction title and text
+    if (study.instructionTitle) {
+        const instructionTitleElement = document.getElementById('instructionTitle');
+        if (instructionTitleElement) {
+            instructionTitleElement.value = study.instructionTitle;
+        }
+    }
+    if (study.instructionText) {
+        const instructionTextElement = document.getElementById('instructionText');
+        if (instructionTextElement) {
+            instructionTextElement.value = study.instructionText;
+        }
+    }
+    
+    // Load participant codes if available
+    if (study.participantCodes && Array.isArray(study.participantCodes)) {
+        participantCodes = study.participantCodes;
+        if (typeof refreshCodesTable === 'function') {
+            refreshCodesTable();
+        }
+    }
+    
+    // Load selfie configuration
+    if (study.selfieConfig) {
+        const selfieNeededElement = document.getElementById('selfieNeeded');
+        if (selfieNeededElement && study.selfieConfig.enabled) {
+            selfieNeededElement.checked = true;
+            // Show selfie configuration options
+            const selfieConfigOptions = document.getElementById('selfieConfigOptions');
+            if (selfieConfigOptions) {
+                selfieConfigOptions.style.display = 'block';
+            }
+            
+            // Load selfie configuration values
+            if (study.selfieConfig.language) {
+                const languageElement = document.getElementById('selfieLanguage');
+                if (languageElement) {
+                    languageElement.value = study.selfieConfig.language;
+                }
+            }
+            if (study.selfieConfig.camera) {
+                const cameraElement = document.getElementById('selfieCamera');
+                if (cameraElement) {
+                    cameraElement.value = study.selfieConfig.camera;
+                }
+            }
+        }
     }
     
     // Load questions
@@ -126,9 +175,11 @@ function loadStudyData(study) {
         publishBtn.innerHTML = '<i class="fas fa-save"></i> Update Study';
     }
     
-    // When editing, go directly to questionnaire tab
-    if (typeof switchTab === 'function') {
-        switchTab('questionnaire');
+    // When editing, start with study info tab to show loaded data
+    if (typeof switchSection === 'function') {
+        switchSection('studyInfo');
+    } else if (typeof switchTab === 'function') {
+        switchTab('studyInfo');
     }
     
     updatePreview();
@@ -189,28 +240,11 @@ function initializeEventListeners() {
         });
     }
     
-    // Selfie configuration validation toggles
-    const enableValidationsCheckbox = document.getElementById('enableValidations');
-    if (enableValidationsCheckbox) {
-        enableValidationsCheckbox.addEventListener('change', function() {
-            const validationOptions = document.getElementById('validationOptions');
-            if (validationOptions) {
-                validationOptions.style.display = this.checked ? 'block' : 'none';
-            }
-        });
+    // Selfie endpoints textarea
+    const selfieEndpointsField = document.getElementById('selfieEndpoints');
+    if (selfieEndpointsField) {
+        selfieEndpointsField.addEventListener('input', markFormAsChanged);
     }
-    
-    // Individual validation checkboxes
-    const validationTypes = ['light', 'distance', 'tilt', 'expression', 'eyes'];
-    validationTypes.forEach(type => {
-        const checkbox = document.getElementById(`${type}Validation`);
-        const thresholds = document.getElementById(`${type}Thresholds`);
-        if (checkbox && thresholds) {
-            checkbox.addEventListener('change', function() {
-                thresholds.style.display = this.checked ? 'block' : 'none';
-            });
-        }
-    });
     
     // Click outside to exit edit mode
     document.addEventListener('click', function(e) {
@@ -860,6 +894,7 @@ function collectFormData() {
     const instructionTitle = document.getElementById('instructionTitle')?.value || '';
     const instructionText = document.getElementById('instructionText')?.value || '';
     const selfieNeeded = document.getElementById('selfieNeeded')?.checked || false;
+    const selfieEndpoints = document.getElementById('selfieEndpoints')?.value || '';
     
     return {
         title: title,
@@ -868,7 +903,8 @@ function collectFormData() {
         instructionText: instructionText,
         questions: questions,
         selfieConfig: {
-            required: selfieNeeded
+            required: selfieNeeded,
+            endpoints: selfieEndpoints
         },
         status: 'Draft'
     };
@@ -1231,111 +1267,19 @@ function loadStudyData(data) {
     if (data.selfieConfig) {
         const selfieNeededCheckbox = document.getElementById('selfieNeeded');
         if (selfieNeededCheckbox) {
-            selfieNeededCheckbox.checked = data.selfieConfig.enabled || false;
+            selfieNeededCheckbox.checked = data.selfieConfig.required || false;
             
             // Trigger change event to show/hide config options
             const configOptions = document.getElementById('selfieConfigOptions');
             if (configOptions) {
-                configOptions.style.display = data.selfieConfig.enabled ? 'block' : 'none';
+                configOptions.style.display = data.selfieConfig.required ? 'block' : 'none';
             }
         }
         
-        if (data.selfieConfig.enabled) {
-            // Load basic configuration
-            if (document.getElementById('selfieLanguage')) {
-                document.getElementById('selfieLanguage').value = data.selfieConfig.language || 'en';
-            }
-            if (document.getElementById('selfieCamera')) {
-                document.getElementById('selfieCamera').value = data.selfieConfig.camera || 'FRONT';
-            }
-            if (document.getElementById('askedZone')) {
-                document.getElementById('askedZone').value = data.selfieConfig.askedZone || 'FRONT_FACE';
-            }
-            if (document.getElementById('autoTake')) {
-                document.getElementById('autoTake').checked = data.selfieConfig.autoTake || false;
-            }
-            if (document.getElementById('showTutorial')) {
-                document.getElementById('showTutorial').checked = data.selfieConfig.showTutorial || false;
-            }
-            
-            // Load validations
-            if (data.selfieConfig.validations && Object.keys(data.selfieConfig.validations).length > 0) {
-                const enableValidationsCheckbox = document.getElementById('enableValidations');
-                if (enableValidationsCheckbox) {
-                    enableValidationsCheckbox.checked = true;
-                    const validationOptions = document.getElementById('validationOptions');
-                    if (validationOptions) {
-                        validationOptions.style.display = 'block';
-                    }
-                }
-                
-                // Light validation
-                if (data.selfieConfig.validations.light) {
-                    const lightCheckbox = document.getElementById('lightValidation');
-                    if (lightCheckbox) {
-                        lightCheckbox.checked = true;
-                        const lightThresholds = document.getElementById('lightThresholds');
-                        if (lightThresholds) lightThresholds.style.display = 'block';
-                    }
-                    document.getElementById('brightMin').value = data.selfieConfig.validations.light.brightnessMin || 90;
-                    document.getElementById('brightMax').value = data.selfieConfig.validations.light.brightnessMax || 200;
-                    document.getElementById('lightingValue').value = data.selfieConfig.validations.light.lightingValue || 70;
-                    document.getElementById('lightColorValue').value = data.selfieConfig.validations.light.lightColorValue || 20;
-                }
-                
-                // Distance validation
-                if (data.selfieConfig.validations.distance) {
-                    const distanceCheckbox = document.getElementById('distanceValidation');
-                    if (distanceCheckbox) {
-                        distanceCheckbox.checked = true;
-                        const distanceThresholds = document.getElementById('distanceThresholds');
-                        if (distanceThresholds) distanceThresholds.style.display = 'block';
-                    }
-                    document.getElementById('distanceFar').value = data.selfieConfig.validations.distance.far || 10;
-                    document.getElementById('distanceClose').value = data.selfieConfig.validations.distance.close || 30;
-                }
-                
-                // Tilt validation
-                if (data.selfieConfig.validations.tilt) {
-                    const tiltCheckbox = document.getElementById('tiltValidation');
-                    if (tiltCheckbox) {
-                        tiltCheckbox.checked = true;
-                        const tiltThresholds = document.getElementById('tiltThresholds');
-                        if (tiltThresholds) tiltThresholds.style.display = 'block';
-                    }
-                    document.getElementById('pitchMin').value = data.selfieConfig.validations.tilt.pitchMin || -25;
-                    document.getElementById('pitchMax').value = data.selfieConfig.validations.tilt.pitchMax || 25;
-                    document.getElementById('rollMin').value = data.selfieConfig.validations.tilt.rollMin || -20;
-                    document.getElementById('rollMax').value = data.selfieConfig.validations.tilt.rollMax || 20;
-                    document.getElementById('yawMin').value = data.selfieConfig.validations.tilt.yawMin || -20;
-                    document.getElementById('yawMax').value = data.selfieConfig.validations.tilt.yawMax || 20;
-                    document.getElementById('rightProfile').value = data.selfieConfig.validations.tilt.rightProfile || -35;
-                    document.getElementById('leftProfile').value = data.selfieConfig.validations.tilt.leftProfile || 35;
-                }
-                
-                // Expression validation
-                if (data.selfieConfig.validations.expression) {
-                    const expressionCheckbox = document.getElementById('expressionValidation');
-                    if (expressionCheckbox) {
-                        expressionCheckbox.checked = true;
-                        const expressionThresholds = document.getElementById('expressionThresholds');
-                        if (expressionThresholds) expressionThresholds.style.display = 'block';
-                    }
-                    document.getElementById('smileRatio').value = data.selfieConfig.validations.expression.smileRatio || 0.47;
-                    document.getElementById('eyebrowHeight').value = data.selfieConfig.validations.expression.eyebrowHeight || 0.9;
-                }
-                
-                // Eyes validation
-                if (data.selfieConfig.validations.eyes) {
-                    const eyesCheckbox = document.getElementById('eyesValidation');
-                    if (eyesCheckbox) {
-                        eyesCheckbox.checked = true;
-                        const eyesThresholds = document.getElementById('eyesThresholds');
-                        if (eyesThresholds) eyesThresholds.style.display = 'block';
-                    }
-                    document.getElementById('eyeClose').value = data.selfieConfig.validations.eyes.eyeCloseThreshold || 0.15;
-                }
-            }
+        // Load selfie endpoints
+        const selfieEndpointsElement = document.getElementById('selfieEndpoints');
+        if (selfieEndpointsElement) {
+            selfieEndpointsElement.value = data.selfieConfig.endpoints || '';
         }
     }
     

@@ -38,28 +38,17 @@
     "language": "en",
     "camera": "FRONT",
     "askedZone": "FRONT_FACE",
-    "autoTake": true,
+    "autoTake": false,
     "showTutorial": false,
-    "validations": {
-      "light": {
-        "brightnessMin": 90,
-        "brightnessMax": 200,
-        "lightingValue": 70,
-        "lightColorValue": 20
-      },
-      "distance": {
-        "far": 10,
-        "close": 30
-      }
-    }
+    "validations": {}
   },
   "version": "1.0",
   "createdAt": "2025-11-13T17:44:55.065Z",
-  "status": "Published",
+  "status": "Draft",
   "studyId": "1763055895061",
   "label": "Dark Circle screening",
   "edc": "VCA-STUDY",
-  "updatedAt": "2025-11-14T03:17:53.647Z",
+  "updatedAt": "2025-11-14T17:01:59.181Z",
   "publishedAt": "2025-11-14T03:17:53.639Z",
   "participantCodes": [
     {

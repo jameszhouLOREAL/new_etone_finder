@@ -1,51 +1,47 @@
 <!-- Sidebar Navigation Component -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <span>📱</span>
-            <span>E-Tone Finder 2.0</span>
+        <div class="sidebar-logo" onclick="expandSidebarFromLogo()">
+            <svg style="width: 25px; height: 25px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.412 15.655 9.75 21.75l3.745-4.012M9.257 13.5H3.75l2.659-2.849m2.048-2.194L14.25 2.25 12 10.5h8.25l-4.707 5.043M8.457 8.457 3 3m5.457 5.457 7.086 7.086m0 0L21 21" />
+            </svg>
+            <span class="sidebar-text">E-Tone Finder 2.0</span>
         </div>
-        <div class="sidebar-subtitle">Visual Data Collection Platform</div>
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+            <svg id="toggleIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+        </div>
+        <div class="sidebar-subtitle sidebar-text">Visual Data Collection Platform</div>
     </div>
     
     <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-section-title">Study</div>
-            <a href="/studymanagement" class="nav-item" data-page="studymanagement">
-                <span class="nav-item-icon">📋</span>
-                <span>All Studies
-                </span>
-            </a>
-            <a href="/analytics" class="nav-item" data-page="analytics">
-                <span class="nav-item-icon">�</span>
-                <span>Analytics</span>
-            </a>
-        </div>
-        
-        <div class="nav-section">
-            <div class="nav-section-title">Admin</div>
-            <a href="/urlgenerator" class="nav-item" data-page="urlgenerator">
-                <span class="nav-item-icon">🔗</span>
-                <span>URL Generator</span>
-            </a>
-            <a href="/accesscontrol" class="nav-item" data-page="accesscontrol">
-                <span class="nav-item-icon">🔒</span>
-                <span>Access Control</span>
-            </a>
-        </div>
+        <a href="/studylist" class="nav-item" data-page="studylist" data-tooltip="All Studies" onclick="openStudyListWithExpandedSidebar(event)">
+            <span class="nav-item-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </span>
+            <span class="sidebar-text">All Studies
+            </span>
+        </a>
+        <a href="/accesscontrol" class="nav-item" data-page="accesscontrol" data-tooltip="Access Control">
+            <span class="nav-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                </svg>
+            </span>
+            <span class="sidebar-text">Access Control</span>
+        </a>
     </nav>
     
     <div class="sidebar-footer">
         <div class="user-info" id="userInfo">
             <img src="" alt="User Avatar" class="user-avatar" id="userAvatar">
-            <div class="user-details">
+            <div class="user-details sidebar-text">
                 <div class="user-name" id="userName">Loading...</div>
                 <div class="user-email">Admin</div>
             </div>
         </div>
-        <button class="btn-logout" onclick="signOut()">
-            <i class="fas fa-sign-out-alt"></i>
-            Sign Out
-        </button>
     </div>
 </div>

@@ -1,4 +1,4 @@
-// Study Management JavaScript
+// Study List JavaScript
 class StudyManager {
     constructor() {
         this.studies = [];
@@ -38,11 +38,11 @@ class StudyManager {
     }
 
     initializeEventListeners() {
-        // Create Study button - navigate to study design page
+        // Create Study button - navigate to study details page
         const createBtn = document.getElementById('createStudyBtn');
         if (createBtn) {
             createBtn.addEventListener('click', () => {
-                window.location.href = '/studydesign?new=true';
+                window.location.href = '/studydetails?new=true';
             });
         }
 
@@ -291,7 +291,7 @@ class StudyManager {
                 const displayDescription = fullDescription.length > 100 ? fullDescription.substring(0, 100) + '...' : fullDescription;
                 
                 return `
-                <div class="study-card">
+                <div class="study-card" onclick="studyManager.openStudyDetails('${study.id}', event)">
                     <div class="study-card-header">
                         <div class="study-card-title">
                             <h3 title="${fullTitle}">${displayTitle}</h3>
@@ -303,16 +303,16 @@ class StudyManager {
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <div class="action-menu" id="action-menu-${study.id}" style="display: none;">
-                                    <div class="action-menu-item" onclick="studyManager.editStudy('${study.id}')">
-                                        <i class="fas fa-pencil-alt"></i> Edit
+                                    <div class="action-menu-item" onclick="event.stopPropagation(); studyManager.editStudy('${study.id}')">
+                                        <i class="fas fa-pencil-alt"></i> Edit Details
                                     </div>
-                                    <div class="action-menu-item" onclick="studyManager.viewSubmissions('${study.studyId}')">
+                                    <div class="action-menu-item" onclick="event.stopPropagation(); studyManager.viewSubmissions('${study.studyId}')">
                                         <i class="fas fa-file-alt"></i> View Submissions
                                     </div>
-                                    <div class="action-menu-item" onclick="studyManager.openMobilePreview('${study.studyId}')">
+                                    <div class="action-menu-item" onclick="event.stopPropagation(); studyManager.openMobilePreview('${study.studyId}')">
                                         <i class="fas fa-mobile-alt"></i> Mobile Preview
                                     </div>
-                                    <div class="action-menu-item delete" onclick="studyManager.deleteStudy('${study.id}')">
+                                    <div class="action-menu-item delete" onclick="event.stopPropagation(); studyManager.deleteStudy('${study.id}')">
                                         <i class="fas fa-trash"></i> Delete
                                     </div>
                                 </div>
@@ -331,7 +331,7 @@ class StudyManager {
                         </div>
                         <div class="study-card-meta-item">
                             <i class="fas fa-file-alt"></i>
-                            <a href="/submissionresults?studyId=${study.id}" style="color: inherit; text-decoration: none;">
+                            <a href="/submissionresults?studyId=${study.id}" onclick="event.stopPropagation()" style="color: inherit; text-decoration: none;">
                                 <span>24 Submissions</span>
                             </a>
                         </div>
@@ -386,12 +386,26 @@ class StudyManager {
         this.updateBulkActions();
     }
 
+    openStudyDetails(id, event) {
+        // Prevent propagation if the click was on the action menu or its children
+        if (event && (event.target.closest('.study-card-menu') || event.target.closest('.action-menu'))) {
+            event.stopPropagation();
+            return;
+        }
+
+        const study = this.studies.find(s => s.id === id);
+        if (!study) return;
+
+        // Navigate to study details page with the study ID
+        window.location.href = `/studydetails?studyId=${encodeURIComponent(study.studyId)}`;
+    }
+
     editStudy(id) {
         const study = this.studies.find(s => s.id === id);
         if (!study) return;
 
-        // Navigate to study design page with the study ID
-        window.location.href = `/studydesign?studyId=${encodeURIComponent(study.studyId)}`;
+        // Navigate to study details page with the study ID
+        window.location.href = `/studydetails?studyId=${encodeURIComponent(study.studyId)}`;
     }
 
     viewSubmissions(studyId) {

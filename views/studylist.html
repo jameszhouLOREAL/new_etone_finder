@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Management - E-Tone Finder 2.0</title>
+    <title>Study List - E-Tone Finder 2.0</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
@@ -27,7 +27,7 @@
             flex-direction: column;
         }
         .content-area {
-            padding: var(--spacing-6) var(--spacing-4) var(--spacing-6) var(--spacing-4);
+            padding: 0px 16px 0px 16px;
             flex: 1;
             background: var(--bg-secondary);
         }
@@ -141,6 +141,7 @@
             flex-direction: column;
             gap: 12px;
             min-height: 180px;
+            cursor: pointer;
         }
         
         .study-card:hover {
@@ -702,7 +703,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="/js/app.js"></script>
-    <script src="/js/study-management.js"></script>
+    <script src="/js/study-list.js"></script>
     <script>
         // Navigation functions
         function navigateToSubmissions() {
@@ -717,20 +718,36 @@
             window.location.href = '/urlgenerator';
         }
         
-        function navigateToStudyManagement() {
-            window.location.href = '/studymanagement';
+        function navigateToStudyList() {
+            window.location.href = '/studylist';
         }
         
-        function navigateToAlgorithmManagement() {
-            window.location.href = '/algorithmmanagement';
+        function navigateToAlgorithmStudyList() {
+            window.location.href = '/algorithmstudylist';
         }
         
         // Add event listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // Ensure sidebar is expanded when study list loads
+            setTimeout(() => {
+                const sidebar = document.getElementById('sidebar');
+                const body = document.body;
+                const toggleIcon = document.getElementById('toggleIcon');
+                
+                if (sidebar && sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.remove('collapsed');
+                    body.classList.remove('sidebar-collapsed');
+                    if (toggleIcon) {
+                        toggleIcon.className = 'fas fa-bars';
+                    }
+                    localStorage.setItem('sidebarCollapsed', 'false');
+                }
+            }, 100); // Small delay to ensure sidebar component is loaded
+            
             document.getElementById('submissionsNavItem')?.addEventListener('click', navigateToSubmissions);
             document.getElementById('bucketsNavItem')?.addEventListener('click', navigateToBuckets);
             document.getElementById('urlGeneratorNavItem')?.addEventListener('click', navigateToURLGenerator);
-            document.getElementById('studyManagementNavItem')?.addEventListener('click', navigateToStudyManagement);
+            document.getElementById('studylistNavItem')?.addEventListener('click', navigateToStudyList);
             document.getElementById('analyticsNavItem')?.addEventListener('click', () => {
                 window.location.href = '/analytics';
             });

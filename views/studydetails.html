@@ -3,23 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCA Dashboard - Study Design</title>
+    <title>VCA Dashboard - Study Details</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/main.css">
     <style>
-        /* Study Design Specific Styles */
+        /* Study Details Specific Styles */
         .study-design-container {
             display: flex;
             height: calc(100vh - 60px);
             gap: 0;
         }
         
-        /* Left Panel - Form Builder */
+        /* Left Navigation Menu */
+        .study-navigation {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: width 0.3s ease, padding 0.3s ease;
+        }
+        
+        .study-navigation.collapsed {
+            width: 0;
+            padding: 0;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .study-nav-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .study-nav-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .study-nav-menu {
+            padding: 16px 0;
+        }
+        
+        .study-nav-item {
+            display: block;
+            width: 100%;
+            padding: 20px 20px;
+            border: none;
+            background: none;
+            color: #6b7280;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        
+        .study-nav-item:hover {
+            background: #f9fafb;
+            color: var(--text-primary);
+        }
+        
+        .study-nav-item.active {
+            background: #ecfdf5;
+            color: var(--primary-green);
+            border-left-color: var(--primary-green);
+            font-weight: 600;
+        }
+        
+        .study-nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        /* Main Content Panel */
         .form-builder-panel {
             flex: 1;
             background: var(--bg-secondary);
             overflow-y: auto;
             padding: var(--spacing-5);
+            transition: margin-right 0.3s ease;
+        }
+        
+        /* Add right margin when preview panel is visible */
+        .study-design-container:not(.preview-hidden) .form-builder-panel {
+            margin-right: 420px;
         }
         
         /* Right Panel - Live Preview */
@@ -28,21 +108,29 @@
             background: #f5f5f7;
             border-left: 1px solid var(--border-light);
             overflow-y: auto;
-            padding: var(--spacing-5);
+            padding: 8px 16px 16px 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: sticky;
+            position: fixed;
             top: 0;
-            height: calc(100vh - 60px);
+            right: 0;
+            height: 100vh;
             transition: width 0.3s ease, padding 0.3s ease;
+            flex-shrink: 0;
+            z-index: 100;
         }
         
         .preview-panel.hidden {
-            width: 0;
-            padding: 0;
-            border: none;
-            overflow: hidden;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            overflow: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
         
         /* Mobile Frame */
@@ -56,7 +144,7 @@
                         0 0 0 1px rgba(0, 0, 0, 0.1),
                         inset 0 0 0 1px rgba(255, 255, 255, 0.1);
             position: relative;
-            margin-top: 20px;
+            margin-top: 0;
         }
         
         .mobile-notch {
@@ -147,10 +235,10 @@
         /* Step Wizard - Simplified */
         /* Study Title Header */
         .study-title-header {
-            background: white;
+          
             border-radius: var(--radius-md);
             padding: var(--spacing-4);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 0px;
             margin-bottom: var(--spacing-3);
             display: flex;
             align-items: center;
@@ -197,48 +285,13 @@
             border-color: #059669;
         }
         
-        /* Tab Navigation */
+        /* Tab Navigation - Remove as we're using left nav */
         .tab-navigation {
-            background: white;
-            border-bottom: 2px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            gap: 0;
-            margin-bottom: var(--spacing-4);
-            padding: 0 var(--spacing-4);
+            display: none;
         }
         
         .tab-btn {
-            padding: 14px 24px;
-            border: none;
-            background: transparent;
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            position: relative;
-        }
-        
-        .tab-btn:hover {
-            color: var(--text-primary);
-            background: #f9fafb;
-        }
-        
-        .tab-btn.active {
-            color: var(--primary-green);
-            border-bottom-color: var(--primary-green);
-            font-weight: 600;
-        }
-        
-        .tab-btn.active:hover {
-            color: #059669;
-            border-bottom-color: #059669;
+            display: none;
         }
         
         .tab-contents {
@@ -952,10 +1005,11 @@
         /* Preview Panel */
         .preview-header {
             text-align: center;
-            margin-bottom: var(--spacing-4);
+            margin-top: 40px;
+            margin-bottom: 16px;
             width: 100%;
             background: white;
-            padding: var(--spacing-3);
+            padding: 8px;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
         }
@@ -1205,13 +1259,17 @@
         }
         
         /* Responsive */
-        @media (max-width: 1024px) {
-            .preview-panel {
-                display: none;
+        @media (max-width: 1200px) {
+            .preview-panel:not(.hidden) {
+                width: 300px; /* Smaller width for medium screens */
             }
         }
         
         @media (max-width: 768px) {
+            .preview-panel {
+                display: none !important; /* Only hide on very small screens */
+            }
+            
             .question-types-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -1220,11 +1278,16 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Hidden state - placed after responsive rules for higher specificity */
+        .preview-panel.hidden {
+            display: none !important; /* Simple and reliable hiding */
+        }
     </style>
 </head>
 <body>
     <!-- Watermark -->
-    <div class="watermark">PROOF OF CONCEPT</div>
+    <div class="watermark">PROTYPE</div>
 
     <div class="dashboard">
         <!-- Sidebar Navigation Component -->
@@ -1233,16 +1296,44 @@
         <!-- Main Content -->
         <div class="main-content" style="padding: 0;">
             <div class="study-design-container">
-                <!-- Left Panel: Form Builder -->
+                <!-- Left Navigation Menu -->
+                <div class="study-navigation">
+                    <div class="study-nav-header">
+                        <h3 class="study-nav-title" id="studyNavTitle">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span id="studyIdDisplay">Study Details</span>
+                        </h3>
+                    </div>
+                    
+                    <div class="study-nav-menu">
+                        <button class="study-nav-item active" onclick="switchSection('studyInfo')" id="studyInfoNav">
+                            <i class="fas fa-info-circle"></i>
+                            Study Info
+                        </button>
+                        <button class="study-nav-item" onclick="switchSection('consentManagement')" id="consentManagementNav">
+                            <i class="fas fa-file-signature"></i>
+                            Consent Management
+                        </button>
+                        <button class="study-nav-item" onclick="switchSection('questionnaire')" id="questionnaireNav">
+                            <i class="fas fa-list-ul"></i>
+                            Questionnaire
+                        </button>
+                        <button class="study-nav-item" onclick="switchSection('selfieConfig')" id="selfieConfigNav">
+                            <i class="fas fa-camera"></i>
+                            Selfie Configuration
+                        </button>
+                        <button class="study-nav-item" onclick="switchSection('participants')" id="participantsNav">
+                            <i class="fas fa-users"></i>
+                            Participants
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Main Content Panel -->
                 <div class="form-builder-panel">
                     <!-- Study Title Header -->
                     <div class="study-title-header" id="studyTitleHeader">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <button onclick="window.location.href='/studymanagement'" class="btn-action btn-secondary" style="padding: 8px 12px;" title="Back to Study Management">
-                                <i class="fas fa-arrow-left"></i>
-                            </button>
-                            <h2 class="study-title-display" id="studyTitleDisplay" style="margin: 0;">New Study</h2>
-                        </div>
+                        <h2 class="study-title-display" id="studyTitleDisplay" style="margin: 0;">New Study</h2>
                         
                         <!-- Action Buttons -->
                         <div class="action-buttons-row" style="gap: 12px;">
@@ -1250,7 +1341,7 @@
                                 <i class="fas fa-save"></i>
                                 Save Draft
                             </button>
-                            <button class="btn-action btn-secondary" id="previewBtn" onclick="togglePreview(); return false;">
+                            <button class="btn-action btn-secondary" id="previewBtn" style="pointer-events: auto; z-index: 1000;">
                                 <i class="fas fa-eye"></i>
                                 Show Preview
                             </button>
@@ -1259,22 +1350,6 @@
                                 Publish
                             </button>
                         </div>
-                    </div>
-                    
-                    <!-- Tab Navigation -->
-                    <div class="tab-navigation">
-                        <button class="tab-btn active" onclick="switchTab('studyInfo')" id="studyInfoTab">
-                            <i class="fas fa-info-circle"></i> Study Info
-                        </button>
-                        <button class="tab-btn" onclick="switchTab('questionnaire')" id="questionnaireTab">
-                            <i class="fas fa-list-ul"></i> Questionnaire
-                        </button>
-                        <button class="tab-btn" onclick="switchTab('selfieConfig')" id="selfieConfigTab">
-                            <i class="fas fa-camera"></i> Selfie Configuration
-                        </button>
-                        <button class="tab-btn" onclick="switchTab('participants')" id="participantsTab">
-                            <i class="fas fa-users"></i> Participants
-                        </button>
                     </div>
                     
                     <!-- Tab Contents -->
@@ -1400,6 +1475,118 @@
                                         <i class="fas fa-plus-circle"></i>
                                         Add Question
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Consent Management Tab -->
+                        <div class="tab-content" id="consentManagementContent">
+                            <!-- Consent Requirements Card -->
+                            <div class="form-card">
+                                <div class="form-card-header">
+                                    <h3 class="form-card-title">
+                                        <i class="fas fa-file-signature"></i>
+                                        Consent Management
+                                    </h3>
+                                    <p class="form-card-description">
+                                        Configure consent requirements and privacy settings for your study participants.
+                                    </p>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label class="form-label" style="font-size: 16px; font-weight: 600;">
+                                        <input type="checkbox" id="consentRequired" style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;">
+                                        Require Participant Consent
+                                    </label>
+                                    <div class="form-help-text" style="margin-left: 26px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Check this box to require participants to provide explicit consent before participating</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Consent Options (hidden by default) -->
+                                <div id="consentOptions" style="display: none; margin-top: 24px;">
+                                    <div class="form-field">
+                                        <label class="form-label" for="consentTitle">
+                                            Consent Form Title
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="consentTitle" 
+                                            class="form-input" 
+                                            placeholder="e.g., Research Participation Consent" 
+                                            value=""
+                                        >
+                                        <div class="form-help-text">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <span>Title that will appear at the top of the consent form</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-field">
+                                        <label class="form-label" for="consentText">
+                                            Consent Form Content
+                                        </label>
+                                        <textarea 
+                                            id="consentText" 
+                                            class="form-textarea" 
+                                            placeholder="Enter the full consent form text here. Include information about: 
+• Purpose of the study
+• What data will be collected
+• How data will be used
+• Participant rights
+• Contact information for questions..."
+                                            style="min-height: 200px;"
+                                        ></textarea>
+                                        <div class="form-help-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>Complete consent form content that participants must agree to before participating</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-field">
+                                        <label class="form-label" for="consentAgreementText">
+                                            Agreement Checkbox Text
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="consentAgreementText" 
+                                            class="form-input" 
+                                            placeholder="I have read and agree to the terms above" 
+                                            value="I have read and agree to the terms above"
+                                        >
+                                        <div class="form-help-text">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <span>Text that appears next to the consent checkbox</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Additional Consent Options -->
+                                    <div style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                                        <h4 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: var(--text-primary);">
+                                            Additional Settings
+                                        </h4>
+                                        
+                                        <div class="form-field" style="margin-bottom: 16px;">
+                                            <label class="form-label" style="font-size: 14px; font-weight: 500;">
+                                                <input type="checkbox" id="allowConsentWithdrawal" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
+                                                Allow Consent Withdrawal
+                                            </label>
+                                            <div class="form-help-text" style="margin-left: 24px; font-size: 12px;">
+                                                <span>Allow participants to withdraw their consent and delete their data</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-field" style="margin-bottom: 0;">
+                                            <label class="form-label" style="font-size: 14px; font-weight: 500;">
+                                                <input type="checkbox" id="requireDigitalSignature" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
+                                                Require Digital Signature
+                                            </label>
+                                            <div class="form-help-text" style="margin-left: 24px; font-size: 12px;">
+                                                <span>Require participants to provide a digital signature for consent</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1559,211 +1746,35 @@
                                 </div>
                             </div>
                             
-                            <!-- Configuration Options (hidden by default) -->
+                            <!-- Selfie Endpoints (hidden by default) -->
                             <div id="selfieConfigOptions" style="display: none;">
-                                <!-- Basic Configuration Card -->
-                                <div class="form-card" style="padding: 16px;">
-                                    <div class="form-card-header" style="padding-bottom: 12px; margin-bottom: 12px;">
-                                        <h3 class="form-card-title" style="font-size: 15px; margin-bottom: 4px;">
-                                            <i class="fas fa-cog"></i>
-                                            Basic Configuration
+                                <!-- Selfie Endpoints Card -->
+                                <div class="form-card">
+                                    <div class="form-card-header">
+                                        <h3 class="form-card-title">
+                                            <i class="fas fa-link"></i>
+                                            Selfie Integration Endpoints
                                         </h3>
-                                        <p class="form-card-description" style="font-size: 12px; margin: 0;">
-                                            Configure basic selfie capture settings
+                                        <p class="form-card-description">
+                                            Copy these endpoints to integrate selfie capture into your application
                                         </p>
                                     </div>
                                     
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                        <div>
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 4px;">Language</label>
-                                            <select class="form-input" id="selfieLanguage" style="padding: 6px 10px; font-size: 13px;">
-                                                <option value="en">English (en)</option>
-                                                <option value="fr">French (fr)</option>
-                                                <option value="ja">Japanese (ja)</option>
-                                                <option value="pt">Portuguese (pt)</option>
-                                                <option value="zh">Chinese (zh)</option>
-                                                <option value="es">Spanish (es)</option>
-                                                <option value="hi">Hindi (hi)</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 4px;">Camera</label>
-                                            <select class="form-input" id="selfieCamera" style="padding: 6px 10px; font-size: 13px;">
-                                                <option value="FRONT">Front Camera</option>
-                                                <option value="BACK">Back Camera</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 4px;">Asked Zone</label>
-                                            <select class="form-input" id="askedZone" style="padding: 6px 10px; font-size: 13px;">
-                                                <option value="FRONT_FACE">Front Face</option>
-                                                <option value="RIGHT_FACE">Right Profile</option>
-                                                <option value="LEFT_FACE">Left Profile</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <div style="display: flex; flex-direction: column; gap: 6px; justify-content: center;">
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 0;">
-                                                <input type="checkbox" id="autoTake" checked style="margin-right: 6px; width: 16px; height: 16px;">
-                                                Auto Take Picture
-                                            </label>
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 0;">
-                                                <input type="checkbox" id="showTutorial" style="margin-right: 6px; width: 16px; height: 16px;">
-                                                Show Tutorial
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Validation Settings Card -->
-                                <div class="form-card" style="padding: 16px;">
-                                    <div class="form-card-header" style="padding-bottom: 12px; margin-bottom: 12px;">
-                                        <h3 class="form-card-title" style="font-size: 15px; margin-bottom: 4px;">
-                                            <i class="fas fa-check-circle"></i>
-                                            Validation Settings
-                                        </h3>
-                                        <p class="form-card-description" style="font-size: 12px; margin: 0;">
-                                            Configure validation rules for selfie quality
-                                        </p>
-                                    </div>
-                                    
-                                    <div style="margin-bottom: 12px;">
-                                        <label class="form-label" style="font-size: 13px; font-weight: 600;">
-                                            <input type="checkbox" id="enableValidations" style="margin-right: 6px; width: 16px; height: 16px;">
-                                            Enable Custom Validations
+                                    <div class="form-field">
+                                        <label class="form-label" for="selfieEndpoints">
+                                            Selfie Endpoints Configuration
                                         </label>
+                                        <textarea 
+                                            id="selfieEndpoints" 
+                                            class="form-textarea" 
+                                            placeholder="Enter your selfie integration endpoints here..."
+                                            style="font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 13px; min-height: 120px;"
+                                        ></textarea>
+                                        <div class="form-help-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>Configure your selfie capture endpoints for this study</span>
+                                        </div>
                                     </div>
-                                    
-                                    <div id="validationOptions" style="display: none; padding-left: 16px; margin-top: 12px; border-left: 2px solid var(--primary-green);">
-                                        <!-- Light Validation -->
-                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
-                                                <input type="checkbox" id="lightValidation" style="margin-right: 6px; width: 14px; height: 14px;">
-                                                <strong>Light Validation</strong>
-                                            </label>
-                                            <div id="lightThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
-                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Brightness Min</label>
-                                                        <input type="number" class="form-input" id="brightMin" value="90" min="0" max="255" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Brightness Max</label>
-                                                        <input type="number" class="form-input" id="brightMax" value="200" min="0" max="255" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Lighting Value</label>
-                                                        <input type="number" class="form-input" id="lightingValue" value="70" min="-255" max="255" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Light Color</label>
-                                                        <input type="number" class="form-input" id="lightColorValue" value="20" min="-255" max="255" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    </div>
-                                    
-                                        <!-- Distance Validation -->
-                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
-                                                <input type="checkbox" id="distanceValidation" style="margin-right: 6px; width: 14px; height: 14px;">
-                                                <strong>Distance Validation</strong>
-                                            </label>
-                                            <div id="distanceThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
-                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Distance Far</label>
-                                                        <input type="number" class="form-input" id="distanceFar" value="10" min="0" max="100" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Distance Close</label>
-                                                        <input type="number" class="form-input" id="distanceClose" value="30" min="0" max="100" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    
-                                        <!-- Tilt Validation -->
-                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
-                                                <input type="checkbox" id="tiltValidation" style="margin-right: 6px; width: 14px; height: 14px;">
-                                                <strong>Tilt Validation</strong>
-                                            </label>
-                                            <div id="tiltThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
-                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Pitch Min</label>
-                                                        <input type="number" class="form-input" id="pitchMin" value="-25" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Pitch Max</label>
-                                                        <input type="number" class="form-input" id="pitchMax" value="25" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Roll Min</label>
-                                                        <input type="number" class="form-input" id="rollMin" value="-20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Roll Max</label>
-                                                        <input type="number" class="form-input" id="rollMax" value="20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Yaw Min</label>
-                                                        <input type="number" class="form-input" id="yawMin" value="-20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Yaw Max</label>
-                                                        <input type="number" class="form-input" id="yawMax" value="20" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Right Profile</label>
-                                                        <input type="number" class="form-input" id="rightProfile" value="-35" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Left Profile</label>
-                                                        <input type="number" class="form-input" id="leftProfile" value="35" min="-90" max="90" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Expression Validation -->
-                                        <div style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
-                                                <input type="checkbox" id="expressionValidation" style="margin-right: 6px; width: 14px; height: 14px;">
-                                                <strong>Expression Validation</strong>
-                                            </label>
-                                            <div id="expressionThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
-                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Smile Ratio</label>
-                                                        <input type="number" class="form-input" id="smileRatio" value="0.47" min="0" max="1" step="0.01" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Eyebrow Height</label>
-                                                        <input type="number" class="form-input" id="eyebrowHeight" value="0.9" min="0" max="1" step="0.01" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Eyes Validation -->
-                                        <div style="padding-bottom: 0;">
-                                            <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">
-                                                <input type="checkbox" id="eyesValidation" style="margin-right: 6px; width: 14px; height: 14px;">
-                                                <strong>Eyes Validation</strong>
-                                            </label>
-                                            <div id="eyesThresholds" style="display: none; margin-top: 8px; padding-left: 16px;">
-                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                                    <div>
-                                                        <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">Eye Close Threshold</label>
-                                                        <input type="number" class="form-input" id="eyeClose" value="0.15" min="0" max="1" step="0.01" style="padding: 4px 8px; font-size: 12px;">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                 </div>
                             </div>
                             </div>
@@ -1793,31 +1804,34 @@
         // Store participant codes with status (shared with study-design.js)
         let participantCodes = [];
         
-        // Step Wizard Navigation
-        function switchTab(tabName) {
-            // Hide all tab contents
+        // Step Wizard Navigation - Updated for left menu
+        function switchSection(sectionName) {
+            // Hide all section contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
             
-            // Remove active class from all tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
+            // Remove active class from all navigation items
+            document.querySelectorAll('.study-nav-item').forEach(item => {
+                item.classList.remove('active');
             });
             
-            // Show selected tab content
-            if (tabName === 'studyInfo') {
+            // Show selected section content
+            if (sectionName === 'studyInfo') {
                 document.getElementById('studyInfoContent').classList.add('active');
-                document.getElementById('studyInfoTab').classList.add('active');
-            } else if (tabName === 'questionnaire') {
+                document.getElementById('studyInfoNav').classList.add('active');
+            } else if (sectionName === 'questionnaire') {
                 document.getElementById('questionnaireContent').classList.add('active');
-                document.getElementById('questionnaireTab').classList.add('active');
-            } else if (tabName === 'participants') {
+                document.getElementById('questionnaireNav').classList.add('active');
+            } else if (sectionName === 'consentManagement') {
+                document.getElementById('consentManagementContent').classList.add('active');
+                document.getElementById('consentManagementNav').classList.add('active');
+            } else if (sectionName === 'participants') {
                 document.getElementById('participantsContent').classList.add('active');
-                document.getElementById('participantsTab').classList.add('active');
-            } else if (tabName === 'selfieConfig') {
+                document.getElementById('participantsNav').classList.add('active');
+            } else if (sectionName === 'selfieConfig') {
                 document.getElementById('selfieConfigContent').classList.add('active');
-                document.getElementById('selfieConfigTab').classList.add('active');
+                document.getElementById('selfieConfigNav').classList.add('active');
             }
             
             // Scroll to top of the form builder panel
@@ -1829,30 +1843,71 @@
             }
         }
         
+        // Legacy function for backward compatibility
+        function switchTab(tabName) {
+            switchSection(tabName);
+        }
+        
         // Toggle Preview Panel
         function togglePreview() {
+            console.log('togglePreview called'); // Debug log
+            console.log('Screen width:', window.innerWidth); // Debug log
+            
             const previewPanel = document.querySelector('.preview-panel');
             const previewBtn = document.getElementById('previewBtn');
+            const container = document.querySelector('.study-design-container');
             
-            if (previewPanel && previewBtn) {
-                previewPanel.classList.toggle('hidden');
+            console.log('previewPanel:', previewPanel); // Debug log
+            console.log('previewBtn:', previewBtn); // Debug log
+            
+            // Check if screen is too small for preview panel
+            if (window.innerWidth <= 768) {
+                alert('Preview panel is disabled on screens smaller than 768px wide. Your screen width is ' + window.innerWidth + 'px. Please try on a larger screen or zoom out.');
+                return;
+            }
+            
+            if (previewPanel && previewBtn && container) {
+                const isCurrentlyHidden = previewPanel.classList.contains('hidden');
+                console.log('togglePreview - Before toggle - isCurrentlyHidden:', isCurrentlyHidden);
+                console.log('togglePreview - Before toggle - classList:', previewPanel.classList.toString());
                 
-                // Update button text and icon
-                const icon = previewBtn.querySelector('i');
-                const isHidden = previewPanel.classList.contains('hidden');
-                
-                if (isHidden) {
-                    if (icon) icon.className = 'fas fa-eye';
-                    previewBtn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
-                } else {
-                    if (icon) icon.className = 'fas fa-eye-slash';
+                if (isCurrentlyHidden) {
+                    // Show the panel
+                    previewPanel.classList.remove('hidden');
+                    container.classList.remove('preview-hidden');
                     previewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
+                    localStorage.setItem('previewPanelHidden', 'false');
+                    console.log('togglePreview - Panel should now be visible');
+                } else {
+                    // Hide the panel  
+                    previewPanel.classList.add('hidden');
+                    container.classList.add('preview-hidden');
+                    previewBtn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
+                    localStorage.setItem('previewPanelHidden', 'true');
+                    console.log('togglePreview - Panel should now be hidden');
                 }
                 
-                // Save preference to localStorage
-                localStorage.setItem('previewPanelHidden', isHidden);
+                // Debug: Check computed styles
+                console.log('togglePreview - After toggle - classList:', previewPanel.classList.toString());
+                
+                // Force a reflow to ensure styles are applied
+                previewPanel.offsetWidth;
+                
+                const computedStyle = window.getComputedStyle(previewPanel);
+                console.log('togglePreview - Panel computed width:', computedStyle.width);
+                console.log('togglePreview - Panel computed display:', computedStyle.display);
+                console.log('togglePreview - Panel computed opacity:', computedStyle.opacity);
+                console.log('togglePreview - Panel computed overflow:', computedStyle.overflow);
+                console.log('togglePreview - Panel classes:', previewPanel.className);
+                
+            } else {
+                console.error('Preview panel or button not found'); // Debug log
+                alert('Preview panel or button not found!');
             }
         }
+        
+        // Make function globally accessible
+        window.togglePreview = togglePreview;
         
         // Open Mobile Preview
         function openMobilePreview() {
@@ -1870,18 +1925,119 @@
             window.open(previewUrl, '_blank');
         }
         
-        // Load Preview Panel Preference
+        // Load Panel Preferences and Auto-collapse Navigation
         document.addEventListener('DOMContentLoaded', () => {
+            // Reset localStorage for preview panel to fix any cached conflicts
+            console.log('Clearing localStorage previewPanelHidden to reset state');
+            localStorage.removeItem('previewPanelHidden');
+            
+            // Update Study ID Display in Navigation Header and Page Title
+            const studyIdDisplay = document.getElementById('studyIdDisplay');
+            const urlParams = new URLSearchParams(window.location.search);
+            const studyId = urlParams.get('studyId');
+            
+            if (studyIdDisplay) {
+                if (studyId) {
+                    studyIdDisplay.textContent = `${studyId}`;
+                    // Also update the page title
+                    document.title = `VCA Dashboard - Study ${studyId}`;
+                } else {
+                    studyIdDisplay.textContent = 'New Study';
+                    document.title = 'VCA Dashboard - New Study';
+                }
+            }
+            
+            // Handle Preview Panel - Start fresh with hidden state to match HTML
             const previewPanel = document.querySelector('.preview-panel');
             const previewBtn = document.getElementById('previewBtn');
-            const isHidden = localStorage.getItem('previewPanelHidden') === 'true';
             
-            if (isHidden && previewPanel && previewBtn) {
+            console.log('DOMContentLoaded - Initial panel classList:', previewPanel ? previewPanel.classList.toString() : 'not found');
+            console.log('DOMContentLoaded - Initial button text:', previewBtn ? previewBtn.innerHTML : 'not found');
+            
+            if (previewPanel && previewBtn) {
+                // Ensure panel starts hidden (matching the HTML class)
                 previewPanel.classList.add('hidden');
+                const container = document.querySelector('.study-design-container');
+                if (container) {
+                    container.classList.add('preview-hidden');
+                }
                 previewBtn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
-            } else if (previewBtn) {
-                previewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
+                localStorage.setItem('previewPanelHidden', 'true');
+                console.log('Initialized panel as hidden (to match HTML state)');
+                
+                // Add event listener for preview button - ONLY WAY TO HANDLE CLICKS
+                previewBtn.addEventListener('click', function(e) {
+                    console.log('=== BUTTON CLICK DETECTED ===');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const panel = document.querySelector('.preview-panel');
+                    const btn = document.getElementById('previewBtn');
+                    const container = document.querySelector('.study-design-container');
+                    
+                    console.log('Current panel classes:', panel.classList.toString());
+                    console.log('Current button HTML:', btn.innerHTML);
+                    
+                    const isHidden = panel.classList.contains('hidden');
+                    console.log('Is panel hidden?', isHidden);
+                    
+                    if (isHidden) {
+                        // SHOW panel
+                        panel.classList.remove('hidden');
+                        container.classList.remove('preview-hidden');
+                        btn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
+                        localStorage.setItem('previewPanelHidden', 'false');
+                        console.log('✅ SHOWING panel');
+                        
+                        // Check if it actually worked
+                        setTimeout(() => {
+                            const computedStyle = window.getComputedStyle(panel);
+                            console.log('After SHOW - display:', computedStyle.display, 'width:', computedStyle.width);
+                        }, 100);
+                    } else {
+                        // HIDE panel
+                        panel.classList.add('hidden');
+                        container.classList.add('preview-hidden');
+                        btn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
+                        localStorage.setItem('previewPanelHidden', 'true');
+                        console.log('❌ HIDING panel');
+                        
+                        // Check if it actually worked
+                        setTimeout(() => {
+                            const computedStyle = window.getComputedStyle(panel);
+                            console.log('After HIDE - display:', computedStyle.display, 'width:', computedStyle.width);
+                        }, 100);
+                    }
+                });
             }
+            
+            // Handle Main Sidebar - Auto-collapse on studydetails page (with delay for sidebar component to load)
+            setTimeout(() => {
+                const mainSidebar = document.getElementById('sidebar');
+                const body = document.body;
+                const toggleIcon = document.getElementById('toggleIcon');
+                
+                if (mainSidebar && toggleIcon) {
+                    // Auto-collapse main sidebar on studydetails page
+                    mainSidebar.classList.add('collapsed');
+                    body.classList.add('sidebar-collapsed');
+                    // Change to right arrow (open icon)
+                    toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />';
+                    localStorage.setItem('sidebarCollapsed', 'true');
+                }
+            }, 200); // Small delay to ensure sidebar component is loaded
+            
+            // Initialize selfie configuration with slight delay to ensure DOM is ready
+            setTimeout(() => {
+                console.log('Initializing selfie configuration...');
+                setupSelfieConfiguration();
+            }, 100);
+            
+            // Initialize consent management with slight delay to ensure DOM is ready
+            setTimeout(() => {
+                console.log('Initializing consent management...');
+                setupConsentManagement();
+            }, 100);
             
         });
         
@@ -2167,6 +2323,273 @@
                 hideGenerateCodesDialog();
             }
         });
+        
+        // Selfie Configuration Management
+        function setupSelfieConfiguration() {
+            console.log('Setting up selfie configuration...');
+            
+            const selfieCheckbox = document.getElementById('selfieNeeded');
+            const selfieOptions = document.getElementById('selfieConfigOptions');
+            const selfieEndpoints = document.getElementById('selfieEndpoints');
+            
+            console.log('Found elements:', {
+                checkbox: !!selfieCheckbox,
+                options: !!selfieOptions,
+                endpoints: !!selfieEndpoints
+            });
+            
+            // Load saved selfie configuration first
+            loadSelfieConfiguration();
+            
+            // Handle checkbox change
+            if (selfieCheckbox) {
+                console.log('Adding change listener to selfie checkbox');
+                selfieCheckbox.addEventListener('change', function() {
+                    console.log('Selfie checkbox changed:', this.checked);
+                    if (this.checked) {
+                        selfieOptions.style.display = 'block';
+                    } else {
+                        selfieOptions.style.display = 'none';
+                    }
+                    saveSelfieConfiguration();
+                });
+            } else {
+                console.error('Selfie checkbox not found!');
+            }
+            
+            // Handle endpoints textarea change
+            if (selfieEndpoints) {
+                console.log('Adding input listener to selfie endpoints');
+                selfieEndpoints.addEventListener('input', function() {
+                    console.log('Selfie endpoints changed, saving...');
+                    saveSelfieConfiguration();
+                });
+            } else {
+                console.error('Selfie endpoints textarea not found!');
+            }
+        }
+        
+        function saveSelfieConfiguration() {
+            console.log('Saving selfie configuration...');
+            const selfieCheckbox = document.getElementById('selfieNeeded');
+            const selfieEndpoints = document.getElementById('selfieEndpoints');
+            
+            if (!selfieCheckbox || !selfieEndpoints) {
+                console.error('Cannot save - missing elements:', {
+                    checkbox: !!selfieCheckbox,
+                    endpoints: !!selfieEndpoints
+                });
+                return;
+            }
+            
+            const selfieConfig = {
+                selfieNeeded: selfieCheckbox.checked,
+                endpoints: selfieEndpoints.value
+            };
+            
+            console.log('Saving config:', selfieConfig);
+            
+            // Save to localStorage
+            localStorage.setItem('selfieConfiguration', JSON.stringify(selfieConfig));
+            
+            // Mark form as changed
+            if (typeof markFormAsChanged === 'function') {
+                markFormAsChanged();
+            }
+            
+            console.log('Selfie configuration saved successfully');
+        }
+        
+        function loadSelfieConfiguration() {
+            console.log('Loading selfie configuration...');
+            try {
+                const savedConfig = localStorage.getItem('selfieConfiguration');
+                console.log('Raw saved config:', savedConfig);
+                
+                if (savedConfig) {
+                    const config = JSON.parse(savedConfig);
+                    console.log('Parsed config:', config);
+                    
+                    const selfieCheckbox = document.getElementById('selfieNeeded');
+                    const selfieEndpoints = document.getElementById('selfieEndpoints');
+                    const selfieOptions = document.getElementById('selfieConfigOptions');
+                    
+                    console.log('Elements found for loading:', {
+                        checkbox: !!selfieCheckbox,
+                        endpoints: !!selfieEndpoints,
+                        options: !!selfieOptions
+                    });
+                    
+                    if (selfieCheckbox && config.hasOwnProperty('selfieNeeded')) {
+                        console.log('Setting checkbox to:', config.selfieNeeded);
+                        selfieCheckbox.checked = config.selfieNeeded;
+                        
+                        // Show/hide options based on checkbox state
+                        if (selfieOptions) {
+                            const display = config.selfieNeeded ? 'block' : 'none';
+                            console.log('Setting options display to:', display);
+                            selfieOptions.style.display = display;
+                        }
+                    }
+                    
+                    if (selfieEndpoints && config.endpoints) {
+                        console.log('Setting endpoints value to:', config.endpoints);
+                        selfieEndpoints.value = config.endpoints;
+                    }
+                    
+                    console.log('Selfie configuration loaded successfully');
+                } else {
+                    console.log('No saved selfie configuration found');
+                }
+            } catch (error) {
+                console.error('Error loading selfie configuration:', error);
+            }
+        }
+        
+        // Consent Management
+        function setupConsentManagement() {
+            console.log('Setting up consent management...');
+            
+            const consentCheckbox = document.getElementById('consentRequired');
+            const consentOptions = document.getElementById('consentOptions');
+            const consentTitle = document.getElementById('consentTitle');
+            const consentText = document.getElementById('consentText');
+            const consentAgreementText = document.getElementById('consentAgreementText');
+            const allowWithdrawal = document.getElementById('allowConsentWithdrawal');
+            const requireSignature = document.getElementById('requireDigitalSignature');
+            
+            console.log('Found consent elements:', {
+                checkbox: !!consentCheckbox,
+                options: !!consentOptions,
+                title: !!consentTitle,
+                text: !!consentText,
+                agreement: !!consentAgreementText,
+                withdrawal: !!allowWithdrawal,
+                signature: !!requireSignature
+            });
+            
+            // Load saved consent configuration first
+            loadConsentConfiguration();
+            
+            // Handle main consent checkbox change
+            if (consentCheckbox) {
+                console.log('Adding change listener to consent checkbox');
+                consentCheckbox.addEventListener('change', function() {
+                    console.log('Consent checkbox changed:', this.checked);
+                    if (this.checked) {
+                        consentOptions.style.display = 'block';
+                    } else {
+                        consentOptions.style.display = 'none';
+                    }
+                    saveConsentConfiguration();
+                });
+            } else {
+                console.error('Consent checkbox not found!');
+            }
+            
+            // Handle consent form fields changes
+            const consentFields = [consentTitle, consentText, consentAgreementText, allowWithdrawal, requireSignature];
+            consentFields.forEach(field => {
+                if (field) {
+                    const eventType = field.type === 'checkbox' ? 'change' : 'input';
+                    field.addEventListener(eventType, function() {
+                        console.log('Consent field changed:', field.id, field.type === 'checkbox' ? field.checked : field.value);
+                        saveConsentConfiguration();
+                    });
+                }
+            });
+        }
+        
+        function saveConsentConfiguration() {
+            console.log('Saving consent configuration...');
+            const consentCheckbox = document.getElementById('consentRequired');
+            const consentTitle = document.getElementById('consentTitle');
+            const consentText = document.getElementById('consentText');
+            const consentAgreementText = document.getElementById('consentAgreementText');
+            const allowWithdrawal = document.getElementById('allowConsentWithdrawal');
+            const requireSignature = document.getElementById('requireDigitalSignature');
+            
+            const consentConfig = {
+                consentRequired: consentCheckbox ? consentCheckbox.checked : false,
+                title: consentTitle ? consentTitle.value : '',
+                text: consentText ? consentText.value : '',
+                agreementText: consentAgreementText ? consentAgreementText.value : '',
+                allowWithdrawal: allowWithdrawal ? allowWithdrawal.checked : false,
+                requireSignature: requireSignature ? requireSignature.checked : false
+            };
+            
+            console.log('Saving consent config:', consentConfig);
+            
+            // Save to localStorage
+            localStorage.setItem('consentConfiguration', JSON.stringify(consentConfig));
+            
+            // Mark form as changed
+            if (typeof markFormAsChanged === 'function') {
+                markFormAsChanged();
+            }
+            
+            console.log('Consent configuration saved successfully');
+        }
+        
+        function loadConsentConfiguration() {
+            console.log('Loading consent configuration...');
+            try {
+                const savedConfig = localStorage.getItem('consentConfiguration');
+                console.log('Raw saved consent config:', savedConfig);
+                
+                if (savedConfig) {
+                    const config = JSON.parse(savedConfig);
+                    console.log('Parsed consent config:', config);
+                    
+                    const consentCheckbox = document.getElementById('consentRequired');
+                    const consentOptions = document.getElementById('consentOptions');
+                    const consentTitle = document.getElementById('consentTitle');
+                    const consentText = document.getElementById('consentText');
+                    const consentAgreementText = document.getElementById('consentAgreementText');
+                    const allowWithdrawal = document.getElementById('allowConsentWithdrawal');
+                    const requireSignature = document.getElementById('requireDigitalSignature');
+                    
+                    if (consentCheckbox && config.hasOwnProperty('consentRequired')) {
+                        console.log('Setting consent required to:', config.consentRequired);
+                        consentCheckbox.checked = config.consentRequired;
+                        
+                        // Show/hide options based on checkbox state
+                        if (consentOptions) {
+                            const display = config.consentRequired ? 'block' : 'none';
+                            console.log('Setting consent options display to:', display);
+                            consentOptions.style.display = display;
+                        }
+                    }
+                    
+                    if (consentTitle && config.title) {
+                        consentTitle.value = config.title;
+                    }
+                    
+                    if (consentText && config.text) {
+                        consentText.value = config.text;
+                    }
+                    
+                    if (consentAgreementText && config.agreementText) {
+                        consentAgreementText.value = config.agreementText;
+                    }
+                    
+                    if (allowWithdrawal && config.hasOwnProperty('allowWithdrawal')) {
+                        allowWithdrawal.checked = config.allowWithdrawal;
+                    }
+                    
+                    if (requireSignature && config.hasOwnProperty('requireSignature')) {
+                        requireSignature.checked = config.requireSignature;
+                    }
+                    
+                    console.log('Consent configuration loaded successfully');
+                } else {
+                    console.log('No saved consent configuration found');
+                }
+            } catch (error) {
+                console.error('Error loading consent configuration:', error);
+            }
+        }
+        
     </script>
     <script src="/js/app.js"></script>
 </body>
