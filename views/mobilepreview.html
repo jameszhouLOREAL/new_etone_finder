@@ -47,9 +47,10 @@
         }
         
         .progress-bar-container {
-            background: #e5e7eb;
-            padding: 12px 20px;
+           
+            padding: 50px 20px 12px 20px;
             border-bottom: 1px solid #d1d5db;
+            border: 0px;
         }
         
         .progress-bar {
@@ -72,6 +73,7 @@
             font-size: 13px;
             color: #6b7280;
             text-align: center;
+            margin-bottom: 10px;
         }
         
         .content-area {
@@ -82,23 +84,32 @@
         }
         
         .instruction-section {
-            background: white;
+            
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
             margin-bottom: 16px;
+        }
+        
+        .instruction-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
         }
         
         .instruction-title {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
             color: #111827;
-            margin-bottom: 16px;
-            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
         
         .instruction-text {
-            font-size: 15px;
+            font-size: 13px;
             color: #374151;
             line-height: 1.6;
             white-space: pre-line;
@@ -131,6 +142,7 @@
             font-weight: 500;
             color: #111827;
             line-height: 1.5;
+            flex: 1;
         }
         
         .required-badge {
@@ -280,7 +292,7 @@
         
         .nav-btn {
             flex: 1;
-            padding: 14px 20px;
+            padding: 10px 20px;
             border: 2px solid #d1d5db;
             background: #fff;
             color: #374151;
@@ -430,17 +442,13 @@
     </div>
     
     <div id="mainContent" class="mobile-container" style="display: none;">
-        <div class="study-header">
-            <h1 id="studyTitle">Study Title</h1>
-        </div>
-        
         <div class="progress-bar-container">
+            <div class="progress-text" id="progressText">
+            </div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="progress-text">
-                Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
-            </div>
+            
         </div>
         
         <div class="content-area" id="contentArea">
@@ -478,8 +486,36 @@
         
         // Load study data
         async function loadStudy() {
-            const studyId = getStudyIdFromUrl();
+            const urlParams = new URLSearchParams(window.location.search);
+            const studyId = urlParams.get('studyId');
+            const mode = urlParams.get('mode');
             
+            // Check if we're in preview mode (embedded in iframe)
+            if (mode === 'preview') {
+                // Try to get data from sessionStorage first
+                const previewData = sessionStorage.getItem('previewStudyData');
+                if (previewData) {
+                    try {
+                        studyData = JSON.parse(previewData);
+                        initializeStudy();
+                        
+                        // Listen for preview updates from parent window
+                        window.addEventListener('message', handlePreviewUpdate);
+                        return;
+                    } catch (error) {
+                        console.error('Error parsing preview data:', error);
+                    }
+                }
+                
+                // If no session data, wait for postMessage
+                window.addEventListener('message', handlePreviewUpdate);
+                
+                // Show a temporary loading state
+                document.getElementById('loadingScreen').style.display = 'flex';
+                return;
+            }
+            
+            // Normal mode - load from API
             if (!studyId) {
                 showError('No study ID provided in URL.');
                 return;
@@ -508,22 +544,43 @@
             }
         }
         
+        // Handle preview updates from parent window
+        function handlePreviewUpdate(event) {
+            // Security check - only accept messages from same origin
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+            
+            if (event.data && event.data.type === 'updatePreview') {
+                studyData = event.data.studyData;
+                
+                // If not initialized yet, initialize
+                if (document.getElementById('loadingScreen').style.display !== 'none') {
+                    initializeStudy();
+                } else {
+                    // Just re-render current page
+                    renderPage();
+                }
+            }
+        }
+        
         // Initialize study display
         function initializeStudy() {
             // Set browser tab title
             document.title = studyData.title || 'Study Preview';
             
-            // Set header information - static title
-            document.getElementById('studyTitle').textContent = 'Visual and Data Capture';
-            
             // Always show instruction page as first page
             hasInstructionPage = true;
             
-            // Calculate total pages (1 instruction page + questions)
-            const questionCount = studyData.questions ? studyData.questions.length : 0;
-            totalPages = questionCount + 1; // Always include instruction page
+            // Filter out section breaks for display
+            const displayableQuestions = studyData.questions ? studyData.questions.filter(q => q.type !== 'section-break') : [];
             
-            document.getElementById('totalPages').textContent = totalPages;
+            // Check if selfie is needed
+            const selfieNeeded = studyData.selfieConfig && studyData.selfieConfig.required;
+            
+            // Calculate total pages (1 instruction page + questions + selfie instruction + selfie if needed)
+            const questionCount = displayableQuestions.length;
+            totalPages = questionCount + 1 + (selfieNeeded ? 2 : 0); // Instruction + questions + (selfie instruction + selfie if needed)
             
             // Hide loading, show content
             document.getElementById('loadingScreen').style.display = 'none';
@@ -538,27 +595,45 @@
             const contentArea = document.getElementById('contentArea');
             contentArea.innerHTML = '';
             
-            // Update progress - show 0% on instruction page, then progress through questions
-            let progress;
-            if (currentPageIndex === 0) {
-                // Instruction page - no progress yet
-                progress = 0;
+            // Filter displayable questions (no section breaks)
+            const displayableQuestions = studyData.questions ? studyData.questions.filter(q => q.type !== 'section-break') : [];
+            const selfieNeeded = studyData.selfieConfig && studyData.selfieConfig.required;
+            const isInstructionPage = currentPageIndex === 0;
+            const isSelfieInstructionPage = selfieNeeded && currentPageIndex === totalPages - 2;
+            const isSelfiePage = selfieNeeded && currentPageIndex === totalPages - 1;
+            
+            // Show/hide progress bar based on page
+            const progressBarContainer = document.querySelector('.progress-bar-container');
+            if (isInstructionPage || isSelfiePage) {
+                progressBarContainer.style.display = 'none';
             } else {
-                // Questions - calculate progress based on question completion
-                const questionCount = totalPages - 1; // Exclude instruction page
-                const questionsCompleted = currentPageIndex; // Number of questions seen so far
-                progress = (questionsCompleted / questionCount) * 100;
+                progressBarContainer.style.display = 'block';
             }
+            
+            // Update progress bar - percentage based only on questions (not selfie pages)
+            const totalQuestionPages = displayableQuestions.length;
+            let currentQuestionPage = currentPageIndex - 1; // Subtract instruction page
+            
+            // If we're on selfie pages, cap at total questions
+            if (isSelfieInstructionPage || isSelfiePage) {
+                currentQuestionPage = totalQuestionPages;
+            }
+            
+            const progress = totalQuestionPages > 0 ? (currentQuestionPage / totalQuestionPages) * 100 : 0;
             document.getElementById('progressFill').style.width = progress + '%';
             
             // Update page indicator text
-            const progressTextDiv = document.querySelector('.progress-text');
-            if (currentPageIndex === 0) {
-                progressTextDiv.innerHTML = 'Introduction';
+            const progressTextDiv = document.getElementById('progressText');
+            if (isInstructionPage) {
+                progressTextDiv.textContent = ''; // Empty for instruction page
+            } else if (isSelfieInstructionPage) {
+                progressTextDiv.textContent = 'Questionnaire Completed';
+            } else if (isSelfiePage) {
+                progressTextDiv.textContent = 'Selfie Capture';
             } else {
-                const questionNum = currentPageIndex; // Current question number (1-based)
-                const totalQuestions = totalPages - 1; // Total questions (excluding instruction)
-                progressTextDiv.innerHTML = `Question ${questionNum} of ${totalQuestions}`;
+                const questionNum = currentPageIndex; // Current question number (1-based, after intro)
+                const totalQuestions = displayableQuestions.length; // Total questions
+                progressTextDiv.textContent = `Question ${questionNum} of ${totalQuestions}`;
             }
             
             // Update navigation buttons
@@ -572,15 +647,27 @@
             }
             
             // Render instruction page
-            if (currentPageIndex === 0) {
+            if (isInstructionPage) {
                 renderInstructionPage(contentArea);
+                return;
+            }
+            
+            // Render selfie instruction page
+            if (isSelfieInstructionPage) {
+                renderSelfieInstructionPage(contentArea);
+                return;
+            }
+            
+            // Render selfie page
+            if (isSelfiePage) {
+                renderSelfiePage(contentArea);
                 return;
             }
             
             // Render question
             const questionIndex = currentPageIndex - 1; // Adjust for instruction page
-            if (studyData.questions && studyData.questions[questionIndex]) {
-                renderQuestion(contentArea, studyData.questions[questionIndex], questionIndex);
+            if (displayableQuestions && displayableQuestions[questionIndex]) {
+                renderQuestion(contentArea, displayableQuestions[questionIndex], questionIndex);
             }
         }
         
@@ -589,19 +676,85 @@
             const instructionSection = document.createElement('div');
             instructionSection.className = 'instruction-section';
             
-            // Show title (use default if not provided)
+            // Show instruction title directly (no label)
+            if (studyData.instructionTitle) {
+                const title = document.createElement('div');
+                title.className = 'instruction-title';
+                title.textContent = studyData.instructionTitle;
+                instructionSection.appendChild(title);
+            }
+            
+            // Add "Instructions" label for text section
+            if (studyData.instructionText) {
+                const textLabel = document.createElement('div');
+                textLabel.className = 'instruction-label';
+                textLabel.textContent = '';
+                textLabel.style.marginTop = '20px';
+                instructionSection.appendChild(textLabel);
+                
+                const text = document.createElement('div');
+                text.className = 'instruction-text';
+                text.textContent = studyData.instructionText;
+                instructionSection.appendChild(text);
+            }
+            
+            // If both are empty, show nothing
+            if (!studyData.instructionTitle && !studyData.instructionText) {
+                instructionSection.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 40px 20px;">No instructions provided</div>';
+            }
+            
+            container.appendChild(instructionSection);
+        }
+        
+        // Render selfie instruction page
+        function renderSelfieInstructionPage(container) {
+            const instructionSection = document.createElement('div');
+            instructionSection.className = 'instruction-section';
+            instructionSection.style.cssText = 'text-align: center; padding: 60px 24px;';
+            
+            const icon = document.createElement('div');
+            icon.innerHTML = '<i class="fas fa-camera" style="font-size: 64px; color: #10b981; margin-bottom: 24px;"></i>';
+            instructionSection.appendChild(icon);
+            
             const title = document.createElement('div');
             title.className = 'instruction-title';
-            title.textContent = studyData.instructionTitle || 'Welcome to the Study';
+            title.textContent = 'Selfie Required';
+            title.style.cssText = 'font-size: 24px; font-weight: 600; color: #111827; margin-bottom: 16px; text-align: center;';
             instructionSection.appendChild(title);
             
-            // Show instruction text (use default if not provided)
             const text = document.createElement('div');
             text.className = 'instruction-text';
-            text.textContent = studyData.instructionText || 'Thank you for participating in this study. Please read each question carefully and provide your honest responses. Click "Next" to begin.';
+            text.textContent = 'Click Next to start Selfie';
+            text.style.cssText = 'font-size: 16px; color: #6b7280; text-align: center;';
             instructionSection.appendChild(text);
             
             container.appendChild(instructionSection);
+        }
+        
+        // Render selfie page
+        function renderSelfiePage(container) {
+            // Remove padding and overflow from container for full bleed image
+            container.style.padding = '0';
+            container.style.overflow = 'hidden';
+            
+            const selfieContainer = document.createElement('div');
+            selfieContainer.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;';
+            
+            const selfieImg = document.createElement('img');
+            selfieImg.src = '/public/selfiemockup.jpeg';
+            selfieImg.alt = 'Selfie Capture';
+            selfieImg.style.cssText = 'width: 100%; height: 100%; object-fit: contain; display: block;';
+            selfieImg.onerror = function() {
+                console.error('Failed to load selfie mockup image');
+                this.style.display = 'none';
+                const errorText = document.createElement('div');
+                errorText.textContent = 'Selfie Capture Page';
+                errorText.style.cssText = 'color: white; font-size: 18px; padding: 40px;';
+                selfieContainer.appendChild(errorText);
+            };
+            
+            selfieContainer.appendChild(selfieImg);
+            container.appendChild(selfieContainer);
         }
         
         // Render question
@@ -619,7 +772,7 @@
             
             const questionText = document.createElement('span');
             questionText.className = 'question-text';
-            questionText.textContent = question.question;
+            questionText.textContent = question.text || question.question || '';
             
             header.appendChild(questionNumber);
             header.appendChild(questionText);
@@ -637,16 +790,22 @@
             const optionsDiv = document.createElement('div');
             optionsDiv.className = 'question-options';
             
+            console.log('Rendering question type:', question.type, 'Question:', question);
+            
             switch (question.type) {
-                case 'multiple-choice':
+                case 'choice':
+                case 'single-choice':
                     renderMultipleChoice(optionsDiv, question, index);
                     break;
+                case 'multiple-choice':
                 case 'checkboxes':
                     renderCheckboxes(optionsDiv, question, index);
                     break;
+                case 'short-text':
                 case 'text':
                     renderTextInput(optionsDiv, question, index);
                     break;
+                case 'long-text':
                 case 'textarea':
                     renderTextarea(optionsDiv, question, index);
                     break;
@@ -667,6 +826,10 @@
         
         // Render multiple choice
         function renderMultipleChoice(container, question, qIndex) {
+            if (!question.options || question.options.length === 0) {
+                console.warn('No options found for question:', question);
+                return;
+            }
             question.options.forEach((option, oIndex) => {
                 const optionItem = document.createElement('label');
                 optionItem.className = 'option-item';
@@ -695,6 +858,10 @@
         function renderCheckboxes(container, question, qIndex) {
             if (!responses[qIndex]) responses[qIndex] = [];
             
+            if (!question.options || question.options.length === 0) {
+                console.warn('No options found for question:', question);
+                return;
+            }
             question.options.forEach((option, oIndex) => {
                 const optionItem = document.createElement('label');
                 optionItem.className = 'option-item';
@@ -874,8 +1041,17 @@
                 return true;
             }
             
+            // Skip validation for selfie page
+            const selfieNeeded = studyData.selfieConfig && studyData.selfieConfig.required;
+            const isSelfiePage = selfieNeeded && currentPageIndex === totalPages - 1;
+            if (isSelfiePage) {
+                return true;
+            }
+            
+            // Get displayable questions
+            const displayableQuestions = studyData.questions ? studyData.questions.filter(q => q.type !== 'section-break') : [];
             const questionIndex = currentPageIndex - 1; // Adjust for instruction page
-            const question = studyData.questions[questionIndex];
+            const question = displayableQuestions[questionIndex];
             
             if (!question || !question.required) {
                 return true;
@@ -897,6 +1073,9 @@
                 return;
             }
             
+            // Remove selfie overlay if it exists
+            removeSelfieOverlay();
+            
             if (currentPageIndex < totalPages - 1) {
                 currentPageIndex++;
                 renderPage();
@@ -909,29 +1088,72 @@
         // Previous page
         function previousPage() {
             if (currentPageIndex > 0) {
+                // Remove selfie overlay if it exists
+                removeSelfieOverlay();
+                
                 currentPageIndex--;
                 renderPage();
                 window.scrollTo(0, 0);
             }
         }
         
+        // Remove selfie overlay
+        function removeSelfieOverlay() {
+            const overlay = document.querySelector('body > div[style*="position: fixed"]');
+            if (overlay && overlay.querySelector('img[alt="Selfie Capture"]')) {
+                overlay.remove();
+            }
+        }
+        
         // Submit study
         async function submitStudy() {
             try {
+                // Use studyId from URL params if studyData.studyId is not set
+                const urlParams = new URLSearchParams(window.location.search);
+                const studyId = studyData.studyId || urlParams.get('studyId');
+                
+                // Format responses with question and answer text
+                const displayableQuestions = studyData.questions ? studyData.questions.filter(q => q.type !== 'section-break') : [];
+                const formattedResponses = [];
+                
+                displayableQuestions.forEach((question, index) => {
+                    const answer = responses[index];
+                    if (answer !== undefined && answer !== null && answer !== '') {
+                        formattedResponses.push({
+                            questionNumber: index + 1,
+                            question: question.text || question.question || '',
+                            questionType: question.type,
+                            answer: answer,
+                            required: question.required || false
+                        });
+                    }
+                });
+                
                 const submission = {
-                    studyId: studyData.studyId,
-                    responses: responses,
+                    studyId: studyId,
+                    studyTitle: studyData.title || 'Untitled Study',
+                    responses: formattedResponses,
+                    rawResponses: responses,
                     submittedAt: new Date().toISOString()
                 };
                 
-                // Here you would send the data to your backend
-                // const response = await fetch('/api/submissions', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify(submission)
-                // });
+                console.log('Submitting study:', submission);
                 
-                console.log('Study submission:', submission);
+                // Send the data to the backend
+                const response = await fetch('/api/submissions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submission)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    console.error('Server error:', result);
+                    throw new Error(result.error || 'Failed to submit responses');
+                }
+                
+                console.log('Submission successful:', result);
                 
                 // Show success screen
                 document.getElementById('mainContent').style.display = 'none';

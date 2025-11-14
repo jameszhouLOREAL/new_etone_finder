@@ -14,8 +14,7 @@
         "2/day",
         "1/week"
       ],
-      "logic": null,
-      "editMode": false
+      "logic": null
     },
     {
       "id": 2,
@@ -23,8 +22,7 @@
       "text": "How do you feel after applying the product?",
       "required": true,
       "options": [],
-      "logic": null,
-      "editMode": false
+      "logic": null
     },
     {
       "id": 3,
@@ -32,8 +30,7 @@
       "text": "Any comments?",
       "required": false,
       "options": [],
-      "logic": null,
-      "editMode": false
+      "logic": null
     }
   ],
   "selfieConfig": {
@@ -58,10 +55,72 @@
   },
   "version": "1.0",
   "createdAt": "2025-11-13T17:44:55.065Z",
-  "status": "Published",
+  "status": "Draft",
   "studyId": "1763055895061",
   "label": "Dark Circle screening",
   "edc": "VCA-STUDY",
-  "updatedAt": "2025-11-13T17:44:57.520Z",
-  "publishedAt": "2025-11-13T17:44:57.514Z"
+  "updatedAt": "2025-11-14T03:06:03.558Z",
+  "publishedAt": "2025-11-13T17:44:57.514Z",
+  "participantCodes": [
+    {
+      "code": "JHEPBRYF",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "U5HGUPUV",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "D7WYZGSR",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "CJL8HXRQ",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "QKQ5Y9P8",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "XTA35QWZ",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "CN89EW76",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "DFSW4NQM",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "STTNXJES",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    },
+    {
+      "code": "Y9SYAP6L",
+      "status": "unused",
+      "usedDate": null,
+      "generatedDate": "2025-11-14T02:53:47.844Z"
+    }
+  ]
 }

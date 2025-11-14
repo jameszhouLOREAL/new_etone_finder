@@ -1272,6 +1272,9 @@
                         <button class="tab-btn" onclick="switchTab('selfieConfig')" id="selfieConfigTab">
                             <i class="fas fa-camera"></i> Selfie Configuration
                         </button>
+                        <button class="tab-btn" onclick="switchTab('participants')" id="participantsTab">
+                            <i class="fas fa-users"></i> Participants
+                        </button>
                     </div>
                     
                     <!-- Tab Contents -->
@@ -1396,6 +1399,145 @@
                                     <button class="add-question-btn" id="addQuestionBtn" onclick="addQuestion('text')">
                                         <i class="fas fa-plus-circle"></i>
                                         Add Question
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Participants Tab -->
+                        <div class="tab-content" id="participantsContent">
+                            <!-- Participant Codes Card -->
+                            <div class="form-card">
+                                <div class="form-card-header">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h3 class="form-card-title" style="margin-bottom: 4px;">
+                                                <i class="fas fa-users"></i>
+                                                Participant List
+                                            </h3>
+                                            <p class="form-card-description" style="margin: 0;">
+                                                Manage unique access codes for your study participants
+                                            </p>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button 
+                                                class="btn-action btn-primary" 
+                                                onclick="showGenerateCodesDialog()"
+                                                style="padding: 8px 16px; font-size: 14px;"
+                                            >
+                                                <i class="fas fa-plus-circle"></i>
+                                                Generate Codes
+                                            </button>
+                                            <button 
+                                                class="btn-action btn-secondary" 
+                                                onclick="downloadAllCodes()"
+                                                id="downloadAllBtn"
+                                                style="padding: 8px 16px; font-size: 14px; display: none;"
+                                            >
+                                                <i class="fas fa-download"></i>
+                                                Export CSV
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Codes Table -->
+                                <div id="codesTableContainer">
+                                    <!-- Empty State -->
+                                    <div id="emptyState" style="text-align: center; padding: 60px 20px;">
+                                        <i class="fas fa-ticket-alt" style="font-size: 48px; color: #d1d5db; margin-bottom: 16px;"></i>
+                                        <h3 style="color: #6b7280; font-size: 18px; font-weight: 500; margin-bottom: 8px;">No Participants Yet</h3>
+                                        <p style="color: #9ca3af; font-size: 14px; margin-bottom: 0;">Generate unique access codes for your participants to join the study</p>
+                                    </div>
+                                    
+                                    <!-- Table (hidden by default) -->
+                                    <div id="codesTable" style="display: none;">
+                                        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                                            <div style="font-size: 14px; color: #6b7280;">
+                                                Total: <span id="totalCodes" style="font-weight: 600; color: var(--text-primary);">0</span> codes
+                                                <span style="margin: 0 8px;">|</span>
+                                                <span style="color: var(--primary-green);">●</span> Used: <span id="usedCodes" style="font-weight: 600;">0</span>
+                                                <span style="margin: 0 8px;">|</span>
+                                                <span style="color: #3b82f6;">●</span> Unused: <span id="unusedCodes" style="font-weight: 600;">0</span>
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                id="searchCodes" 
+                                                placeholder="Search codes..." 
+                                                style="padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; width: 200px;"
+                                                oninput="filterCodesTable()"
+                                            >
+                                        </div>
+                                        
+                                        <div style="overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                                <thead style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                                                    <tr>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">#</th>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">Participant Code</th>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">Email</th>
+                                                        <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #374151;">Link</th>
+                                                        <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: #374151;">Status</th>
+                                                        <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: #374151;">Used Date</th>
+                                                        <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: #374151;">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="codesTableBody" style="background: white;">
+                                                    <!-- Rows will be inserted here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Generate Codes Dialog -->
+                        <div id="generateCodesDialog" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center;">
+                            <div style="background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+                                <h3 style="margin: 0 0 8px 0; font-size: 18px; color: var(--text-primary);">
+                                    <i class="fas fa-magic"></i>
+                                    Generate Participant Codes
+                                </h3>
+                                <p style="margin: 0 0 20px 0; font-size: 13px; color: #6b7280;">
+                                    How many new participant codes would you like to generate?
+                                </p>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">
+                                        Number of Codes
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        id="dialogParticipantCount" 
+                                        class="form-input" 
+                                        placeholder="e.g., 50" 
+                                        min="1"
+                                        max="10000"
+                                        value="10"
+                                        style="width: 100%;"
+                                    >
+                                    <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Maximum 10,000 codes per generation
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <button 
+                                        class="btn-action btn-secondary" 
+                                        onclick="hideGenerateCodesDialog()"
+                                        style="padding: 8px 16px;"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        class="btn-action btn-primary" 
+                                        onclick="generateNewCodes()"
+                                        style="padding: 8px 16px;"
+                                    >
+                                        <i class="fas fa-magic"></i>
+                                        Generate
                                     </button>
                                 </div>
                             </div>
@@ -1638,45 +1780,7 @@
                     <div class="mobile-frame">
                         <div class="mobile-notch"></div>
                         <div class="mobile-screen">
-                            <div class="mobile-status-bar">
-                                <span class="status-time">9:41</span>
-                                <span class="status-icons">
-                                    <i class="fas fa-signal"></i>
-                                    <i class="fas fa-wifi"></i>
-                                    <i class="fas fa-battery-full"></i>
-                                </span>
-                            </div>
-                            <div class="preview-form" id="previewForm">
-                                <!-- Customer Instruction Section -->
-                                <div class="preview-instruction-section" id="previewInstructionSection" style="display: none;">
-                                    <div class="preview-instruction-title" id="previewInstructionTitle"></div>
-                                    <div class="preview-instruction-text" id="previewInstructionText"></div>
-                                </div>
-                                
-                                <div class="preview-form-header">
-                                    <div class="preview-form-title" id="previewTitle">New Study Survey</div>
-                                    <div class="preview-form-description" id="previewDescription">Add a description for your study...</div>
-                                    <div class="preview-progress">
-                                        <div class="preview-progress-bar">
-                                            <div class="preview-progress-fill" id="previewProgressFill"></div>
-                                        </div>
-                                        <div class="preview-progress-text">
-                                            Question <span id="previewCurrentPage">1</span> of <span id="previewTotalPages">1</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="preview-question-container" id="previewQuestions">
-                                    <!-- Preview questions will appear here -->
-                                </div>
-                                <div class="preview-navigation">
-                                    <button class="preview-nav-btn" id="prevBtn" onclick="previewPrevPage()" disabled>
-                                        <i class="fas fa-chevron-left"></i> Back
-                                    </button>
-                                    <button class="preview-nav-btn preview-nav-btn-next" id="nextBtn" onclick="previewNextPage()">
-                                        Next <i class="fas fa-chevron-right"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <iframe id="previewIframe" style="width: 100%; height: 100%; border: none; background: white;"></iframe>
                         </div>
                     </div>
                 </div>
@@ -1686,6 +1790,9 @@
     
     <script src="/js/study-design.js"></script>
     <script>
+        // Store participant codes with status (shared with study-design.js)
+        let participantCodes = [];
+        
         // Step Wizard Navigation
         function switchTab(tabName) {
             // Hide all tab contents
@@ -1705,6 +1812,9 @@
             } else if (tabName === 'questionnaire') {
                 document.getElementById('questionnaireContent').classList.add('active');
                 document.getElementById('questionnaireTab').classList.add('active');
+            } else if (tabName === 'participants') {
+                document.getElementById('participantsContent').classList.add('active');
+                document.getElementById('participantsTab').classList.add('active');
             } else if (tabName === 'selfieConfig') {
                 document.getElementById('selfieConfigContent').classList.add('active');
                 document.getElementById('selfieConfigTab').classList.add('active');
@@ -1771,6 +1881,285 @@
                 previewBtn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
             } else if (previewBtn) {
                 previewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
+            }
+            
+        });
+        
+        // Show generate codes dialog
+        function showGenerateCodesDialog() {
+            const dialog = document.getElementById('generateCodesDialog');
+            dialog.style.display = 'flex';
+            document.getElementById('dialogParticipantCount').focus();
+        }
+        
+        // Hide generate codes dialog
+        function hideGenerateCodesDialog() {
+            const dialog = document.getElementById('generateCodesDialog');
+            dialog.style.display = 'none';
+        }
+        
+        // Generate new codes and add to existing
+        function generateNewCodes() {
+            const countInput = document.getElementById('dialogParticipantCount');
+            const count = parseInt(countInput.value);
+            
+            // Validation
+            if (!count || count < 1) {
+                alert('Please enter a valid number of participants (minimum 1).');
+                return;
+            }
+            
+            if (count > 10000) {
+                alert('Maximum 10,000 codes can be generated at once.');
+                return;
+            }
+            
+            // Generate unique codes
+            const codesSet = new Set(participantCodes.map(c => c.code));
+            const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let newCodesGenerated = 0;
+            
+            while (newCodesGenerated < count) {
+                let code = '';
+                for (let i = 0; i < 8; i++) {
+                    code += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                
+                if (!codesSet.has(code)) {
+                    participantCodes.push({
+                        code: code,
+                        status: 'unused',
+                        usedDate: null,
+                        generatedDate: new Date().toISOString()
+                    });
+                    codesSet.add(code);
+                    newCodesGenerated++;
+                }
+            }
+            
+            // Mark form as changed
+            if (typeof markFormAsChanged === 'function') {
+                markFormAsChanged();
+            }
+            
+            // Hide dialog and refresh table
+            hideGenerateCodesDialog();
+            refreshCodesTable();
+            
+            // Show success message
+            alert(`Successfully generated ${count} new participant code(s)!`);
+        }
+        
+        // Refresh the codes table
+        function refreshCodesTable() {
+            const emptyState = document.getElementById('emptyState');
+            const codesTable = document.getElementById('codesTable');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            
+            if (participantCodes.length === 0) {
+                emptyState.style.display = 'block';
+                codesTable.style.display = 'none';
+                downloadAllBtn.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            codesTable.style.display = 'block';
+            downloadAllBtn.style.display = 'flex';
+            
+            // Update statistics
+            const usedCount = participantCodes.filter(c => c.status === 'used').length;
+            const unusedCount = participantCodes.filter(c => c.status === 'unused').length;
+            
+            document.getElementById('totalCodes').textContent = participantCodes.length;
+            document.getElementById('usedCodes').textContent = usedCount;
+            document.getElementById('unusedCodes').textContent = unusedCount;
+            
+            // Populate table
+            const tbody = document.getElementById('codesTableBody');
+            tbody.innerHTML = participantCodes.map((item, index) => {
+                const statusBadge = item.status === 'used' 
+                    ? '<span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">USED</span>'
+                    : '<span style="background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">UNUSED</span>';
+                
+                const usedDateDisplay = item.usedDate 
+                    ? new Date(item.usedDate).toLocaleDateString() 
+                    : '<span style="color: #9ca3af;">—</span>';
+                
+                const emailDisplay = item.email 
+                    ? `<span style="color: #374151;">${item.email}</span>`
+                    : '<span style="color: #9ca3af; font-style: italic; cursor: pointer;" onclick="addEmail(\'${item.code}\')">Add email</span>';
+                
+                // Get current study ID - must be saved first
+                let linkDisplay;
+                if (currentStudyId) {
+                    const participantLink = `/mobilepreview?studyId=${currentStudyId}&participantcode=${item.code}`;
+                    linkDisplay = `<a href="${participantLink}" target="_blank" style="color: var(--primary-green); text-decoration: none; display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open
+                    </a>`;
+                } else {
+                    linkDisplay = '<span style="color: #9ca3af; font-style: italic; font-size: 11px;">Save study first</span>';
+                }
+                
+                return `
+                    <tr style="border-bottom: 1px solid #e5e7eb;" data-code="${item.code}">
+                        <td style="padding: 12px 16px; color: #6b7280;">${index + 1}</td>
+                        <td style="padding: 12px 16px; font-family: 'Courier New', monospace; font-weight: 600; color: var(--primary-green);">${item.code}</td>
+                        <td style="padding: 12px 16px;">${emailDisplay}</td>
+                        <td style="padding: 12px 16px;">
+                            ${linkDisplay}
+                        </td>
+                        <td style="padding: 12px 16px; text-align: center;">${statusBadge}</td>
+                        <td style="padding: 12px 16px; text-align: center; color: #6b7280; font-size: 12px;">${usedDateDisplay}</td>
+                        <td style="padding: 12px 16px; text-align: center;">
+                            <button 
+                                onclick="copyCode('${item.code}')" 
+                                class="btn-action btn-secondary" 
+                                style="padding: 4px 8px; font-size: 11px;"
+                                title="Copy code"
+                            >
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button 
+                                onclick="deleteCode('${item.code}')" 
+                                class="btn-action btn-secondary" 
+                                style="padding: 4px 8px; font-size: 11px; color: #ef4444; border-color: #ef4444;"
+                                title="Delete code"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Filter codes table
+        function filterCodesTable() {
+            const searchValue = document.getElementById('searchCodes').value.toLowerCase();
+            const rows = document.querySelectorAll('#codesTableBody tr');
+            
+            rows.forEach(row => {
+                const code = row.getAttribute('data-code').toLowerCase();
+                if (code.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Copy single code
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.style.background = 'var(--primary-green)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--primary-green)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 1500);
+            }).catch(err => {
+                alert('Failed to copy code.');
+                console.error('Copy failed:', err);
+            });
+        }
+        
+        // Delete code
+        function deleteCode(code) {
+            if (!confirm(`Are you sure you want to delete the code "${code}"?`)) {
+                return;
+            }
+            
+            participantCodes = participantCodes.filter(c => c.code !== code);
+            
+            // Mark form as changed
+            if (typeof markFormAsChanged === 'function') {
+                markFormAsChanged();
+            }
+            
+            refreshCodesTable();
+        }
+        
+        // Add email to participant
+        function addEmail(code) {
+            const email = prompt('Enter participant email address:');
+            
+            if (email === null) {
+                return; // User cancelled
+            }
+            
+            if (email.trim() === '') {
+                alert('Email cannot be empty.');
+                return;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.trim())) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            
+            // Find and update the participant code
+            const participant = participantCodes.find(c => c.code === code);
+            if (participant) {
+                participant.email = email.trim();
+                
+                // Mark form as changed
+                if (typeof markFormAsChanged === 'function') {
+                    markFormAsChanged();
+                }
+                
+                refreshCodesTable();
+            }
+        }
+        
+        // Download all codes as CSV
+        function downloadAllCodes() {
+            if (participantCodes.length === 0) {
+                alert('No codes to download.');
+                return;
+            }
+            
+            const studyTitle = document.getElementById('formTitle').value || 'study';
+            const timestamp = new Date().toISOString().slice(0, 10);
+            const filename = `${studyTitle.replace(/[^a-z0-9]/gi, '_')}_participant_codes_${timestamp}.csv`;
+            
+            // Create CSV content
+            let csvContent = 'Participant Code,Email,Status,Used Date,Generated Date\n';
+            csvContent += participantCodes.map(item => {
+                const email = item.email || '';
+                const usedDate = item.usedDate ? new Date(item.usedDate).toISOString() : '';
+                const generatedDate = new Date(item.generatedDate).toISOString();
+                return `${item.code},${email},${item.status},${usedDate},${generatedDate}`;
+            }).join('\n');
+            
+            // Create blob and download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Close dialog when clicking outside
+        document.addEventListener('click', function(event) {
+            const dialog = document.getElementById('generateCodesDialog');
+            if (dialog && event.target === dialog) {
+                hideGenerateCodesDialog();
             }
         });
     </script>

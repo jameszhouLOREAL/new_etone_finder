@@ -10,8 +10,7 @@
       "text": "",
       "required": false,
       "options": [],
-      "logic": null,
-      "editMode": false
+      "logic": null
     }
   ],
   "selfieConfig": {
@@ -25,10 +24,10 @@
   },
   "version": "1.0",
   "createdAt": "2025-11-13T15:31:27.145Z",
-  "status": "Published",
+  "status": "Draft",
   "studyId": "1763047887122",
   "label": "Etone Finder week 10/27/2025",
   "edc": "VCA-STUDY",
-  "updatedAt": "2025-11-13T17:25:17.317Z",
+  "updatedAt": "2025-11-14T01:31:07.741Z",
   "publishedAt": "2025-11-13T17:25:17.310Z"
 }

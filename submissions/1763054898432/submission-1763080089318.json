@@ -1,0 +1,33 @@
+{
+  "studyId": "1763054898432",
+  "studyTitle": "This is a test ",
+  "responses": [
+    {
+      "questionNumber": 1,
+      "question": "How often do you wash your face",
+      "questionType": "choice",
+      "answer": "1",
+      "required": false
+    },
+    {
+      "questionNumber": 2,
+      "question": "Where are you?",
+      "questionType": "text",
+      "answer": "here",
+      "required": false
+    },
+    {
+      "questionNumber": 3,
+      "question": "How old are you",
+      "questionType": "text",
+      "answer": "10",
+      "required": false
+    }
+  ],
+  "rawResponses": {
+    "0": "1",
+    "1": "here",
+    "2": "10"
+  },
+  "submittedAt": "2025-11-14T00:28:09.315Z"
+}

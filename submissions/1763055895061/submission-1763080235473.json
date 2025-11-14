@@ -1,0 +1,33 @@
+{
+  "studyId": "1763055895061",
+  "studyTitle": "Dark Circle screening",
+  "responses": [
+    {
+      "questionNumber": 1,  
+      "question": "How often do you apply the product?",
+      "questionType": "choice",
+      "answer": "1/day",
+      "required": true
+    },
+    {
+      "questionNumber": 2,
+      "question": "How do you feel after applying the product?",
+      "questionType": "rating",
+      "answer": 4,
+      "required": true
+    },
+    {
+      "questionNumber": 3,
+      "question": "Any comments?",
+      "questionType": "text",
+      "answer": "hello again",
+      "required": false
+    }
+  ],
+  "rawResponses": {
+    "0": "1/day",
+    "1": 4,
+    "2": "hello again"
+  },
+  "submittedAt": "2025-11-14T00:30:35.466Z"
+}

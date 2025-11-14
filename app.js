@@ -504,6 +504,40 @@ app.delete('/api/studies/:studyId', (req, res) => {
   }
 });
 
+// POST /api/submissions - Save study submission
+app.post('/api/submissions', (req, res) => {
+  try {
+    const submission = req.body;
+    
+    // Validate required fields
+    if (!submission.studyId) {
+      return res.status(400).json({ error: 'Missing required field: studyId' });
+    }
+    
+    const studyId = submission.studyId;
+    const submissionsDir = path.join(__dirname, 'submissions', studyId);
+    
+    // Ensure submissions directory exists for this study
+    if (!fs.existsSync(submissionsDir)) {
+      fs.mkdirSync(submissionsDir, { recursive: true });
+    }
+    
+    // Generate unique submission filename with timestamp
+    const timestamp = Date.now();
+    const fileName = `submission-${timestamp}.json`;
+    const filePath = path.join(submissionsDir, fileName);
+    
+    // Save submission to file
+    fs.writeFileSync(filePath, JSON.stringify(submission, null, 2), 'utf-8');
+    
+    console.log('Submission saved:', filePath);
+    res.json({ success: true, submissionId: timestamp });
+  } catch (error) {
+    console.error('Error saving submission:', error);
+    res.status(500).json({ error: 'Failed to save submission' });
+  }
+});
+
 // API Routes - Image proxy endpoint
 app.get('/api/image', async (req, res) => {
   const bucketName = req.query.bucket;

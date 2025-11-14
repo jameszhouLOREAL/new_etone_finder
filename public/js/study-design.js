@@ -807,249 +807,71 @@ function reRenderAllQuestions() {
 }
 
 // Update live preview
-// Preview pagination state
-let previewCurrentPage = 0;
+let previewIframeLoaded = false;
 
 function updatePreview() {
-    const title = document.getElementById('formTitle').value || 'Untitled Study';
-    const description = document.getElementById('formDescription').value || 'Add a description for your study...';
+    const iframe = document.getElementById('previewIframe');
+    if (!iframe) return;
     
-    document.getElementById('previewTitle').textContent = 'Please answer questions';
-    document.getElementById('previewDescription').style.display = 'none';
+    // Build study data object
+    const studyData = collectFormData();
     
-    // Check if instruction page exists - always show instruction page
+    // If iframe hasn't loaded yet, set up the src with study data
+    if (!previewIframeLoaded) {
+        // Create a data URL with the study data embedded
+        const studyId = new URLSearchParams(window.location.search).get('studyId') || 'preview';
+        
+        // Store study data in sessionStorage for the iframe to access
+        sessionStorage.setItem('previewStudyData', JSON.stringify(studyData));
+        
+        // Load the iframe with a special preview mode parameter
+        iframe.src = `/mobilepreview?studyId=${studyId}&mode=preview`;
+        
+        // Set flag when iframe loads
+        iframe.onload = () => {
+            previewIframeLoaded = true;
+            // Send initial data after iframe loads
+            setTimeout(() => {
+                sendPreviewUpdate(iframe, studyData);
+            }, 100);
+        };
+    } else {
+        // Iframe already loaded, send update message
+        sendPreviewUpdate(iframe, studyData);
+    }
+}
+
+// Send preview update to iframe
+function sendPreviewUpdate(iframe, studyData) {
+    try {
+        iframe.contentWindow.postMessage({
+            type: 'updatePreview',
+            studyData: studyData
+        }, '*');
+    } catch (error) {
+        console.error('Error sending preview update:', error);
+    }
+}
+
+// Collect form data for preview
+function collectFormData() {
+    const title = document.getElementById('formTitle')?.value || 'Untitled Study';
+    const description = document.getElementById('formDescription')?.value || '';
     const instructionTitle = document.getElementById('instructionTitle')?.value || '';
     const instructionText = document.getElementById('instructionText')?.value || '';
-    const hasInstructionPage = true; // Always show instruction page
-    
-    // Check if selfie is needed
     const selfieNeeded = document.getElementById('selfieNeeded')?.checked || false;
     
-    const instructionSection = document.getElementById('previewInstructionSection');
-    const previewInstructionTitle = document.getElementById('previewInstructionTitle');
-    const previewInstructionText = document.getElementById('previewInstructionText');
-    const previewHeader = document.querySelector('.preview-form-header');
-    const previewQuestions = document.getElementById('previewQuestions');
-    
-    // Update instruction content - show empty if no content
-    if (previewInstructionTitle) previewInstructionTitle.textContent = instructionTitle;
-    if (previewInstructionText) previewInstructionText.textContent = instructionText;
-    
-    // Filter out section breaks for pagination
-    const displayableQuestions = questions.filter(q => q.type !== 'section-break');
-    
-    // Calculate total pages (instruction page + question pages + selfie page if needed)
-    const questionPages = Math.max(1, displayableQuestions.length);
-    const totalPages = questionPages + 1 + (selfieNeeded ? 1 : 0); // Instruction + questions + (optionally selfie)
-    document.getElementById('previewTotalPages').textContent = totalPages;
-    
-    // Ensure current page is within bounds
-    if (previewCurrentPage >= totalPages) {
-        previewCurrentPage = Math.max(0, totalPages - 1);
-    }
-    
-    // Determine if we're on the instruction page or selfie page
-    const isInstructionPage = hasInstructionPage && previewCurrentPage === 0;
-    const isSelfiePage = selfieNeeded && previewCurrentPage === totalPages - 1;
-    
-    // Show/hide instruction section vs questionnaire vs selfie
-    if (isInstructionPage) {
-        // Show instruction page
-        if (instructionSection) instructionSection.style.display = 'block';
-        if (previewHeader) previewHeader.style.display = 'none';
-        if (previewQuestions) previewQuestions.style.display = 'none';
-    } else if (isSelfiePage) {
-        // Show selfie page - remove padding for full screen
-        if (instructionSection) instructionSection.style.display = 'none';
-        if (previewHeader) previewHeader.style.display = 'none';
-        if (previewQuestions) {
-            previewQuestions.style.display = 'block';
-            previewQuestions.style.padding = '0';
-            previewQuestions.style.position = 'relative';
-        }
-    } else {
-        // Show questionnaire page - restore normal padding
-        if (instructionSection) instructionSection.style.display = 'none';
-        if (previewHeader) previewHeader.style.display = 'block';
-        if (previewQuestions) {
-            previewQuestions.style.display = 'block';
-            previewQuestions.style.padding = '20px 16px';
-            previewQuestions.style.position = 'static';
-        }
-    }
-    
-    // Update current page display
-    document.getElementById('previewCurrentPage').textContent = previewCurrentPage + 1;
-    
-    // Update progress bar
-    const progressPercentage = totalPages > 0 ? ((previewCurrentPage + 1) / totalPages) * 100 : 0;
-    const progressFill = document.getElementById('previewProgressFill');
-    if (progressFill) {
-        progressFill.style.width = progressPercentage + '%';
-    }
-    
-    // Update navigation buttons
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    
-    prevBtn.disabled = previewCurrentPage === 0;
-    nextBtn.disabled = previewCurrentPage >= totalPages - 1 || totalPages === 0;
-    
-    // Update next button text
-    if (previewCurrentPage >= totalPages - 1) {
-        nextBtn.innerHTML = 'Submit <i class="fas fa-check"></i>';
-    } else {
-        nextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
-    }
-    
-    // Render current question (only if not on instruction page)
-    if (!isInstructionPage) {
-        const questionContainer = document.getElementById('previewQuestions');
-        questionContainer.innerHTML = '';
-        
-        if (isSelfiePage) {
-            // Show selfie mockup - Fill entire screen
-            questionContainer.innerHTML = `
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; padding: 0; margin: 0;">
-                    <img src="/public/selfiemockup.png" alt="Selfie Capture" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-            `;
-        } else {
-            // Adjust question index if instruction page exists
-            const adjustedPage = hasInstructionPage ? previewCurrentPage - 1 : previewCurrentPage;
-            
-            if (displayableQuestions.length > 0 && adjustedPage >= 0 && adjustedPage < displayableQuestions.length) {
-                const question = displayableQuestions[adjustedPage];
-                const questionIndex = questions.indexOf(question);
-                
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'preview-question';
-                
-                const label = document.createElement('div');
-                label.className = 'preview-question-label';
-                label.innerHTML = `${questionIndex + 1}. ${question.text || 'Question text'}`;
-                if (question.required) {
-                    label.innerHTML += ' <span class="required-indicator">*</span>';
-                }
-                questionDiv.appendChild(label);
-                
-                const inputDiv = renderPreviewInput(question);
-                questionDiv.appendChild(inputDiv);
-                
-                questionContainer.appendChild(questionDiv);
-            } else if (displayableQuestions.length === 0) {
-                questionContainer.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 40px 20px;">No questions added yet</div>';
-            }
-        }
-    }
-}
-
-function previewPrevPage() {
-    if (previewCurrentPage > 0) {
-        previewCurrentPage--;
-        updatePreview();
-    }
-}
-
-function previewNextPage() {
-    const displayableQuestions = questions.filter(q => q.type !== 'section-break');
-    const selfieNeeded = document.getElementById('selfieNeeded')?.checked || false;
-    const totalPages = displayableQuestions.length + 1 + (selfieNeeded ? 1 : 0);
-    
-    if (previewCurrentPage < totalPages - 1) {
-        previewCurrentPage++;
-        updatePreview();
-    }
-}
-
-// Render preview input based on question type
-function renderPreviewInput(question) {
-    const div = document.createElement('div');
-    
-    switch (question.type) {
-        case 'text':
-        case 'short-text':
-            div.innerHTML = '<input type="text" class="preview-input" placeholder="Your answer">';
-            break;
-        case 'long-text':
-            div.innerHTML = '<textarea class="preview-input" rows="4" placeholder="Your answer"></textarea>';
-            break;
-        case 'choice':
-        case 'single-choice':
-            question.options.forEach(option => {
-                div.innerHTML += `
-                    <div class="preview-option">
-                        <input type="radio" name="q${question.id}">
-                        <label>${option}</label>
-                    </div>
-                `;
-            });
-            break;
-        case 'multiple-choice':
-            question.options.forEach(option => {
-                div.innerHTML += `
-                    <div class="preview-option">
-                        <input type="checkbox">
-                        <label>${option}</label>
-                    </div>
-                `;
-            });
-            break;
-        case 'dropdown':
-            div.innerHTML = `
-                <select class="preview-input">
-                    <option>Select an option</option>
-                    ${question.options.map(opt => `<option>${opt}</option>`).join('')}
-                </select>
-            `;
-            break;
-        case 'rating':
-            const maxRating = question.maxRating || 5;
-            div.innerHTML = `<div style="display: flex; gap: 8px;">
-                ${Array.from({length: maxRating}, (_, i) => 
-                    `<i class="far fa-star" style="font-size: 24px; color: #fbbf24; cursor: pointer;"></i>`
-                ).join('')}
-            </div>`;
-            break;
-        case 'likert':
-            div.style.display = 'flex';
-            div.style.flexDirection = 'column';
-            div.style.gap = '8px';
-            question.options.forEach(option => {
-                div.innerHTML += `
-                    <label class="preview-option">
-                        <input type="radio" name="q${question.id}">
-                        ${option}
-                    </label>
-                `;
-            });
-            break;
-        case 'date':
-            div.innerHTML = '<input type="date" class="preview-input">';
-            break;
-        case 'time':
-            div.innerHTML = '<input type="time" class="preview-input">';
-            break;
-        case 'file-upload':
-            div.innerHTML = '<input type="file" class="preview-input">';
-            break;
-        case 'number':
-            div.innerHTML = '<input type="number" class="preview-input" placeholder="Enter a number">';
-            break;
-        case 'ranking':
-            div.innerHTML = `<div style="background: white; padding: 12px; border-radius: 8px;">
-                ${question.options.map((opt, i) => `
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--bg-secondary); margin-bottom: 6px; border-radius: 6px;">
-                        <i class="fas fa-grip-vertical" style="color: var(--text-secondary);"></i>
-                        <span>${i + 1}.</span>
-                        <span>${opt}</span>
-                    </div>
-                `).join('')}
-            </div>`;
-            break;
-    }
-    
-    return div;
+    return {
+        title: title,
+        description: description,
+        instructionTitle: instructionTitle,
+        instructionText: instructionText,
+        questions: questions,
+        selfieConfig: {
+            required: selfieNeeded
+        },
+        status: 'Draft'
+    };
 }
 
 // Drag and drop handlers
@@ -1303,6 +1125,7 @@ function getFormData() {
         instructionText: instructionTextElement ? instructionTextElement.value : '',
         questions: questions,
         selfieConfig: selfieConfig,
+        participantCodes: participantCodes || [], // Include participant codes
         version: '1.0'
     };
     
@@ -1513,6 +1336,15 @@ function loadStudyData(data) {
                     document.getElementById('eyeClose').value = data.selfieConfig.validations.eyes.eyeCloseThreshold || 0.15;
                 }
             }
+        }
+    }
+    
+    // Load participant codes
+    if (data.participantCodes && Array.isArray(data.participantCodes)) {
+        participantCodes = data.participantCodes;
+        // Refresh the table if on participants tab
+        if (typeof refreshCodesTable === 'function') {
+            refreshCodesTable();
         }
     }
     
